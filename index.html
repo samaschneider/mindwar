@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0b0d0c" />
+  <title>MINDWAR // 33</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%230b0d0c'/%3E%3Cpath d='M12 48V16h8l12 18 12-18h8v32h-8V30L32 48 20 30v18z' fill='%235fe7ff'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <canvas id="game"></canvas>
+
+    <!-- ================= HUD ================= -->
+    <div id="hud" class="hidden">
+      <div class="scanlines"></div>
+      <div id="damage-vignette"></div>
+
+      <div id="scope" class="hidden" aria-hidden="true">
+        <div class="scope-mask"></div>
+        <div class="scope-lens"></div>
+        <div class="scope-reticle">
+          <span class="sr-h"></span>
+          <span class="sr-v"></span>
+          <span class="sr-ring"></span>
+          <span class="sr-dot"></span>
+        </div>
+        <div class="scope-readout">
+          <span id="scope-name">LONGSHOT RAIL</span>
+          <span id="scope-zoom">4.0× // CHORUS OPTIC</span>
+        </div>
+        <div class="scope-help">HOLD RMB TO SCOPE · RELEASE TO LOWER</div>
+      </div>
+
+      <div id="objective" class="panel">
+        <div class="obj-top">
+          <span id="objective-mode">STRONGHOLD 01 / 33</span>
+          <span id="objective-dist">0 m</span>
+        </div>
+        <div id="objective-name">RUSTGATE</div>
+        <div id="objective-sub">HOSTILES REMAINING 18</div>
+        <div class="bar slim"><div id="objective-bar-fill" class="bar-fill"></div></div>
+      </div>
+
+      <div id="boss" class="hidden">
+        <div id="boss-name">DIRECTOR VEX</div>
+        <div class="bar boss"><div id="boss-fill" class="bar-fill"></div></div>
+      </div>
+
+      <div id="radar-wrap" class="panel">
+        <div class="radar-head"><span>SECTOR SCAN</span><span id="radar-range">120m</span></div>
+        <canvas id="radar" width="360" height="360"></canvas>
+        <div id="radar-objective">OBJECTIVE 214m</div>
+      </div>
+
+      <div id="toasts"></div>
+
+      <div id="squad-wrap">
+        <div class="label">ECHO COMPANY <span id="squad-count"></span></div>
+        <div id="squad-list"></div>
+      </div>
+
+      <div id="health-wrap" class="panel">
+        <div class="health-top">
+          <span class="label">BIO-INTEGRITY</span>
+          <span id="health-value">1000</span>
+        </div>
+        <div class="bar health"><div id="health-fill" class="bar-fill"></div></div>
+        <div id="health-note">NO CAP // FIELD NANITES ACTIVE</div>
+      </div>
+
+      <div id="weapon-wrap" class="panel">
+        <div class="weapon-top">
+          <span id="weapon-slot">WPN 01</span>
+          <span id="weapon-mode">SEMI</span>
+        </div>
+        <div id="weapon-name">VK-9 SIDEARM</div>
+        <div class="ammo-line">
+          <span id="ammo-mag">14</span>
+          <span class="slash">/</span>
+          <span id="ammo-reserve">210</span>
+        </div>
+        <div id="grenade-line"><span>FRAG</span><span id="grenade-count">× 4</span></div>
+        <div id="weapon-slots"></div>
+      </div>
+
+      <div id="crosshair">
+        <div class="ch ch-t"></div>
+        <div class="ch ch-b"></div>
+        <div class="ch ch-l"></div>
+        <div class="ch ch-r"></div>
+        <div class="ch-dot"></div>
+      </div>
+      <div id="hitmarker"><i></i><i></i><i></i><i></i></div>
+
+      <div id="zone-banner">
+        <div id="zone-banner-kicker">STRONGHOLD 01</div>
+        <div id="zone-banner-title">RUSTGATE</div>
+        <div id="zone-banner-sub">CHORUS GARRISON DETECTED</div>
+      </div>
+
+      <div id="prompt" class="hidden"><kbd>E</kbd><span id="prompt-text"></span></div>
+
+      <div id="comms" class="hidden">
+        <div id="comms-speaker">MARA</div>
+        <div id="comms-line"></div>
+      </div>
+
+      <div id="hint">
+        <span><kbd>WASD</kbd>/<kbd>ARROWS</kbd> MOVE</span>
+        <span><kbd>SHIFT</kbd> SPRINT</span>
+        <span><kbd>LMB</kbd> FIRE</span>
+        <span><kbd>X</kbd>/<kbd>MMB</kbd> PUNCH</span>
+        <span><kbd>R</kbd> RELOAD</span>
+        <span><kbd>1-7</kbd> WEAPONS</span>
+        <span><kbd>G</kbd> GRENADE</span>
+        <span><kbd>E</kbd> INTERACT</span>
+        <span><kbd>M</kbd> MAP</span>
+        <span><kbd>N</kbd> MUTE</span>
+        <span><kbd>ESC</kbd> PAUSE</span>
+      </div>
+
+      <div id="deploy-hint" class="hidden">CLICK TO CAPTURE MOUSE</div>
+    </div>
+
+    <!-- ================= START ================= -->
+    <div id="start-screen" class="screen hidden">
+      <div class="screen-bg"></div>
+      <div class="start-content">
+        <div class="eyebrow">CHORUS PROTOCOL // YEAR 2049</div>
+        <h1>MIND<span>WAR</span></h1>
+        <div class="tagline">33 STRONGHOLDS. ONE WORLD. ONE CHECKPOINT AT A TIME.</div>
+        <p class="brief">
+          Director Vex has weaponised the Chorus signal — a broadcast that <b>permanently</b>
+          overwrites the mind of everyone it touches. There is no cure and no rescue. You are
+          Captain of <b>Echo Company</b>, twenty soldiers the signal cannot reach. Fight north
+          through a frozen nation, break all <b>33 strongholds</b>, destroy Captain Voss and put
+          Vex in the ground. The Chorus has sealed the nation checkpoint by checkpoint: clear each
+          stronghold to unlock the next sector, and end the war before the winter does.
+        </p>
+
+        <div class="stat-strip">
+          <div><strong>33</strong><span>STRONGHOLDS</span></div>
+          <div><strong>1,300+</strong><span>PERMANENTLY CONTROLLED</span></div>
+          <div><strong>7</strong><span>WEAPONS</span></div>
+          <div><strong>20</strong><span>MAN SQUAD</span></div>
+        </div>
+
+        <div id="input-select">
+          <span class="label">INPUT SOURCE</span>
+          <button id="btn-input-kb" class="mode-btn active">MOUSE + KEYBOARD</button>
+          <button id="btn-input-pad" class="mode-btn" disabled title="Controller support is under development">CONTROLLER — UNDER DEVELOPMENT</button>
+          <button id="btn-input-setup" class="mode-btn hidden" disabled>SETUP CONTROLLER</button>
+        </div>
+
+        <div class="start-actions">
+          <button id="btn-deploy" class="btn primary" disabled>DEPLOY ECHO COMPANY <span>›</span></button>
+          <button id="btn-continue" class="btn hidden" disabled>CONTINUE OPERATION <small id="continue-info"></small></button>
+          <button id="btn-multiplayer" class="btn coop-btn">PLAY WITH OTHERS <small>ONLINE CO-OP // 1–4 PLAYERS</small></button>
+        </div>
+
+        <div class="start-bottom">
+          <div class="weapon-roster">
+            <div class="label">LOADOUT</div>
+            <div class="roster-row"><span>01</span>VK-9 SIDEARM</div>
+            <div class="roster-row"><span>02</span>HORNET SMG</div>
+            <div class="roster-row"><span>03</span>WARDEN AR</div>
+            <div class="roster-row"><span>04</span>BREAKER 12</div>
+            <div class="roster-row"><span>05</span>M-14 RANGER</div>
+            <div class="roster-row"><span>06</span>LONGSHOT RAIL</div>
+            <div class="roster-row"><span>07</span>M-90 BAZOOKA</div>
+          </div>
+          <div class="control-roster">
+            <div class="label">CONTROLS</div>
+            <div><kbd>WASD</kbd> / <kbd>ARROWS</kbd> Move <kbd>SHIFT</kbd> Sprint <kbd>SPACE</kbd> Jump</div>
+            <div><kbd>LMB</kbd> Fire <kbd>RMB</kbd> Focus / scope <kbd>X</kbd> / <kbd>MMB</kbd> Knife punch</div>
+            <div><kbd>1</kbd>–<kbd>7</kbd> / Wheel — Switch weapon <kbd>R</kbd> Reload <kbd>G</kbd> Grenade</div>
+            <div><kbd>E</kbd> Revive (hold for players) <kbd>F</kbd> Share HP / ammo <kbd>M</kbd> Tactical map <kbd>N</kbd> Mute</div>
+            <div><kbd>XBOX</kbd> Left Stick Move · Right Stick Look · RB Fire · LT Aim · X Punch · Y Interact · LB Grenade · A Reload/Jump · B Jump · D-pad Switch · View Map · Menu Pause · Setup to remap</div>
+          </div>
+        </div>
+      </div>
+      <div id="start-map-wrap">
+        <div class="label">OPERATION OVERVIEW</div>
+        <canvas id="start-map" width="620" height="620"></canvas>
+        <div class="map-legend"><i class="dot amber"></i> CHECKPOINT <i class="dot green"></i> SECURED <i class="dot locked"></i> LOCKED</div>
+      </div>
+    </div>
+
+    <!-- ================= LAUNCH INTRO ================= -->
+    <div id="intro-screen" class="intro-screen">
+      <div class="intro-vignette"></div>
+      <div class="intro-scan"></div>
+      <div class="intro-content">
+        <div class="intro-eyebrow">CHORUS PROTOCOL // YEAR 2049</div>
+        <div class="intro-logo">MIND<span>WAR</span></div>
+        <div class="intro-rule"></div>
+        <div class="intro-sub">ECHO COMPANY // OPERATION BREAKWATER</div>
+        <div class="intro-dialogue">
+          <div class="intro-radio-head">
+            <span class="intro-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+            MARA // ECHO COMPANY
+          </div>
+          <div id="intro-dialogue-lines" class="intro-dialogue-lines"></div>
+        </div>
+        <button id="btn-intro-skip" class="btn intro-skip">SKIP INTRO <span>›</span></button>
+        <div class="intro-hint">PRESS ANY KEY TO SKIP</div>
+      </div>
+    </div>
+
+    <!-- ================= CO-OP LOBBY ================= -->
+    <div id="mp-screen" class="screen hidden">
+      <div class="modal coop-modal">
+        <div class="eyebrow">ECHO COMPANY // CO-OP UPLINK</div>
+        <h2>FIGHT TOGETHER</h2>
+        <p class="brief">
+          Host a room and send the invite link, or join a friend's operation. Up to four players
+          share the same campaign, enemy waves and checkpoint progression. Co-op deploys with Mara
+          as your only AI support, doubles the enemy waves, makes every enemy tougher, and
+          automatically grants the whole team +10% damage dealt and -5% damage taken after every
+          battle.
+        </p>
+
+        <div class="coop-grid">
+          <label class="field">NICKNAME
+            <input id="mp-name" maxlength="14" autocomplete="off" spellcheck="false" value="ECHO-1">
+          </label>
+          <label class="field">ROOM CODE
+            <input id="mp-code" maxlength="6" autocomplete="off" spellcheck="false" placeholder="ABCDEF">
+          </label>
+          <div class="coop-actions">
+            <button id="btn-mp-create" class="btn primary">CREATE ROOM</button>
+            <button id="btn-mp-join" class="btn">JOIN ROOM</button>
+          </div>
+        </div>
+
+        <div id="mp-room" class="hidden">
+          <div class="mp-code-row">
+            <span>ROOM CODE</span>
+            <strong id="mp-room-code">----</strong>
+          </div>
+          <label class="field">INVITE LINK
+            <input id="mp-invite" readonly>
+          </label>
+          <button id="btn-mp-copy" class="btn small-btn">COPY INVITE LINK</button>
+          <div id="mp-invite-warning" class="mp-invite-warning hidden"></div>
+          <div class="label mp-roster-label">SQUAD</div>
+          <div id="mp-roster"></div>
+          <div class="modal-actions">
+            <button id="btn-mp-ready" class="btn hidden">READY UP</button>
+            <button id="btn-mp-start" class="btn primary">START BRIEFING</button>
+            <button id="btn-mp-leave" class="btn danger">LEAVE ROOM</button>
+          </div>
+        </div>
+
+        <div id="mp-status"></div>
+
+        <div class="modal-actions">
+          <button id="btn-mp-close" class="btn">BACK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= CO-OP BRIEFING ================= -->
+    <div id="brief-screen" class="screen hidden">
+      <div class="modal brief-modal">
+        <div class="eyebrow green">MARA // PRE-OP BRIEFING</div>
+        <h2>OPERATION BREAKWATER</h2>
+        <div class="brief-signal">
+          <span class="intro-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+          SECURE CHANNEL // ECHO COMPANY
+        </div>
+        <div id="brief-text" class="brief-dialogue"></div>
+        <div id="brief-progress" class="brief-progress"></div>
+        <div id="brief-waiting" class="brief-waiting"></div>
+        <div class="modal-actions">
+          <button id="btn-brief-next" class="btn primary">NEXT <span>›</span></button>
+          <button id="btn-brief-ready" class="btn primary hidden">READY <span>›</span></button>
+        </div>
+        <div id="brief-status"></div>
+        <div class="modal-actions brief-actions">
+          <button id="btn-brief-leave" class="btn danger">LEAVE BRIEFING</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= CONTROLLER SETUP ================= -->
+    <div id="pad-setup-screen" class="screen hidden">
+      <div class="modal">
+        <div class="eyebrow">CONTROLLER SETUP</div>
+        <h2 id="pad-setup-action">PRESS FIRE</h2>
+        <p class="brief" id="pad-setup-help">
+          Release any held buttons, then press the button you want for this action.
+        </p>
+        <div class="modal-stats" id="pad-setup-progress">
+          <div><strong id="pad-setup-step">01</strong><span>STEP</span></div>
+          <div><strong id="pad-setup-total">15</strong><span>TOTAL</span></div>
+        </div>
+        <div id="pad-setup-status">WAITING FOR A CONTROLLER…</div>
+        <div class="modal-actions">
+          <button id="btn-pad-setup-skip" class="btn">SKIP STEP</button>
+          <button id="btn-pad-setup-default" class="btn">USE DEFAULTS</button>
+          <button id="btn-pad-setup-cancel" class="btn danger">CANCEL</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= PAUSE ================= -->
+    <div id="pause-screen" class="screen hidden">
+      <div class="modal">
+        <div class="eyebrow">OPERATION PAUSED</div>
+        <h2>HOLD THE LINE</h2>
+        <div class="modal-stats" id="pause-stats"></div>
+        <div id="pause-coop" class="pause-coop hidden"></div>
+        <div class="modal-actions">
+          <button id="btn-resume" class="btn primary">RESUME <span>›</span></button>
+          <button id="btn-map" class="btn">TACTICAL MAP <kbd>M</kbd></button>
+          <button id="btn-abandon" class="btn danger">ABANDON OPERATION</button>
+        </div>
+        <div class="pause-help">
+          <span><kbd>E</kbd> REVIVE (HOLD FOR PLAYERS)</span>
+          <span><kbd>F</kbd> SHARE HP / AMMO</span>
+          <span><kbd>X</kbd> / <kbd>MMB</kbd> PUNCH</span>
+          <span><kbd>N</kbd> MUTE AUDIO</span>
+          <span><kbd>R</kbd> RELOAD</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= MAP ================= -->
+    <div id="map-screen" class="screen hidden">
+      <div class="map-modal">
+        <div class="map-header">
+          <div>
+            <div class="eyebrow">ECHO COMPANY // TACTICAL DISPLAY</div>
+            <h2>THE NATION</h2>
+          </div>
+          <div id="map-summary">0 / 33 STRONGHOLDS SECURED</div>
+        </div>
+        <div class="map-body">
+          <canvas id="campaign-map" width="1100" height="760"></canvas>
+          <div class="map-side">
+            <div class="label">LEGEND</div>
+            <div class="legend-row"><i class="dot amber"></i> ACTIVE / NEXT</div>
+            <div class="legend-row"><i class="dot green"></i> SECURED</div>
+            <div class="legend-row"><i class="dot locked"></i> LOCKED CHECKPOINT</div>
+            <div class="legend-row"><i class="dot red"></i> DIRECTOR</div>
+            <div class="legend-row"><i class="dot white"></i> ECHO COMPANY</div>
+            <p>National Route 9 runs from Harrow County's farms, through Cedar's Vill, into Meridian. The Chorus seals every stronghold behind the one before it: clear the next checkpoint to unlock the following sector.</p>
+            <button id="btn-map-close" class="btn primary">CLOSE MAP <kbd>M</kbd></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= DOWNED ================= -->
+    <div id="downed-screen" class="screen hidden">
+      <div class="modal danger-modal">
+        <div class="eyebrow red">SIGNAL LOST</div>
+        <h2>YOU ARE DOWN</h2>
+        <p class="brief" id="downed-line">
+          A teammate can hold <b>E</b> near you to pull you back. Stay with us.
+        </p>
+        <div id="downed-vex" class="downed-vex"></div>
+        <div class="modal-stats">
+          <div><strong id="downed-timer">30</strong><span>SECONDS TO BLEED OUT</span></div>
+          <div><strong>HOLD E</strong><span>TO REVIVE A TEAMMATE</span></div>
+        </div>
+        <div class="modal-actions">
+          <button id="btn-downed-giveup" class="btn danger">BLEED OUT</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= DEATH ================= -->
+    <div id="death-screen" class="screen hidden">
+      <div class="modal danger-modal">
+        <div class="eyebrow red">SIGNAL LOST</div>
+        <h2>ECHO COMPANY IS DOWN</h2>
+        <p class="brief">The Chorus drags your mind toward the light. The remains of your company pull you back.</p>
+        <div class="modal-stats" id="death-stats"></div>
+        <div class="modal-actions">
+          <button id="btn-redeploy" class="btn primary">REDEPLOY AT LAST BEACON <span>›</span></button>
+          <button id="btn-death-restart" class="btn danger">RESTART OPERATION</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= VICTORY ================= -->
+    <div id="victory-screen" class="screen hidden">
+      <div class="modal victory-modal">
+        <div class="eyebrow green">THE SKY TURNS BLUE</div>
+        <h2>PEACE AT LAST</h2>
+        <p class="brief">
+          The red sky breaks and the Director is gone. Vex is ash. The Chorus dies with him, the sky
+          opens into free blue, and a colossal mountain comes gently down to rest on the earth. No
+          one else will ever hear the signal again. The world is quiet.
+        </p>
+        <div class="modal-stats" id="victory-stats"></div>
+        <div class="modal-actions">
+          <button id="btn-explore" class="btn primary">WALK THE PEACE <span>›</span></button>
+          <button id="btn-new-game" class="btn">NEW OPERATION</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="fps"></div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
