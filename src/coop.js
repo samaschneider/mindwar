@@ -16,6 +16,13 @@ const CHECKPOINT_DAMAGE_BONUS = 0.10;
 const CHECKPOINT_DAMAGE_REDUCTION = 0.05;
 const MAX_DAMAGE_REDUCTION = 0.60;
 
+// Co-op waves are four times the solo checkpoints. The simultaneous cap is
+// scaled by the same factor (and capped) so the extra hostiles actually share
+// the battlefield instead of only lengthening each fight.
+const COOP_ENEMY_COUNT_MULTIPLIER = 4;
+const COOP_ENEMY_MAX_ALIVE_MULTIPLIER = 4;
+const COOP_MAX_ALIVE_CAP = 120;
+
 function r2(v) { return Math.round(v * 100) / 100; }
 
 function angleLerp(a, b, t) {
@@ -594,11 +601,16 @@ class CoopClient {
     // checkpoint bonuses stack on top of that.
     enemies.squadLimit = 0;
     enemies.removeAllies?.();
-    enemies.enemyCountMultiplier = 2;
+    enemies.enemyCountMultiplier = COOP_ENEMY_COUNT_MULTIPLIER;
     enemies.enemyHealthMultiplier = 1.75;
     enemies.enemyDamageMultiplier = 1.4;
     enemies.playerDamageMultiplier = 1;
-    for (const s of enemies.states) s.maxAlive = Math.min(60, Math.round(s.maxAlive * 2));
+    for (const s of enemies.states) {
+      s.maxAlive = Math.min(
+        COOP_MAX_ALIVE_CAP,
+        Math.round(s.maxAliveBase * COOP_ENEMY_MAX_ALIVE_MULTIPLIER)
+      );
+    }
     this.dealBonus = 0;
     this.takeBonus = 0;
     this.applyTeamMultipliers();

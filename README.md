@@ -27,7 +27,7 @@ the mouse will be captured. A production build is `npm run build` (output in `di
 
 ## Play with others
 
-MINDWAR has online co-op for up to **four players**. The first player in a room is the host and
+MINDWAR has online co-op for up to **eight players**. The first player in a room is the host and
 owns enemy simulation and checkpoint progression; everyone shares the same waves, zone clears and
 finale.
 
@@ -75,8 +75,9 @@ Co-op notes:
 - Co-op progress is per-session and is never written to the single-player save.
 - Co-op deploys with **Mara as the only AI companion**. She is the squad's combat specialist:
   2,600 HP, faster reactions, tighter aim and roughly triple the rifle damage of a normal ally.
-- Co-op is harder: each checkpoint has **twice the enemies**, and enemies have **1.75x health**
-  and deal **1.4x damage**. That is half the previous co-op difficulty.
+- Co-op is harder: each checkpoint has **four times the enemies**, and enemies have **1.75x
+  health** and deal **1.4x damage**. Up to **120 enemies** can be alive at once in the largest
+  checkpoints.
 - A downed player can be revived by a teammate **holding E** nearby for 2.5 seconds. The downed
   player has 30 seconds to bleed out, and can choose to bleed out immediately.
 - Press **F** near a teammate to share 20% of your health (up to 150) and 25% of your current
@@ -308,7 +309,7 @@ descending mountain:
 | `src/audio.js` | Runtime WebAudio synthesis |
 | `src/coop.js` | Co-op lobby, remote player avatars, host enemy snapshots, client puppets, shared events |
 | `src/net.js` | Browser WebSocket client for the co-op relay |
-| `server/rooms.js` | Room codes, four-player rosters, host-authoritative message relay |
+| `server/rooms.js` | Room codes, eight-player rosters, host-authoritative message relay |
 | `server/index.js` | Production static server plus the co-op relay |
 | `src/style.css` | Interface, scope overlay, menus and overlays |
 

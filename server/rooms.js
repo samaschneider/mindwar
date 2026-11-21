@@ -6,12 +6,13 @@
 import { WebSocketServer } from "ws";
 import { hasAccess } from "./security.js";
 
-export const MAX_PLAYERS = 4;
+export const MAX_PLAYERS = 8;
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 const CODE_LENGTH = 6;
 const MAX_PAYLOAD = 32 * 1024;
 const MAX_MSG_PER_SEC = 220;
-const MAX_CONNECTIONS_PER_IP = 8;
+// Two sockets per player in a full eight-player room, plus reconnect overlap.
+const MAX_CONNECTIONS_PER_IP = 16;
 const MAX_JOIN_PER_MIN = 10;
 const MAX_CREATE_PER_MIN = 5;
 const MAX_DAMAGE_REQUEST = 3500;

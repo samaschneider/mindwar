@@ -534,7 +534,7 @@ h1 span { color: transparent; -webkit-text-stroke: 2px var(--amber); text-shadow
 .coop-btn { border-color: rgba(94, 225, 173, 0.45); }
 .coop-btn:hover { border-color: rgba(94, 225, 173, 0.8); background: rgba(94, 225, 173, 0.1); box-shadow: 0 0 24px rgba(94, 225, 173, 0.16); }
 .coop-btn small { color: #7fbca2; }
-.coop-modal { width: min(720px, 92vw); }
+.coop-modal { width: min(720px, 92vw); max-height: 92vh; overflow-y: auto; }
 .coop-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0 6px; }
 .field { display: flex; flex-direction: column; gap: 6px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; color: #8da192; text-transform: uppercase; }
 .field input {
@@ -603,7 +603,7 @@ h1 span { color: transparent; -webkit-text-stroke: 2px var(--amber); text-shadow
 #brief-status { min-height: 14px; margin: 8px 0 4px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: #8da192; }
 .brief-actions { margin-top: 10px; }
 .mp-kick:hover { background: rgba(255, 79, 79, 0.15); color: #fff; }
-.pause-coop { margin: 12px 0 4px; padding-top: 12px; border-top: 1px solid rgba(255,181,69,0.16); }
+.pause-coop { margin: 12px 0 4px; padding-top: 12px; border-top: 1px solid rgba(255,181,69,0.16); max-height: 32vh; overflow-y: auto; }
 .pause-coop-row {
   display: flex; align-items: center; gap: 10px; margin-top: 6px;
   font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: #cddbd2;

@@ -1386,12 +1386,15 @@ export class EnemyManager {
     this.kills = 0;
     this.clearedCount = 0;
     this.totalFor = state => Math.max(1, Math.round(state.zone.total * this.enemyCountMultiplier));
-    this.states = ZONES.map(zone => ({
-      zone, active: false, cleared: false, spawned: 0, killed: 0, alive: 0,
-      spawnTimer: 0, maxAlive: Math.min(30, 14 + Math.floor(zone.index * 0.55)),
-      roofClaims: new Set(), snipersSpawned: 0,
-      maxSnipers: zone.region === "city" ? 3 : zone.region === "suburb" ? 2 : 1
-    }));
+    this.states = ZONES.map(zone => {
+      const maxAliveBase = Math.min(30, 14 + Math.floor(zone.index * 0.55));
+      return {
+        zone, active: false, cleared: false, spawned: 0, killed: 0, alive: 0,
+        spawnTimer: 0, maxAliveBase, maxAlive: maxAliveBase,
+        roofClaims: new Set(), snipersSpawned: 0,
+        maxSnipers: zone.region === "city" ? 3 : zone.region === "suburb" ? 2 : 1
+      };
+    });
     this.triggerTimer = 0;
     this.spawnCheck = 0;
     this.hudTimer = 0;
