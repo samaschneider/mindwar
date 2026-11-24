@@ -43,6 +43,15 @@ const TITLE_BASSES = [
   ]
 ];
 
+// Battle lead phrases. Same four-bar minor harmony, but four different shapes
+// chosen per pass so the combat loop does not repeat one tune forever.
+const BATTLE_MELODIES = [
+  { name: "assault", lead: [76, 74, 72, 71], answer: [72, 69, 67, 64] },
+  { name: "counter", lead: [72, 77, 74, 71], answer: [69, 72, 69, 67] },
+  { name: "rise", lead: [69, 72, 74, 76], answer: [65, 69, 72, 71] },
+  { name: "hammer", lead: [72, 72, 74, 71], answer: [69, 69, 67, 64] }
+];
+
 export class AudioEngine {
   constructor() {
     this.ctx = null;
@@ -65,6 +74,10 @@ export class AudioEngine {
     this.titleMelody = TITLE_MELODIES[0];
     this.titleArp = TITLE_ARPS[0];
     this.titleBass = TITLE_BASSES[0];
+    this.battleVariation = -1;
+    this.battleMelodyIndex = -1;
+    this.battleVariationName = "";
+    this.battleMelody = BATTLE_MELODIES[0];
   }
 
   ensure() {
@@ -419,11 +432,24 @@ export class AudioEngine {
     }
   }
 
+  pickBattleVariation() {
+    const count = BATTLE_MELODIES.length;
+    let melody = Math.floor(Math.random() * count);
+    if (count > 1 && melody === this.battleMelodyIndex) {
+      melody = (melody + 1 + Math.floor(Math.random() * (count - 1))) % count;
+    }
+    this.battleMelodyIndex = melody;
+    this.battleVariation = melody;
+    this.battleMelody = BATTLE_MELODIES[melody];
+    this.battleVariationName = this.battleMelody.name;
+  }
+
   scheduleBattleStep(step, t0, stepDur) {
+    if (step === 0) this.pickBattleVariation();
     const bar = Math.floor(step / 16) % 4;
     const s = step % 16;
     // The battle track is the same sad theme under pressure: same minor
-    // harmony and descending melody, but driven hard and kept dark.
+    // harmony, but one of four lead phrases and a hard-driven arrangement.
     const chords = [
       [57, 60, 64, 69],   // Am
       [53, 57, 60, 64],   // Fmaj7
@@ -433,6 +459,7 @@ export class AudioEngine {
     const bassRoots = [45, 41, 38, 40];
     const chord = chords[bar];
     const root = bassRoots[bar];
+    const melody = this.battleMelody || BATTLE_MELODIES[0];
 
     // Driving piano ostinato in the left hand, intentionally dark.
     if (s % 2 === 0) {
@@ -449,16 +476,14 @@ export class AudioEngine {
       for (const note of chord) {
         this.pianoNote(this.mtof(note), t0, stepDur * 4.8, 0.042, null, 0.45);
       }
-      // The title theme's descending melody, played with more attack.
-      const melody = [76, 74, 72, 71][bar];
-      this.pianoNote(this.mtof(melody), t0, stepDur * 3.6, 0.052, this.arpBus, 0.2);
+      // One of four battle lead phrases, played with more attack.
+      this.pianoNote(this.mtof(melody.lead[bar]), t0, stepDur * 3.6, 0.052, this.arpBus, 0.2);
     }
     if (s === 8) {
       for (const note of chord.slice(1, 4)) {
         this.pianoNote(this.mtof(note), t0, stepDur * 2.4, 0.035, null, 0.45);
       }
-      const answer = [72, 69, 67, 64][bar];
-      this.pianoNote(this.mtof(answer), t0, stepDur * 2.8, 0.044, this.arpBus, 0.3);
+      this.pianoNote(this.mtof(melody.answer[bar]), t0, stepDur * 2.8, 0.044, this.arpBus, 0.3);
     }
 
     // A low tolling octave at the turn of each phrase.

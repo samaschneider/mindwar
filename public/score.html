@@ -83,10 +83,11 @@
   <div class="rule"></div>
   <canvas id="scope" width="1600" height="180"></canvas>
   <p>
-    A dark, slow piano theme: A minor, Fmaj7, D minor, E minor, 66 BPM in the title screen and
-    118 BPM in battle. The battle version keeps the same harmony but turns the piano into a
-    driving ostinato and sixteenth-note arpeggios. Everything is generated in WebAudio at
-    runtime; the game ships no audio files.
+    A dark piano score: A minor, Fmaj7, D minor, E minor, 66 BPM in the title screen and
+    118 BPM in battle. The title theme rotates four lead melodies, four arpeggio shapes and four
+    left-hand patterns. Battle keeps the same harmony but drives it with a left-hand ostinato,
+    sixteenth-note arpeggios and four different lead/answer phrases. Everything is generated in
+    WebAudio at runtime; the game ships no audio files.
   </p>
   <div class="buttons">
     <button id="title" class="primary">Play title theme</button>
@@ -135,6 +136,12 @@ const TITLE_BASSES = [
     { step: 8, note: 7, dur: 10, vol: 0.032, dark: 0.2 }
   ]
 ];
+const BATTLE_MELODIES = [
+  { name: "assault", lead: [76, 74, 72, 71], answer: [72, 69, 67, 64] },
+  { name: "counter", lead: [72, 77, 74, 71], answer: [69, 72, 69, 67] },
+  { name: "rise", lead: [69, 72, 74, 76], answer: [65, 69, 72, 71] },
+  { name: "hammer", lead: [72, 72, 74, 71], answer: [69, 69, 67, 64] }
+];
 
 class ScoreEngine {
   constructor() {
@@ -155,6 +162,10 @@ class ScoreEngine {
     this.titleMelody = TITLE_MELODIES[0];
     this.titleArp = TITLE_ARPS[0];
     this.titleBass = TITLE_BASSES[0];
+    this.battleVariation = -1;
+    this.battleMelodyIndex = -1;
+    this.battleVariationName = "";
+    this.battleMelody = BATTLE_MELODIES[0];
   }
 
   ensure() {
@@ -263,7 +274,20 @@ class ScoreEngine {
     }
   }
 
+  pickBattleVariation() {
+    const count = BATTLE_MELODIES.length;
+    let melody = Math.floor(Math.random() * count);
+    if (count > 1 && melody === this.battleMelodyIndex) {
+      melody = (melody + 1 + Math.floor(Math.random() * (count - 1))) % count;
+    }
+    this.battleMelodyIndex = melody;
+    this.battleVariation = melody;
+    this.battleMelody = BATTLE_MELODIES[melody];
+    this.battleVariationName = this.battleMelody.name;
+  }
+
   scheduleBattleStep(step, t0, stepDur) {
+    if (step === 0) this.pickBattleVariation();
     const bar = Math.floor(step / 16) % 4;
     const s = step % 16;
     const chords = [
@@ -275,6 +299,7 @@ class ScoreEngine {
     const bassRoots = [45, 41, 38, 40];
     const chord = chords[bar];
     const root = bassRoots[bar];
+    const melody = this.battleMelody || BATTLE_MELODIES[0];
 
     if (s % 2 === 0) {
       const offsets = [0, 0, 12, 7, 0, 12, 7, 12];
@@ -287,15 +312,13 @@ class ScoreEngine {
       for (const note of chord) {
         this.pianoNote(this.mtof(note), t0, stepDur * 4.8, 0.042, null, 0.45);
       }
-      const melody = [76, 74, 72, 71][bar];
-      this.pianoNote(this.mtof(melody), t0, stepDur * 3.6, 0.052, this.arpBus, 0.2);
+      this.pianoNote(this.mtof(melody.lead[bar]), t0, stepDur * 3.6, 0.052, this.arpBus, 0.2);
     }
     if (s === 8) {
       for (const note of chord.slice(1, 4)) {
         this.pianoNote(this.mtof(note), t0, stepDur * 2.4, 0.035, null, 0.45);
       }
-      const answer = [72, 69, 67, 64][bar];
-      this.pianoNote(this.mtof(answer), t0, stepDur * 2.8, 0.044, this.arpBus, 0.3);
+      this.pianoNote(this.mtof(melody.answer[bar]), t0, stepDur * 2.8, 0.044, this.arpBus, 0.3);
     }
     if ((bar === 1 || bar === 3) && s === 0) {
       this.pianoNote(this.mtof(root - 12), t0, stepDur * 9, 0.075, null, 0.55);

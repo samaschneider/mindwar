@@ -285,9 +285,9 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   66 BPM piano piece in A minor / Fmaj7 / Dm / Em. Every four-bar pass randomly chooses one of
   four lead melodies (including a rising second theme), one of four broken-chord shapes and one
   of four left-hand root/fifth patterns, so the loop keeps changing and the lead never repeats
-  twice in a row. The battle track is a tense 118 BPM variation of the same harmony, with a
-  driving left-hand ostinato, dark sixteenth-note right-hand figures and low tolling octaves.
-  No drums or synth pads are used.
+  twice in a row. The battle track is a tense 118 BPM variation of the same harmony, rotating
+  through four battle lead/answer phrases per four-bar pass, with a driving left-hand ostinato,
+  dark sixteenth-note right-hand figures and low tolling octaves. No drums or synth pads are used.
   The title theme starts as soon as the page loads where the browser allows autoplay, and falls
   back to the first click/key press when it does not. The title theme plays outside combat; the
   battle variation starts when a checkpoint battle activates and stops when that battle is
@@ -403,6 +403,9 @@ The game was driven in Chromium at 1600 x 900 during development:
   12 distinct melody/arpeggio/bass combinations with no repeated lead, and the live sequencer
   rotated from `ascent/0/3` to `descent/1/0` after one four-bar cycle; the standalone score page
   uses the same variation set;
+- battle-theme variation verified: 12 consecutive selections covered all four battle phrases
+  (assault, counter, rise, hammer) with no immediate repeat, and the live battle sequencer
+  rotated from `counter` to `hammer` after one four-bar cycle; the score page matches;
 - ally separation verified: two allies placed in the same position pushed apart on their next
   update;
 - X-key and middle-mouse knife punch verified: both hid the equipped gun, showed the knife swing,
