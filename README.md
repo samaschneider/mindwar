@@ -276,7 +276,9 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   back to the first click/key press when it does not. The title theme plays outside combat; the
   battle variation starts when a checkpoint battle activates and stops when that battle is
   cleared. The title theme also returns on pause, map, death and victory screens. `N` mutes
-  everything.
+  everything. To listen to both cues outside the game, open **`/score.html`** (or
+  `public/score.html` from disk): it runs the same piano engine with Play title, Play battle,
+  Stop and a volume slider, mixed louder for standalone listening.
 
 ![Tactical map](shots/mindwar/04_map.png)
 

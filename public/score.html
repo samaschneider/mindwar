@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>MINDWAR // SCORE</title>
+<style>
+  :root {
+    --amber: #ffb545;
+    --amber-dim: #b97d2d;
+    --ink: #0b0d0c;
+    --paper: #f4ead6;
+    --mono: "Consolas", "SFMono-Regular", monospace;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    display: grid; place-items: center;
+    background:
+      radial-gradient(ellipse at 50% 0%, rgba(255, 181, 69, 0.09), transparent 55%),
+      radial-gradient(ellipse at 50% 100%, rgba(95, 231, 255, 0.05), transparent 60%),
+      #070a09;
+    color: var(--paper);
+    font-family: "Segoe UI", system-ui, sans-serif;
+    overflow: hidden;
+  }
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(255,255,255,0.026) 0 1px, transparent 1px 4px);
+  }
+  main {
+    position: relative; z-index: 1; width: min(860px, 92vw);
+    border: 1px solid rgba(255, 181, 69, 0.22);
+    background: rgba(6, 11, 9, 0.82);
+    padding: clamp(24px, 5vw, 54px);
+    box-shadow: 0 0 80px rgba(0, 0, 0, 0.65);
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.42em;
+    color: var(--amber); text-transform: uppercase;
+  }
+  h1 {
+    margin: 14px 0 6px; font-size: clamp(38px, 7vw, 76px); line-height: 0.9;
+    letter-spacing: 0.05em; font-weight: 800;
+  }
+  h1 span { color: transparent; -webkit-text-stroke: 2px var(--amber); }
+  .sub {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em;
+    color: #8ea096; text-transform: uppercase;
+  }
+  .rule { height: 1px; margin: 24px 0; background: linear-gradient(90deg, var(--amber), transparent); opacity: 0.55; }
+  p { margin: 0 0 22px; max-width: 62ch; line-height: 1.6; color: #c3d2c9; font-size: 14px; }
+  canvas {
+    display: block; width: 100%; height: 92px; margin: 0 0 24px;
+    border: 1px solid rgba(95, 231, 255, 0.16);
+    background: rgba(2, 7, 5, 0.7);
+  }
+  .buttons { display: flex; flex-wrap: wrap; gap: 10px; }
+  button {
+    cursor: pointer; border: 1px solid rgba(255,181,69,0.45);
+    background: rgba(255, 181, 69, 0.06); color: var(--paper);
+    padding: 13px 19px; font-family: var(--mono); font-size: 11px; letter-spacing: 0.12em;
+    text-transform: uppercase; transition: 120ms ease;
+  }
+  button:hover { background: rgba(255, 181, 69, 0.16); border-color: var(--amber); }
+  button.primary { background: var(--amber); border-color: var(--amber); color: #171006; font-weight: 700; }
+  button.primary:hover { background: #ffc66b; }
+  button.ghost { border-color: rgba(255,255,255,0.16); background: transparent; color: #9fb2a6; }
+  .row { display: flex; align-items: center; gap: 14px; margin-top: 22px; flex-wrap: wrap; }
+  input[type="range"] { width: 180px; accent-color: var(--amber); }
+  .status {
+    margin-top: 18px; font-family: var(--mono); font-size: 10px; letter-spacing: 0.18em;
+    color: var(--amber); min-height: 1.4em;
+  }
+  .hint { margin-top: 8px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: #5d6f64; }
+</style>
+</head>
+<body>
+<main>
+  <div class="eyebrow">Echo Company // Chorus Protocol</div>
+  <h1>MIND<span>WAR</span></h1>
+  <div class="sub">Original score // synthesized live</div>
+  <div class="rule"></div>
+  <canvas id="scope" width="1600" height="180"></canvas>
+  <p>
+    A dark, slow piano theme: A minor, Fmaj7, D minor, E minor, 66 BPM in the title screen and
+    118 BPM in battle. The battle version keeps the same harmony but turns the piano into a
+    driving ostinato and sixteenth-note arpeggios. Everything is generated in WebAudio at
+    runtime; the game ships no audio files.
+  </p>
+  <div class="buttons">
+    <button id="title" class="primary">Play title theme</button>
+    <button id="battle">Play battle theme</button>
+    <button id="stop" class="ghost">Stop</button>
+  </div>
+  <div class="row">
+    <label class="sub" for="vol">Volume</label>
+    <input id="vol" type="range" min="0" max="1" step="0.01" value="0.85" />
+  </div>
+  <div id="status" class="status">Click a theme to start.</div>
+  <div class="hint">Same piano voice, echo bus and chord schedule as the game.</div>
+</main>
+
+<script>
+class ScoreEngine {
+  constructor() {
+    this.ctx = null;
+    this.master = null;
+    this.noise = null;
+    this.musicGain = null;
+    this.arpBus = null;
+    this.started = false;
+    this.mode = "title";
+    this.step = 0;
+    this.next = 0;
+    this.timer = null;
+    this.volume = 0.85;
+  }
+
+  ensure() {
+    if (this.ctx) {
+      if (this.ctx.state === "suspended") this.ctx.resume();
+      return;
+    }
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    this.ctx = new Ctx();
+    this.master = this.ctx.createGain();
+    this.master.gain.value = 0.7 * this.volume;
+    this.analyser = this.ctx.createAnalyser();
+    this.analyser.fftSize = 1024;
+    this.analyser.smoothingTimeConstant = 0.82;
+    this.master.connect(this.analyser).connect(this.ctx.destination);
+
+    const len = this.ctx.sampleRate * 1.2;
+    const buf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    let last = 0;
+    for (let i = 0; i < len; i++) {
+      const white = Math.random() * 2 - 1;
+      last = last * 0.94 + white * 0.06;
+      data[i] = white * 0.6 + last * 1.6;
+    }
+    this.noise = buf;
+  }
+
+  mtof(midi) { return 440 * Math.pow(2, (midi - 69) / 12); }
+
+  pianoNote(freq, t0, dur, vol = 0.1, dest = null, dark = 0) {
+    const target = dest || this.musicGain;
+    const partials = [
+      [1, 1, 1.0],
+      [2.002, 0.4, 0.62],
+      [3.008, 0.19, 0.44],
+      [4.015, 0.09, 0.3],
+      [5.03, 0.045, 0.22]
+    ];
+    const cutoff = 4600 - dark * 1500;
+    for (const [ratio, amp, decay] of partials) {
+      const osc = this.ctx.createOscillator();
+      const filt = this.ctx.createBiquadFilter();
+      const g = this.ctx.createGain();
+      osc.type = ratio === 1 ? "triangle" : "sine";
+      osc.frequency.setValueAtTime(freq * ratio, t0);
+      osc.detune.setValueAtTime((Math.random() - 0.5) * 3.5, t0);
+      filt.type = "lowpass";
+      filt.frequency.setValueAtTime(cutoff, t0);
+      const peak = Math.max(0.0002, vol * amp);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(peak, t0 + 0.008);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur * decay);
+      osc.connect(filt).connect(g).connect(target);
+      osc.start(t0);
+      osc.stop(t0 + dur * decay + 0.05);
+    }
+  }
+
+  scheduleTitleStep(step, t0, stepDur) {
+    const bar = Math.floor(step / 16) % 4;
+    const s = step % 16;
+    const chords = [
+      [57, 60, 64, 69],
+      [53, 57, 60, 64],
+      [50, 53, 57, 62],
+      [52, 55, 59, 64]
+    ];
+    const bassRoots = [45, 41, 38, 40];
+    const chord = chords[bar];
+    const root = bassRoots[bar];
+
+    if (s === 0) {
+      this.pianoNote(this.mtof(root), t0, stepDur * 14, 0.062, null, 0.15);
+      this.pianoNote(this.mtof(root + 7), t0, stepDur * 12, 0.03, null, 0.2);
+    }
+    if (s === 8) {
+      this.pianoNote(this.mtof(root - 12), t0, stepDur * 9, 0.04, null, 0.25);
+    }
+    if (s % 2 === 0) {
+      const arp = [3, 2, 1, 0, 2, 1, 0, 2];
+      this.pianoNote(this.mtof(chord[arp[s / 2]] + 12), t0, stepDur * 3.8, 0.045, this.arpBus, 0.15);
+    }
+    if (s === 0) {
+      const melody = [76, 74, 72, 71][bar];
+      this.pianoNote(this.mtof(melody), t0, stepDur * 6.2, 0.036, this.arpBus, 0.1);
+    }
+    if (s === 12) {
+      const echo = [72, 69, 67, 64][bar];
+      this.pianoNote(this.mtof(echo), t0, stepDur * 4.4, 0.025, this.arpBus, 0.2);
+    }
+  }
+
+  scheduleBattleStep(step, t0, stepDur) {
+    const bar = Math.floor(step / 16) % 4;
+    const s = step % 16;
+    const chords = [
+      [57, 60, 64, 69],
+      [53, 57, 60, 64],
+      [50, 53, 57, 62],
+      [52, 55, 59, 64]
+    ];
+    const bassRoots = [45, 41, 38, 40];
+    const chord = chords[bar];
+    const root = bassRoots[bar];
+
+    if (s % 2 === 0) {
+      const offsets = [0, 0, 12, 7, 0, 12, 7, 12];
+      this.pianoNote(this.mtof(root + offsets[s / 2]), t0, stepDur * 1.7, 0.105, null, 0.5);
+    }
+    const arp = [3, 2, 1, 0, 2, 1, 0, 2, 3, 2, 1, 0, 1, 2, 1, 0];
+    this.pianoNote(this.mtof(chord[arp[s]] + 12), t0, stepDur * 0.9, 0.042, this.arpBus, 0.35);
+
+    if (s === 0) {
+      for (const note of chord) {
+        this.pianoNote(this.mtof(note), t0, stepDur * 4.8, 0.042, null, 0.45);
+      }
+      const melody = [76, 74, 72, 71][bar];
+      this.pianoNote(this.mtof(melody), t0, stepDur * 3.6, 0.052, this.arpBus, 0.2);
+    }
+    if (s === 8) {
+      for (const note of chord.slice(1, 4)) {
+        this.pianoNote(this.mtof(note), t0, stepDur * 2.4, 0.035, null, 0.45);
+      }
+      const answer = [72, 69, 67, 64][bar];
+      this.pianoNote(this.mtof(answer), t0, stepDur * 2.8, 0.044, this.arpBus, 0.3);
+    }
+    if ((bar === 1 || bar === 3) && s === 0) {
+      this.pianoNote(this.mtof(root - 12), t0, stepDur * 9, 0.075, null, 0.55);
+    }
+  }
+
+  schedule() {
+    if (!this.ctx || !this.started) return;
+    const now = this.ctx.currentTime;
+    if (this.next < now - 0.4) this.next = now + 0.06;
+    const bpm = this.mode === "battle" ? 118 : 66;
+    const stepDur = 60 / bpm / 4;
+    let guard = 0;
+    while (this.next < now + 0.22 && guard++ < 24) {
+      if (this.mode === "battle") this.scheduleBattleStep(this.step, this.next, stepDur);
+      else this.scheduleTitleStep(this.step, this.next, stepDur);
+      this.step = (this.step + 1) % 64;
+      this.next += stepDur;
+    }
+  }
+
+  start(mode = "title") {
+    this.ensure();
+    if (!this.ctx) return;
+    this.ctx.resume();
+    if (this.started) {
+      this.setMode(mode);
+      return;
+    }
+    this.started = true;
+    this.mode = mode;
+
+    this.musicGain = this.ctx.createGain();
+    this.musicGain.gain.value = 0.0001;
+    const busFilter = this.ctx.createBiquadFilter();
+    busFilter.type = "lowpass";
+    busFilter.frequency.value = 5200;
+    busFilter.Q.value = 0.4;
+    this.musicGain.connect(busFilter).connect(this.master);
+
+    this.arpBus = this.ctx.createGain();
+    this.arpBus.gain.value = 0.55;
+    const delay = this.ctx.createDelay(0.6);
+    delay.delayTime.value = 0.19;
+    const feedback = this.ctx.createGain();
+    feedback.gain.value = 0.24;
+    const wet = this.ctx.createGain();
+    wet.gain.value = 0.5;
+    this.arpBus.connect(this.musicGain);
+    this.arpBus.connect(delay);
+    delay.connect(feedback).connect(delay);
+    delay.connect(wet).connect(this.musicGain);
+
+    const now = this.ctx.currentTime;
+    const target = mode === "battle" ? 1.7 : 2.0;
+    this.musicGain.gain.setValueAtTime(0.0001, now);
+    this.musicGain.gain.exponentialRampToValueAtTime(target, now + 0.45);
+
+    this.step = 0;
+    this.next = now + 0.12;
+    this.timer = setInterval(() => this.schedule(), 25);
+    this.schedule();
+  }
+
+  setMode(mode) {
+    if (this.mode === mode) return;
+    this.mode = mode;
+    if (!this.ctx || !this.started || !this.musicGain) return;
+    const now = this.ctx.currentTime;
+    this.step = 0;
+    this.next = now + 0.12;
+    const target = mode === "battle" ? 1.7 : 2.0;
+    const g = this.musicGain.gain;
+    g.cancelScheduledValues(now);
+    g.setValueAtTime(Math.max(0.0001, g.value), now);
+    g.exponentialRampToValueAtTime(0.0001, now + 0.08);
+    g.exponentialRampToValueAtTime(target, now + 0.38);
+  }
+
+  stop() {
+    if (this.timer) { clearInterval(this.timer); this.timer = null; }
+    this.started = false;
+    if (this.ctx && this.musicGain) {
+      this.musicGain.gain.setTargetAtTime(0.0001, this.ctx.currentTime, 0.12);
+    }
+  }
+
+  setVolume(v) {
+    this.volume = v;
+    if (this.master) this.master.gain.setTargetAtTime(0.7 * v, this.ctx.currentTime, 0.04);
+  }
+}
+
+const engine = new ScoreEngine();
+const status = document.getElementById("status");
+const canvas = document.getElementById("scope");
+const g2d = canvas.getContext("2d");
+
+function play(mode) {
+  engine.start(mode);
+  status.textContent = mode === "battle"
+    ? "PLAYING // BATTLE THEME // 118 BPM // A MINOR"
+    : "PLAYING // TITLE THEME // 66 BPM // A MINOR";
+}
+
+document.getElementById("title").addEventListener("click", () => play("title"));
+document.getElementById("battle").addEventListener("click", () => play("battle"));
+document.getElementById("stop").addEventListener("click", () => {
+  engine.stop();
+  status.textContent = "STOPPED // CLICK A THEME TO PLAY AGAIN";
+});
+document.getElementById("vol").addEventListener("input", e => engine.setVolume(parseFloat(e.target.value)));
+
+function draw() {
+  requestAnimationFrame(draw);
+  const w = canvas.width, h = canvas.height;
+  g2d.clearRect(0, 0, w, h);
+  g2d.strokeStyle = "rgba(95,231,255,0.16)";
+  g2d.lineWidth = 1;
+  g2d.beginPath();
+  g2d.moveTo(0, h / 2); g2d.lineTo(w, h / 2); g2d.stroke();
+  if (!engine.analyser || !engine.started) return;
+  const data = new Uint8Array(engine.analyser.fftSize);
+  engine.analyser.getByteTimeDomainData(data);
+  g2d.strokeStyle = "#ffb545";
+  g2d.lineWidth = 2;
+  g2d.beginPath();
+  for (let i = 0; i < data.length; i++) {
+    const x = (i / (data.length - 1)) * w;
+    const y = (data[i] / 128) * (h / 2);
+    if (i === 0) g2d.moveTo(x, y); else g2d.lineTo(x, y);
+  }
+  g2d.stroke();
+}
+draw();
+</script>
+</body>
+</html>
