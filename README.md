@@ -291,11 +291,13 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   melodies (including a rising second theme), one of four broken-chord shapes and one of four
   left-hand root/fifth patterns, so the loop keeps changing and the lead never repeats twice in
   a row. Exploration uses three regional themes: **Harrow County** at 60 BPM (open Em–C–G–D),
-  **Cedar's Vill** at 72 BPM (colder Dm–B♭–F–C), and **Meridian**, which uses **Vex's low,
-  54 BPM Dm–B♭–Gm–A theme**. The normal battle track is a tense 118 BPM variation of the battle
+  **Cedar's Vill** at 72 BPM (colder Dm–B♭–F–C), and **Meridian**, which uses **Vex's darker,
+  50 BPM chromatic Dm–B♭–A♭–A theme** with a low register and dark cutoff. The normal battle
+  track is a tense 118 BPM variation of the battle
   harmony, rotating through four lead/answer phrases with a driving left-hand ostinato. The last
-  two checkpoints — **Voss's Gate** and **The Director** — use a separate 138 BPM final battle
-  theme built from Vex's material. No drums or synth pads are used.
+  two checkpoints — **Voss's Gate** and **The Director** — use a separate **132 BPM epic final
+  battle theme**: a rising A♭/A lead with octave doubling, high bells, a harder ostinato and low
+  tolling octaves, built from Vex's material. No drums or synth pads are used.
   The title theme starts as soon as the page loads where the browser allows autoplay, and falls
   back to the first click/key press when it does not. It plays on the title and menu screens; the
   regional theme plays while exploring that region and the correct battle or final-battle theme
@@ -425,8 +427,8 @@ The game was driven in Chromium at 1600 x 900 during development:
   switched modes and levels (2.0/2.0/2.0/2.0/1.7/1.85), the NOW PLAYING panel showed the matching
   theme text, and title/battle rotations still update live with each variant;
 - regional score verified: deploying in Harrow County set the 60 BPM farm theme, teleporting to
-  Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's 54 BPM city theme,
-  a normal checkpoint activated the 118 BPM battle theme, and zone 31 activated the 138 BPM final
+  Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's darker 50 BPM city theme,
+  a normal checkpoint activated the 118 BPM battle theme, and zone 31 activated the 132 BPM final
   battle theme; all switches ran without console errors;
 - ally separation verified: two allies placed in the same position pushed apart on their next
   update;
