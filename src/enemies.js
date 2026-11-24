@@ -1349,8 +1349,8 @@ const SQUAD_NAMES = [
   "KESTREL", "DOC", "TALON", "VEGA", "ORION", "ECHO", "CORVUS", "NIX",
   "STRAY", "HEX", "MOTH", "GRAVE"
 ];
-// The Captain plus five squadmates: Mara and four Echo riflemen.
-const SQUAD_LIMIT = 5;
+// The Captain plus two squadmates: Mara and one Echo rifleman.
+const SQUAD_LIMIT = 2;
 const VILLAIN_LINES = [
   "Every soldier you kill is a neighbour you failed to save.",
   "There is no cure, Captain. The Chorus does not let go.",
