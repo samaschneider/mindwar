@@ -73,6 +73,24 @@
     color: var(--amber); min-height: 1.4em;
   }
   .hint { margin-top: 8px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: #5d6f64; }
+  .now {
+    margin: 0 0 20px; padding: 12px 15px;
+    border-left: 2px solid var(--amber);
+    background: rgba(255, 181, 69, 0.055);
+  }
+  .now-kicker {
+    font-family: var(--mono); font-size: 8px; letter-spacing: 0.3em;
+    color: var(--amber); text-transform: uppercase;
+  }
+  .now-title {
+    margin: 4px 0 2px; font-size: 22px; font-weight: 800;
+    letter-spacing: 0.06em; color: var(--paper); text-transform: uppercase;
+  }
+  .now-copy { font-size: 12px; line-height: 1.55; color: #c3d2c9; max-width: 70ch; }
+  .now-meta {
+    margin-top: 6px; font-family: var(--mono); font-size: 8px;
+    letter-spacing: 0.12em; color: #5d6f64;
+  }
 </style>
 </head>
 <body>
@@ -82,6 +100,12 @@
   <div class="sub">Original score // synthesized live</div>
   <div class="rule"></div>
   <canvas id="scope" width="1600" height="180"></canvas>
+  <div class="now">
+    <div class="now-kicker">Now playing</div>
+    <div id="now-title" class="now-title">Title // Descent</div>
+    <div id="now-copy" class="now-copy">The long fall: E–D–C–B over Am–Fmaj7–Dm–Em.</div>
+    <div id="now-meta" class="now-meta">66 BPM // A MINOR</div>
+  </div>
   <p>
     A dark piano score: A minor, Fmaj7, D minor, E minor, 66 BPM in the title screen and
     118 BPM in battle. The title theme rotates four lead melodies, four arpeggio shapes and four
@@ -142,6 +166,44 @@ const BATTLE_MELODIES = [
   { name: "rise", lead: [69, 72, 74, 76], answer: [65, 69, 72, 71] },
   { name: "hammer", lead: [72, 72, 74, 71], answer: [69, 69, 67, 64] }
 ];
+const VARIATION_TEXT = {
+  title: {
+    descent: {
+      title: "Descent",
+      copy: "The long fall: E–D–C–B over Am–Fmaj7–Dm–Em. Cold, patient, resolving downward."
+    },
+    ascent: {
+      title: "Ascent",
+      copy: "The rising second melody: C–D–F–E, reaching upward against the same minor turn."
+    },
+    low: {
+      title: "Low",
+      copy: "A low, close line — A–C–D–B — as if the melody is walking through snow."
+    },
+    wide: {
+      title: "Wide",
+      copy: "Wide intervals and open air: E–C–D–G, with space between every step."
+    }
+  },
+  battle: {
+    assault: {
+      title: "Assault",
+      copy: "The original charge: E–D–C–B driven at 118 BPM."
+    },
+    counter: {
+      title: "Counter",
+      copy: "A C-to-F counterpunch that answers the ostinato on every bar."
+    },
+    rise: {
+      title: "Rise",
+      copy: "A climbing lead — A–C–D–E — that refuses to stay in the low register."
+    },
+    hammer: {
+      title: "Hammer",
+      copy: "C–C–D–B, hammering the same nail while the left hand keeps driving."
+    }
+  }
+};
 
 class ScoreEngine {
   constructor() {
@@ -166,6 +228,7 @@ class ScoreEngine {
     this.battleMelodyIndex = -1;
     this.battleVariationName = "";
     this.battleMelody = BATTLE_MELODIES[0];
+    this.onVariation = null;
   }
 
   ensure() {
@@ -240,6 +303,7 @@ class ScoreEngine {
     this.titleArp = TITLE_ARPS[arp];
     this.titleBass = TITLE_BASSES[bass];
     this.titleVariationName = `${this.titleMelody.name}/${arp}/${bass}`;
+    this.onVariation?.(this.mode, this);
   }
 
   scheduleTitleStep(step, t0, stepDur) {
@@ -284,6 +348,7 @@ class ScoreEngine {
     this.battleVariation = melody;
     this.battleMelody = BATTLE_MELODIES[melody];
     this.battleVariationName = this.battleMelody.name;
+    this.onVariation?.(this.mode, this);
   }
 
   scheduleBattleStep(step, t0, stepDur) {
@@ -414,8 +479,32 @@ class ScoreEngine {
 
 const engine = new ScoreEngine();
 const status = document.getElementById("status");
+const nowTitle = document.getElementById("now-title");
+const nowCopy = document.getElementById("now-copy");
+const nowMeta = document.getElementById("now-meta");
 const canvas = document.getElementById("scope");
 const g2d = canvas.getContext("2d");
+
+function showVariation(mode, source) {
+  const raw = mode === "battle" ? source.battleVariationName : source.titleVariationName;
+  const parts = (raw || "descent/0/0").split("/");
+  const data = (VARIATION_TEXT[mode] && VARIATION_TEXT[mode][parts[0]]) || VARIATION_TEXT.title.descent;
+  nowTitle.textContent = `${mode === "battle" ? "Battle" : "Title"} // ${data.title}`;
+  nowCopy.textContent = data.copy;
+  const bpm = mode === "battle" ? 118 : 66;
+  let meta = `${bpm} BPM // A MINOR`;
+  if (mode === "title") {
+    const arp = (Number(parts[1]) || 0) + 1;
+    const bass = (Number(parts[2]) || 0) + 1;
+    meta += ` // ARP ${String(arp).padStart(2, "0")} // BASS ${String(bass).padStart(2, "0")}`;
+  } else {
+    meta += " // FOUR LEAD PHRASES";
+  }
+  nowMeta.textContent = meta;
+}
+
+engine.onVariation = showVariation;
+showVariation("title", engine);
 
 function play(mode) {
   engine.start(mode);

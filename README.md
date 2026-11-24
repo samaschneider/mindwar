@@ -294,7 +294,9 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   cleared. The title theme also returns on pause, map, death and victory screens. `N` mutes
   everything. To listen to both cues outside the game, open **`/score.html`** (or
   `public/score.html` from disk): it runs the same piano engine with Play title, Play battle,
-  Stop and a volume slider, at the same mix level as the game.
+  Stop and a volume slider, at the same mix level as the game. Its **NOW PLAYING** panel updates
+  live with the current variation, showing a name, a short description and the arrangement
+  (e.g. `TITLE // ASCENT`, or `BATTLE // HAMMER`).
 
 ![Tactical map](shots/mindwar/04_map.png)
 
@@ -406,6 +408,9 @@ The game was driven in Chromium at 1600 x 900 during development:
 - battle-theme variation verified: 12 consecutive selections covered all four battle phrases
   (assault, counter, rise, hammer) with no immediate repeat, and the live battle sequencer
   rotated from `counter` to `hammer` after one four-bar cycle; the score page matches;
+- score-player variation text verified: the NOW PLAYING panel updates on every automatic rotation
+  and manual pick with the variation name, a dedicated description and arrangement metadata
+  (e.g. `TITLE // LOW`, `BATTLE // HAMMER`);
 - ally separation verified: two allies placed in the same position pushed apart on their next
   update;
 - X-key and middle-mouse knife punch verified: both hid the equipped gun, showed the knife swing,
