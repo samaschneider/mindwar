@@ -1084,6 +1084,13 @@ class Ally {
     this.downed = false;
     this.downTimer = 0;
     this.fireTimer = this.expert ? 0.1 + Math.random() * 0.2 : Math.random() * 0.8;
+    // Engagement envelope and magazine. Allies are good shots, not laser
+    // turrets: they need a clear line and a loaded rifle.
+    this.range = this.expert ? 46 : 40;
+    this.magSize = this.expert ? 24 : 30;
+    this.ammo = this.magSize;
+    this.reloadTime = this.expert ? 1.9 : 2.6;
+    this.reloadTimer = 0;
     this.losTimer = 0;
     this.target = null;
     this.canSee = false;
@@ -1116,6 +1123,8 @@ class Ally {
   revive(fraction = 0.45) {
     this.downed = false;
     this.health = this.maxHealth * fraction;
+    this.ammo = this.magSize;
+    this.reloadTimer = 0;
     this.model.group.rotation.z = 0;
     this.model.group.position.y = this.pos.y;
   }
@@ -1130,6 +1139,13 @@ class Ally {
     }
 
     this.alertTimer = Math.max(0, this.alertTimer - dt);
+    if (this.reloadTimer > 0) {
+      this.reloadTimer -= dt;
+      if (this.reloadTimer <= 0) {
+        this.reloadTimer = 0;
+        this.ammo = this.magSize;
+      }
+    }
     const dxp = player.pos.x - this.pos.x, dzp = player.pos.z - this.pos.z;
     const dp = Math.hypot(dxp, dzp);
 
@@ -1142,7 +1158,7 @@ class Ally {
     if (this.losTimer <= 0) {
       this.losTimer = this.expert ? 0.08 + Math.random() * 0.06 : 0.18 + Math.random() * 0.14;
       const eye = new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z);
-      let best = null, bd = 68;
+      let best = null, bd = this.range;
       for (const e of manager.enemies) {
         if (e.dead) continue;
         const d = Math.hypot(e.pos.x - this.pos.x, e.pos.z - this.pos.z);
@@ -1196,13 +1212,22 @@ class Ally {
       this.model.group.rotation.y += diff * Math.min(1, dt * 8);
 
       this.fireTimer -= dt;
-      if (this.fireTimer <= 0) {
+      if (this.reloadTimer > 0) {
+        // Magazine empty: hold fire until the reload finishes.
+      } else if (this.fireTimer <= 0) {
         const eye = new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z);
         const targetEye = new THREE.Vector3(target.pos.x, target.pos.y + 1.2, target.pos.z);
         this.canSee = manager.world.hasLOS(eye, targetEye);
         if (this.canSee) {
-          this.fireTimer = this.expert ? 0.1 + Math.random() * 0.06 : 0.3 + Math.random() * 0.16;
           this.shoot(target, manager);
+          this.ammo -= 1;
+          if (this.ammo <= 0) {
+            this.ammo = 0;
+            this.reloadTimer = this.reloadTime;
+            const near = Math.hypot(player.pos.x - this.pos.x, player.pos.z - this.pos.z) < 16;
+            if (near) manager.audio.reload();
+          }
+          this.fireTimer = this.expert ? 0.1 + Math.random() * 0.06 : 0.3 + Math.random() * 0.16;
         } else {
           this.fireTimer = 0.2;
         }
@@ -1297,8 +1322,9 @@ class Ally {
     }
 
     this.model.group.position.copy(this.pos);
-    this.model.parts.armL.rotation.x = -1.25;
-    this.model.parts.armR.rotation.x = -1.25;
+    const aimArm = this.reloadTimer > 0 ? -0.62 : -1.25;
+    this.model.parts.armL.rotation.x = aimArm;
+    this.model.parts.armR.rotation.x = aimArm;
   }
 
   shoot(target, manager) {
@@ -1310,22 +1336,23 @@ class Ally {
     const rayOrigin = this.expert
       ? new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z)
       : start;
-    const headAim = Math.random() < (this.expert ? 0.8 : 0.28);
+    const headAim = Math.random() < (this.expert ? 0.35 : 0.15);
     const aimPoint = new THREE.Vector3(
       target.pos.x,
       target.pos.y + (headAim ? 1.72 : 1.08),
       target.pos.z
     );
     const dir = aimPoint.clone().sub(rayOrigin).normalize();
-    // Mara is a designated marksman: her shots land inside the hit sphere at
-    // every practical range, while the riflemen still scatter a little.
-    const spread = this.expert ? 0.0012 : 0.008;
+    // Good shots, not laser turrets: Mara still outshoots the rifleman, but
+    // both can miss a head at long range.
+    const spread = this.expert ? 0.012 : 0.02;
     dir.x += (Math.random() - 0.5) * spread;
     dir.y += (Math.random() - 0.5) * spread * 0.8;
     dir.z += (Math.random() - 0.5) * spread;
     dir.normalize();
-    const wall = manager.world.raycast(rayOrigin, dir, 68);
-    const maxDist = wall ? wall.dist : 68;
+    const maxRange = this.range + 12;
+    const wall = manager.world.raycast(rayOrigin, dir, maxRange);
+    const maxDist = wall ? wall.dist : maxRange;
     const hits = manager.raycast(rayOrigin, dir, maxDist);
     if (hits.length) {
       const h = hits[0];
@@ -1335,7 +1362,7 @@ class Ally {
       manager.effects.tracer(start, h.point, 0x7fe8ff, 0.055);
       manager.effects.burst(h.point, 0x74dfff, 2, 2, 8);
     } else {
-      manager.effects.tracer(start, wall ? wall.point : start.clone().addScaledVector(dir, 68), 0x7fe8ff, 0.05);
+      manager.effects.tracer(start, wall ? wall.point : start.clone().addScaledVector(dir, maxRange), 0x7fe8ff, 0.05);
       if (wall) manager.effects.impact(wall.point, 0xb9c9b5, 2);
     }
     manager.effects.muzzle(start, 0x8ff0ff, 0.4);

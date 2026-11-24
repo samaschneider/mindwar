@@ -74,7 +74,7 @@ Co-op notes:
   `-2`, `-3` suffix so players stay distinguishable.
 - Co-op progress is per-session and is never written to the single-player save.
 - Co-op deploys with **Mara as the only AI companion**. She is the squad's combat specialist:
-  2,600 HP, faster reactions, near-perfect accuracy and a rapid-fire rifle at roughly triple the
+  2,600 HP, faster reactions, strong accuracy and a rapid-fire rifle at roughly triple the
   damage of a normal ally.
 - Co-op is harder: each checkpoint has **four times the enemies**, and enemies have **1.75x
   health** and deal **1.4x damage**. Up to **120 enemies** can be alive at once in the largest
@@ -227,8 +227,10 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
 - **Two squadmates under your command**: Echo Company deploys with two named allies from the
   start (Mara and Jax). They follow, take cover, shoot independently, go down, and can be
   revived with `E`.
-  Allies have 900 HP, much faster target acquisition, a higher rate of fire, tighter accuracy and
-  headshot-capable damage, so a full squad is a real fighting force. Allies also separate from
+  Allies have 900 HP, faster target acquisition, a higher rate of fire, decent accuracy and
+  headshot-capable damage, so a full squad is a real fighting force. They engage out to 40 m
+  (Mara 46 m), carry a magazine (30 rounds, Mara 24) and pause to reload when it runs dry, so
+  they cannot hose a checkpoint forever. Allies also separate from
   each other so they never stand inside the same body. When one ally is alert or in a firefight,
   nearby allies fall in and follow them into the fight. The HUD shows the full headcount and
   collapses excess cards into a +N summary.
@@ -417,10 +419,14 @@ The game was driven in Chromium at 1600 x 900 during development:
   post-battle field refit automatically applied +10% damage dealt and -5% damage taken (capped at
   -60%) to every player in sequence, and
   a downed player was revived by another player holding E;
-- Mara verified as an expert ally: 2,600 HP, expert flag active, near-perfect aim (0.0012 spread,
-  exact torso/head aim), a 0.10-0.16 s fire interval, and the ally line-of-sight gate now lets her
-  engage instead of holding fire; host-authoritative and mirrored to clients as a single network
-  puppet;
+- Mara verified as an expert ally: 2,600 HP, expert flag active, 0.012 spread, 46 m engagement
+  range, a 24-round magazine with a 1.9 s reload, a 0.10-0.16 s fire interval, and the ally
+  line-of-sight gate now lets her engage instead of holding fire; host-authoritative and mirrored
+  to clients as a single network puppet;
+- ally fire rebalanced and verified: Mara at 24 m hit about 89% with few headshots after the
+  spread/aim change, down from near-perfect; riflemen stop acquiring targets past 40 m;
+- ally reload verified: Mara fired a 24-round magazine empty, entered the 1.9 s reload and came
+  back with a full magazine; Jax uses a 30-round magazine and a 2.6 s reload on the same path;
 - hold-E player revive verified end to end: host downed, client held E for 2.5 s, host returned to
   play at 400 HP with the downed screen closed;
 - Vex verified with two additional elite praetorian guards spawned beside him (two heavies within
