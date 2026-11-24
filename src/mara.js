@@ -1,4 +1,4 @@
-// Mara's radio pool. Every category has enough lines that repeat playthroughs
+﻿// Mara's radio pool. Every category has enough lines that repeat playthroughs
 // do not sound like the same mission brief over and over.
 
 const LINES = {
@@ -15,7 +15,7 @@ const LINES = {
   coop: [
     "No AI squad besides me on this channel. Just us, our rifles and whatever I can put between you and the Chorus.",
     "I'm the only friendly voice in your ear today. Keep each other upright and share what you can.",
-    "Co-op uplink is clean. If you go down, hold on — a teammate can hold E and drag you back.",
+    "Co-op uplink is clean. If you go down, hold on â€” a teammate can hold E and drag you back.",
     "Supplies are tight. Press F near a teammate to pass health or ammo before the next wave hits.",
     "I'll call the field refits in. You keep the trigger discipline. Vex is listening to every one of these channels.",
     "Four players, one squad, plus me. No reinforcements. That is enough if you act like it."
@@ -47,24 +47,24 @@ const LINES = {
     "Beacon engaged. {n} hostiles. I'll keep the channel open."
   ],
   clear: [
-    "Beacon down. The Chorus is deaf in this sector. {count} of 33.",
+    "Beacon down. The Chorus is deaf in this sector. {count} of 35.",
     "Signal's flat. I can hear myself think again. {count} down.",
-    "They're not waking up. They never will. But the signal is weaker here. {count} of 33.",
+    "They're not waking up. They never will. But the signal is weaker here. {count} of 35.",
     "Stronghold's ours. Vex is going to feel that. {count} secured.",
-    "Another hole in the net. Keep moving, Captain. {count} of 33.",
+    "Another hole in the net. Keep moving, Captain. {count} of 35.",
     "The conscripts are down. No cure, no rescue. Just the next gate. {count} secured.",
     "Beacon's dark. That's {count} sectors out of Vex's reach.",
-    "One less choir. One more step north. {count} of 33.",
+    "One less choir. One more step north. {count} of 35.",
     "Clean work. Ugly, but clean. {count} strongholds down.",
-    "I'm reading a lot less static on this channel. {count} of 33.",
+    "I'm reading a lot less static on this channel. {count} of 35.",
     "The tower's silent. Restock, reload, and pick the next door. {count} secured.",
-    "They died believing they were right. Vex made sure of that. {count} of 33.",
+    "They died believing they were right. Vex made sure of that. {count} of 35.",
     "Another beacon bites the snow. {count} strongholds ours.",
-    "The Chorus lost its voice here. Let's make it permanent. {count} of 33.",
+    "The Chorus lost its voice here. Let's make it permanent. {count} of 35.",
     "Good hit. Bad odds. We're still standing. {count} secured.",
-    "I can hear the next checkpoint humming. {count} of 33. Keep moving.",
+    "I can hear the next checkpoint humming. {count} of 35. Keep moving.",
     "No survivors, no prisoners. Just a quieter map. {count} secured.",
-    "Beacon down. That's one more name Vex has to answer for. {count} of 33."
+    "Beacon down. That's one more name Vex has to answer for. {count} of 35."
   ],
   lowHealth: [
     "You're bleeding bad, Captain. Find cover and let the squad work.",
@@ -103,7 +103,7 @@ const LINES = {
     "Nice. Now keep moving before Vex notices the generosity."
   ],
   upgrade: [
-    "Battle's over. Field refit's in — more damage out, less coming back.",
+    "Battle's over. Field refit's in â€” more damage out, less coming back.",
     "Checkpoint secured. I've tuned the next load. You hit harder and bleed less.",
     "Requisition's in. Better rounds, better plates. Same war.",
     "The Chorus is learning. So are we. Damage up, incoming down.",
@@ -139,3 +139,4 @@ export function maraLine(category, vars = {}) {
   }
   return line;
 }
+

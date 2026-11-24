@@ -1,4 +1,4 @@
-import { MAP_BOUNDS, ZONES, MAIN_ROAD, LOCAL_ROADS, REGIONS } from "./zones.js";
+import { MAP_BOUNDS, ZONES, ZONE_COUNT, MAIN_ROAD, LOCAL_ROADS, REGIONS } from "./zones.js";
 
 const $ = id => document.getElementById(id);
 
@@ -616,7 +616,7 @@ export class HUD {
       ctx.fillStyle = "#77907e";
       ctx.font = "11px Consolas, monospace";
       ctx.textAlign = "left";
-      ctx.fillText("THE NATION // NATIONAL ROUTE 9 // 33 STRONGHOLDS", 18, H - 13);
+      ctx.fillText(`THE NATION // NATIONAL ROUTE 9 // ${ZONE_COUNT} CHECKPOINTS`, 18, H - 13);
       ctx.textAlign = "right";
       ctx.fillStyle = "#ffb545";
       ctx.fillText(`${cleared.size} SECURED`, W - 18, H - 13);
@@ -641,8 +641,8 @@ export class HUD {
   drawMap(data) {
     this.drawCampaign(this.mapCanvas, this.mapCtx, data);
     const secured = data.cleared.size;
-    $("map-summary").textContent = secured >= 33
-      ? "33 / 33 SECURED // NATION CLEARED"
-      : `${secured} / 33 SECURED // NEXT: CHECKPOINT ${String(data.nextIndex + 1).padStart(2, "0")}`;
+    $("map-summary").textContent = secured >= ZONE_COUNT
+      ? `${ZONE_COUNT} / ${ZONE_COUNT} SECURED // NATION CLEARED`
+      : `${secured} / ${ZONE_COUNT} SECURED // NEXT: CHECKPOINT ${String(data.nextIndex + 1).padStart(2, "0")}`;
   }
 }

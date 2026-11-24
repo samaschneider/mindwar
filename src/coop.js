@@ -8,6 +8,7 @@ import { createSoldier, Enemy } from "./enemies.js";
 import { net } from "./net.js";
 import { maraLine } from "./mara.js";
 import { vexLine } from "./vex.js";
+import { ZONE_COUNT } from "./zones.js";
 
 const $ = id => document.getElementById(id);
 
@@ -814,7 +815,10 @@ class CoopClient {
         state.active = true;
         enemies.activeIndex = data.index;
       }
-      this.deps.audio.setMusicMode(data.index >= 31 ? "final" : "battle");
+      const mode = data.index >= ZONE_COUNT - 2 ? "final"
+        : data.index < 2 ? "battle2"
+          : data.index % 2 === 0 ? "battle" : "battle2";
+      this.deps.audio.setMusicMode(mode);
       this.deps.audio.setMusicDucked(false);
       this.deps.hud.toast("CHECKPOINT ENGAGED", `${state ? state.zone.name.toUpperCase() : "HOSTILES"} // HOST SIMULATION`, "amber");
       return;
@@ -827,13 +831,15 @@ class CoopClient {
       }
       enemies.applyCleared(indices);
       const region = enemies.states[data.index]?.zone.region || "farm";
-      const exploreMode = region === "suburb" ? "suburb" : region === "city" ? "city" : "farm";
+      const exploreMode = region === "beginning" ? "title"
+        : region === "suburb" ? "suburb"
+          : region === "city" ? "city" : "farm";
       this.deps.audio.setMusicMode(exploreMode);
       this.deps.audio.setMusicDucked(false);
       const zone = enemies.states[data.index]?.zone;
       this.deps.hud.toast(
         "CHECKPOINT SECURED",
-        zone ? `${String(zone.id).padStart(2, "0")} / 33 // ${zone.name.toUpperCase()}` : "SECTOR CLEARED",
+        zone ? `${String(zone.id).padStart(2, "0")} / 35 // ${zone.name.toUpperCase()}` : "SECTOR CLEARED",
         "green"
       );
       this.deps.onCoopZoneClear?.(data.index);

@@ -121,6 +121,7 @@
     <button id="suburb">Cedar's Vill</button>
     <button id="city">Vex's theme</button>
     <button id="battle">Play battle theme</button>
+    <button id="battle2">Battle II</button>
     <button id="final">Final battle</button>
     <button id="stop" class="ghost">Stop</button>
   </div>
@@ -171,6 +172,12 @@ const BATTLE_MELODIES = [
   { name: "counter", lead: [72, 77, 74, 71], answer: [69, 72, 69, 67] },
   { name: "rise", lead: [69, 72, 74, 76], answer: [65, 69, 72, 71] },
   { name: "hammer", lead: [72, 72, 74, 71], answer: [69, 69, 67, 64] }
+];
+const BATTLE2_MELODIES = [
+  { name: "charge", lead: [74, 72, 69, 65], answer: [69, 65, 62, 65] },
+  { name: "drive", lead: [69, 74, 77, 74], answer: [65, 69, 72, 69] },
+  { name: "low", lead: [62, 65, 69, 72], answer: [57, 62, 65, 62] },
+  { name: "hammer", lead: [74, 74, 77, 72], answer: [69, 69, 65, 62] }
 ];
 const EXPLORE_THEMES = {
   farm: {
@@ -228,8 +235,8 @@ const FINAL_THEME = {
   arp: [0, 2, 1, 3, 2, 1, 0, 2, 1, 3, 2, 0, 1, 2, 3, 1],
   ostinato: [0, 0, 12, 7, 0, 12, 7, 12]
 };
-const MUSIC_BPM = { title: 66, battle: 118, farm: 60, suburb: 72, city: 50, final: 126 };
-const PLAYER_GAIN = { title: 2.0, battle: 1.7, farm: 2.0, suburb: 2.0, city: 2.4, final: 1.85 };
+const MUSIC_BPM = { title: 66, battle: 118, battle2: 124, farm: 60, suburb: 72, city: 50, final: 126 };
+const PLAYER_GAIN = { title: 2.0, battle: 1.7, battle2: 1.7, farm: 2.0, suburb: 2.0, city: 2.4, final: 1.85 };
 const THEME_TEXT = {
   farm: {
     title: "Harrow County // Farmland",
@@ -288,6 +295,24 @@ const VARIATION_TEXT = {
       title: "Hammer",
       copy: "C–C–D–B, hammering the same nail while the left hand keeps driving."
     }
+  },
+  battle2: {
+    charge: {
+      title: "Charge",
+      copy: "Dm–B♭–F–C at 124 BPM: a martial charge, brighter than the Am battle loop."
+    },
+    drive: {
+      title: "Drive",
+      copy: "A rising D–F–A–F answer over the second battle progression."
+    },
+    low: {
+      title: "Low",
+      copy: "A low D–F–A–C line, all weight and forward motion."
+    },
+    hammer: {
+      title: "Hammer",
+      copy: "D–D–F–C, a blunt repeated figure with a hard left hand."
+    }
   }
 };
 
@@ -314,6 +339,10 @@ class ScoreEngine {
     this.battleMelodyIndex = -1;
     this.battleVariationName = "";
     this.battleMelody = BATTLE_MELODIES[0];
+    this.battle2Variation = -1;
+    this.battle2MelodyIndex = -1;
+    this.battle2VariationName = "";
+    this.battle2Melody = BATTLE2_MELODIES[0];
     this.onVariation = null;
   }
 
@@ -533,6 +562,58 @@ class ScoreEngine {
     }
   }
 
+  pickBattle2Variation() {
+    const count = BATTLE2_MELODIES.length;
+    let melody = Math.floor(Math.random() * count);
+    if (count > 1 && melody === this.battle2MelodyIndex) {
+      melody = (melody + 1 + Math.floor(Math.random() * (count - 1))) % count;
+    }
+    this.battle2MelodyIndex = melody;
+    this.battle2Variation = melody;
+    this.battle2Melody = BATTLE2_MELODIES[melody];
+    this.battle2VariationName = this.battle2Melody.name;
+    this.onVariation?.(this.mode, this);
+  }
+
+  scheduleBattle2Step(step, t0, stepDur) {
+    if (step === 0) this.pickBattle2Variation();
+    const bar = Math.floor(step / 16) % 4;
+    const s = step % 16;
+    const chords = [
+      [50, 53, 57, 62],
+      [46, 50, 53, 58],
+      [53, 57, 60, 65],
+      [48, 52, 55, 60]
+    ];
+    const bassRoots = [38, 34, 41, 36];
+    const chord = chords[bar];
+    const root = bassRoots[bar];
+    const melody = this.battle2Melody || BATTLE2_MELODIES[0];
+
+    if (s % 2 === 0) {
+      const offsets = [0, 0, 12, 7, 0, 12, 7, 12];
+      this.pianoNote(this.mtof(root + offsets[s / 2]), t0, stepDur * 1.7, 0.1, null, 0.45);
+    }
+    const arp = [0, 2, 1, 3, 2, 1, 0, 2, 1, 3, 2, 0, 1, 2, 3, 1];
+    this.pianoNote(this.mtof(chord[arp[s]] + 12), t0, stepDur * 0.9, 0.044, this.arpBus, 0.3);
+
+    if (s === 0) {
+      for (const note of chord) {
+        this.pianoNote(this.mtof(note), t0, stepDur * 4.6, 0.042, null, 0.4);
+      }
+      this.pianoNote(this.mtof(melody.lead[bar]), t0, stepDur * 3.5, 0.054, this.arpBus, 0.18);
+    }
+    if (s === 8) {
+      for (const note of chord.slice(1, 4)) {
+        this.pianoNote(this.mtof(note), t0, stepDur * 2.3, 0.035, null, 0.4);
+      }
+      this.pianoNote(this.mtof(melody.answer[bar]), t0, stepDur * 2.7, 0.045, this.arpBus, 0.28);
+    }
+    if ((bar === 1 || bar === 3) && s === 0) {
+      this.pianoNote(this.mtof(root - 12), t0, stepDur * 8, 0.07, null, 0.5);
+    }
+  }
+
   schedule() {
     if (!this.ctx || !this.started) return;
     const now = this.ctx.currentTime;
@@ -542,6 +623,7 @@ class ScoreEngine {
     let guard = 0;
     while (this.next < now + 0.22 && guard++ < 24) {
       if (this.mode === "battle") this.scheduleBattleStep(this.step, this.next, stepDur);
+      else if (this.mode === "battle2") this.scheduleBattle2Step(this.step, this.next, stepDur);
       else if (this.mode === "final") this.scheduleFinalBattleStep(this.step, this.next, stepDur);
       else if (EXPLORE_THEMES[this.mode]) {
         this.scheduleRegionStep(this.step, this.next, stepDur, this.mode);
@@ -632,14 +714,21 @@ const canvas = document.getElementById("scope");
 const g2d = canvas.getContext("2d");
 
 function showVariation(mode, source) {
-  const raw = mode === "battle" ? source.battleVariationName : source.titleVariationName;
-  const parts = (raw || (mode === "battle" ? "assault" : "descent/0/0")).split("/");
-  const data = (VARIATION_TEXT[mode] && VARIATION_TEXT[mode][parts[0]]) ||
-    (mode === "battle" ? VARIATION_TEXT.battle.assault : VARIATION_TEXT.title.descent);
-  nowTitle.textContent = `${mode === "battle" ? "Battle" : "Title"} // ${data.title}`;
+  const isBattle2 = mode === "battle2";
+  const raw = isBattle2 ? source.battle2VariationName
+    : mode === "battle" ? source.battleVariationName
+      : source.titleVariationName;
+  const fallback = isBattle2 ? "charge" : mode === "battle" ? "assault" : "descent/0/0";
+  const parts = (raw || fallback).split("/");
+  const table = VARIATION_TEXT[mode] || VARIATION_TEXT.title;
+  const data = table[parts[0]] ||
+    (isBattle2 ? VARIATION_TEXT.battle2.charge
+      : mode === "battle" ? VARIATION_TEXT.battle.assault : VARIATION_TEXT.title.descent);
+  const prefix = isBattle2 ? "Battle II" : mode === "battle" ? "Battle" : "Title";
+  nowTitle.textContent = `${prefix} // ${data.title}`;
   nowCopy.textContent = data.copy;
-  const bpm = mode === "battle" ? 118 : 66;
-  let meta = `${bpm} BPM // A MINOR`;
+  const bpm = isBattle2 ? 124 : mode === "battle" ? 118 : 66;
+  let meta = `${bpm} BPM // ${isBattle2 ? "D MINOR" : "A MINOR"}`;
   if (mode === "title") {
     const arp = (Number(parts[1]) || 0) + 1;
     const bass = (Number(parts[2]) || 0) + 1;
@@ -667,6 +756,7 @@ const STATUS_TEXT = {
   suburb: "PLAYING // CEDAR'S VILL // 72 BPM // D MINOR",
   city: "PLAYING // MERIDIAN // VEX'S THEME // 50 BPM",
   battle: "PLAYING // BATTLE THEME // 118 BPM // A MINOR",
+  battle2: "PLAYING // BATTLE II // 124 BPM // D MINOR",
   final: "PLAYING // FINAL BATTLE // 126 BPM // D MINOR"
 };
 
@@ -684,7 +774,7 @@ function play(mode) {
   setActiveButton(mode);
 }
 
-for (const mode of ["title", "farm", "suburb", "city", "battle", "final"]) {
+for (const mode of ["title", "farm", "suburb", "city", "battle", "battle2", "final"]) {
   document.getElementById(mode)?.addEventListener("click", () => play(mode));
 }
 document.getElementById("stop").addEventListener("click", () => {

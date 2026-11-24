@@ -1,14 +1,14 @@
-# MINDWAR // 33
+# MINDWAR // 35
 
 A complete 3D voxel open-world FPS campaign built with Three.js. One continuous, streamed
-voxel nation locked in winter. Thirty-three strongholds. Roughly 1,380 **permanently**
+voxel nation locked in winter. Two training stages and thirty-three strongholds. Roughly 1,380 **permanently**
 mind-controlled soldiers. Seven holdable weapons, a quick knife punch, frag grenades and a rocket
 launcher. Mara at your side, and no cap on health or ammunition.
 
 Director Vex has weaponised the Chorus signal - a broadcast that permanently overwrites the mind
 of everyone it touches. There is no cure and no rescue. You are the Captain of **Echo Company**,
 two soldiers the signal cannot reach. Fight north through snowbound farmland, suburbs and the
-capital; break all 33 beacons, destroy Captain Voss and put Vex in the ground.
+capital; clear the two training stages, break all 33 strongholds, destroy Captain Voss and put Vex in the ground.
 
 ![Title screen](shots/mindwar/01_title.png)
 
@@ -168,7 +168,7 @@ open the Vite URL in a normal Chrome/Edge tab.
 ## The campaign
 
 The world is a single deterministic voxel map, generated in 16 x 16 chunks around the player.
-The 33 strongholds sit on a curved National Route 9 across a much larger country - farmland,
+The 35 checkpoints — two training stages plus the 33 strongholds — sit on a curved National Route 9 across a much larger country - farmland,
 suburban towns and the capital. Every battle is part of the same world; no level loads and no
 separate maps. Local farm lanes, suburban loops and city grids branch off the highway.
 
@@ -182,7 +182,11 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   Walking within **68 m** of an unbeaten gate also starts the battle automatically, as it did
   before the confirmation prompt existed, so a fresh gate cannot be walked past or ignored. The
   map confirmation still allows an early start from anywhere.
-- **33 strongholds**, each with a live battle: 18 hostiles at Harrow Fields, rising to 38 at
+- **The Beginning + 33 strongholds**: two tutorial stages before Harrow Fields. Stage 1 fields
+  four conscripts and teaches movement, aiming, firing and reloading; stage 2 fields six
+  conscripts/riflemen and teaches grenades, the knife and using cover. The tutorial uses the title
+  theme for exploration and **Battle II** for its fights, then hands off to Harrow County. The
+  campaign then runs 33 live battles: 18 hostiles at Harrow Fields, rising to 38 at
   Voss's Gate and 44 at the Director's tower. The Army of the Chorus totals about 1,380 soldiers,
   spawned in waves.
 - **Winter war**: the whole nation is snowbound. Cold fog and pale sunlight, snow-capped surfaces,
@@ -292,19 +296,20 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   left-hand root/fifth patterns, so the loop keeps changing and the lead never repeats twice in
   a row. Exploration uses three regional themes: **Harrow County** at 60 BPM (open Em–C–G–D),
   **Cedar's Vill** at 72 BPM (colder Dm–B♭–F–C), and **Meridian**, which uses **Vex's darker,
-  50 BPM chromatic Dm–B♭–A♭–A theme** with a low register and dark cutoff. The normal battle
-  track is a tense 118 BPM variation of the battle
-  harmony, rotating through four lead/answer phrases with a driving left-hand ostinato. The last
-  two checkpoints — **Voss's Gate** and **The Director** — use a separate **126 BPM epic final
-  battle theme**: a broad D–F–G–A lead with octave doubling, high bells, a heavy ostinato and low
-  tolling octaves, built from Vex's material. No drums or synth pads are used.
+  50 BPM chromatic Dm–B♭–A♭–A theme** with a low register and dark cutoff. **The Beginning** uses
+  the title theme during its two training stages. Normal battles rotate two arrangements: the
+  118 BPM Am battle and a 124 BPM Dm–B♭–F–C **Battle II**, each with four lead/answer phrases and a
+  driving left-hand ostinato; the tutorial fights use Battle II. The last two checkpoints —
+  **Voss's Gate** and **The Director** — use a separate **126 BPM epic final battle theme**: a
+  broad D–F–G–A lead with octave doubling, high bells, a heavy ostinato and low tolling octaves,
+  built from Vex's material. No drums or synth pads are used.
   The title theme starts as soon as the page loads where the browser allows autoplay, and falls
   back to the first click/key press when it does not. It plays on the title and menu screens; the
   regional theme plays while exploring that region and the correct battle or final-battle theme
   starts when a checkpoint activates. `N` mutes everything. To listen to the full score outside the
   game, open **`/score.html`** (or `public/score.html` from disk): it runs the same piano engine
   with buttons for **Title**, **Harrow County**, **Cedar's Vill**, **Vex's theme**, **Battle**,
-  **Final Battle** and **Stop**, plus a volume slider. Its **NOW PLAYING** panel updates live with
+  **Battle II**, **Final Battle** and **Stop**, plus a volume slider. Its **NOW PLAYING** panel updates live with
   the current movement or variant, showing a name, a short description and BPM/key/arrangement
   details (e.g. `HARROW COUNTY // FARMLAND`, `TITLE // ASCENT`, `BATTLE // HAMMER`).
 
@@ -333,10 +338,10 @@ descending mountain:
 | --- | --- |
 | `src/main.js` | Renderer, red/blue sky lighting, game states, input, campaign flow, save/continue, menus, light/mountain finale |
 | `src/world.js` | Chunk generation, winter block atlas, textured meshing, regional terrain, roads, roofs, trees, beacons, snowfall, collision, voxel raycasts |
-| `src/zones.js` | National route, regional road network, 33 strongholds, farms/suburbs/city props and spawn layout |
+| `src/zones.js` | National route, regional road network, 35 checkpoints, farms/suburbs/city props and spawn layout |
 | `src/player.js` | First-person movement, voxel collision, step-up, camera, health, interaction |
 | `src/weapons.js` | Seven weapon definitions, knife punch, rocket/grenade projectiles, view models, recoil, reloads, optics |
-| `src/enemies.js` | Seven enemy roles, detailed voxel models, FOV/LOS spotting, hit reactions, tree avoidance, rooftop sniper AI, 20-ally squad AI, Captain Voss, the Director, 33 battle states |
+| `src/enemies.js` | Seven enemy roles, detailed voxel models, FOV/LOS spotting, hit reactions, tree avoidance, rooftop sniper AI, 20-ally squad AI, Captain Voss, the Director, 35 battle states |
 | `src/pickups.js` | Unbounded health/ammo drops |
 | `src/effects.js` | Pooled tracers, muzzle flashes, impact particles and explosions |
 | `src/hud.js` | HUD, radar, regional campaign map |
@@ -363,7 +368,7 @@ The game was driven in Chromium at 1600 x 900 during development:
   every non-sniper stayed at ground height;
 - sniper roof-clamp and repositioning verified over an 8-second observation: fixed roof height,
   aim/glint wind-up, firing and damage to the player;
-- 0 buildings intersect any road cell across all 33 zones;
+- 0 buildings intersect any road cell across all 35 zones;
 - checkpoint locking verified: entering a future sector was clamped at 101.2 m from its
   centre and the red containment field appeared; after clearing the previous checkpoint the
   next checkpoint could be confirmed and started normally;
@@ -375,7 +380,7 @@ The game was driven in Chromium at 1600 x 900 during development:
   early start from anywhere;
 - five-world archive verified: starting WORLD 02 made it the active world and saved there, loading
   it restored that world, and clearing it left WORLD 01 untouched;
-- all 32 future checkpoints are marked LOCKED on the map at the start of a new operation;
+- all 34 future checkpoints are marked LOCKED on the map at the start of a new operation;
 - per-world save/continue restores cleared zones, allies, health and ammo;
 - death/redeploy, pause, tactical map, Captain Voss, Director Vex and the full light/mountain
   finale all exercised;
@@ -407,7 +412,7 @@ The game was driven in Chromium at 1600 x 900 during development:
   mind-controlled soldier remains hostile;
 - winter pass verified: cold sky/fog, snow-capped terrain and 1,800 falling snow particles;
 - two-stage boss chain verified: Voss spawned at 3,400 HP in zone 32, his death cleared the
-  zone and advanced to zone 33, and Vex spawned at 7,800 HP;
+  zone and advanced to the Captain's checkpoint, and Vex spawned at 7,800 HP at checkpoint 35;
 - the finale ran through the light column, the Director's destruction, the red-to-blue sky blend,
   the gentle mountain landing at y=0 and the "PEACE AT LAST" victory screen without console errors;
 - both music modes verified as piano-only arrangements with the audio context running and the
@@ -423,13 +428,21 @@ The game was driven in Chromium at 1600 x 900 during development:
 - battle-theme variation verified: 12 consecutive selections covered all four battle phrases
   (assault, counter, rise, hammer) with no immediate repeat, and the live battle sequencer
   rotated from `counter` to `hammer` after one four-bar cycle; the score page matches;
-- score-player verified: Title, Harrow County, Cedar's Vill, Vex, Battle and Final Battle buttons
-  switched modes and levels (2.0/2.0/2.0/2.0/1.7/1.85), the NOW PLAYING panel showed the matching
-  theme text, and title/battle rotations still update live with each variant;
-- regional score verified: deploying in Harrow County set the 60 BPM farm theme, teleporting to
-  Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's darker 50 BPM city theme,
-  a normal checkpoint activated the 118 BPM battle theme, and zone 31 activated the 126 BPM final
-  battle theme; all switches ran without console errors;
+- Battle II variation verified: eight consecutive selections covered charge, drive, low and
+  hammer with no immediate repeat at 124 BPM; both battle themes alternate across the campaign;
+- score-player verified: Title, Harrow County, Cedar's Vill, Vex, Battle, Battle II and Final Battle
+  buttons switched modes and levels (2.0/2.0/2.0/2.4/1.7/1.7/1.85), the NOW PLAYING panel showed
+  the matching theme text, and title/battle/battle2 rotations update live with each variant;
+- regional score verified: The Beginning set the title theme, Harrow County set the 60 BPM farm
+  theme, Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's darker 50 BPM
+  city theme, a normal checkpoint activated the 118 BPM battle theme, Battle II ran at 124 BPM,
+  and zone 33 activated the 126 BPM final battle theme; all switches ran without console errors;
+- 35-checkpoint tutorial verified: The Beginning deployed four conscripts in stage 1 and six in
+  stage 2, showed the title theme between fights, used Battle II for both battles, taught
+  movement/fire/reload and then grenades/knife/cover, and handed off to a normal 118 BPM Harrow
+  Fields battle;
+- v1 save migration verified: old cleared indices were shifted by two and the two training stages
+  were marked complete, so existing worlds continue at the correct checkpoint;
 - ally separation verified: two allies placed in the same position pushed apart on their next
   update;
 - X-key and middle-mouse knife punch verified: both hid the equipped gun, showed the knife swing,

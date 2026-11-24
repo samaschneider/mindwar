@@ -1,30 +1,37 @@
 // Campaign layout, national road network, regions and authored voxel structures.
-// One deterministic open world, 33 strongholds from farmland to the capital.
+// One deterministic open world: two training stages and 33 strongholds.
 
-export const ZONE_COUNT = 33;
+export const ZONE_COUNT = 35;
 
 export const REGIONS = {
+  beginning: {
+    id: "beginning", name: "THE BEGINNING", label: "TRAINING", color: "#b7a37a",
+    start: 0, end: 1
+  },
   farm: {
     id: "farm", name: "HARROW COUNTY", label: "FARMLAND", color: "#9daf63",
-    start: 0, end: 8
+    start: 2, end: 10
   },
   suburb: {
     id: "suburb", name: "CEDAR'S VILL", label: "SUBURBS", color: "#8fa3aa",
-    start: 9, end: 20
+    start: 11, end: 22
   },
   city: {
     id: "city", name: "MERIDIAN", label: "CITY", color: "#c38f64",
-    start: 21, end: 32
+    start: 23, end: 34
   }
 };
 
 export function regionForIndex(i) {
+  if (i <= REGIONS.beginning.end) return "beginning";
   if (i <= REGIONS.farm.end) return "farm";
   if (i <= REGIONS.suburb.end) return "suburb";
   return "city";
 }
 
 export const ZONE_NAMES = [
+  // The Beginning - two training stages
+  "The Beginning I", "The Beginning II",
   // Harrow County farmland
   "Harrow Fields", "Mill Creek", "Coldwater", "Route 9", "Silo Row",
   "Thresher's Rest", "Orchard Line", "Grain Elevator", "The Fence",
@@ -39,6 +46,8 @@ export const ZONE_NAMES = [
 ];
 
 export const ZONE_FLAVOUR = [
+  "Mara's first drill. Move, aim and clear the training field.",
+  "Second drill. Grenades, the knife and keeping your squad alive.",
   "Wheat fields all the way to the horizon. The Chorus pays well for grain.",
   "A mill town that never got its harvest in.",
   "Cold water, colder people. Vex's signal crews came through here first.",
@@ -101,8 +110,15 @@ function angleLerp(a, b, t) {
 }
 
 /* ------------------------------- national route --------------------------- */
+const CORE_ZONE_COUNT = 33;
+function coreRegionForIndex(i) {
+  if (i <= 8) return "farm";
+  if (i <= 20) return "suburb";
+  return "city";
+}
+
 const rng = mulberry32(0xc0ffee);
-const centers = [{ x: 0, z: 0 }];
+const coreCenters = [{ x: 0, z: 0 }];
 let heading = -Math.PI / 2;
 
 const REGION_TARGETS = {
@@ -111,12 +127,12 @@ const REGION_TARGETS = {
   city: { x: 1450, z: -1750 }
 };
 
-for (let i = 1; i < ZONE_COUNT; i++) {
+for (let i = 1; i < CORE_ZONE_COUNT; i++) {
   let chosen = null;
   for (let attempt = 0; attempt < 55; attempt++) {
     const step = 240 + rng() * 92;
-    const last = centers[centers.length - 1];
-    const target = REGION_TARGETS[regionForIndex(i)] || REGION_TARGETS.city;
+    const last = coreCenters[coreCenters.length - 1];
+    const target = REGION_TARGETS[coreRegionForIndex(i)] || REGION_TARGETS.city;
     let h = heading + (rng() - 0.5) * 1.35;
     if (attempt < 24) {
       h = angleLerp(h, Math.atan2(target.z - last.z, target.x - last.x), 0.22);
@@ -131,7 +147,7 @@ for (let i = 1; i < ZONE_COUNT; i++) {
     }
 
     let ok = true;
-    for (const c of centers) {
+    for (const c of coreCenters) {
       if (Math.hypot(nx - c.x, nz - c.z) < 218) { ok = false; break; }
     }
     if (ok) { chosen = { x: nx, z: nz, heading: h }; break; }
@@ -139,7 +155,7 @@ for (let i = 1; i < ZONE_COUNT; i++) {
   if (!chosen) {
     // Deterministic spiral fallback: never let two strongholds collapse into
     // the same piece of countryside.
-    const last = centers[centers.length - 1];
+    const last = coreCenters[coreCenters.length - 1];
     search:
     for (let rad = 235; rad <= 760; rad += 22) {
       for (let k = 0; k < 48; k++) {
@@ -148,7 +164,7 @@ for (let i = 1; i < ZONE_COUNT; i++) {
         const nz = last.z + Math.sin(h) * rad;
         if (Math.hypot(nx, nz) > 2350) continue;
         let ok = true;
-        for (const c of centers) {
+        for (const c of coreCenters) {
           if (Math.hypot(nx - c.x, nz - c.z) < 218) { ok = false; break; }
         }
         if (ok) {
@@ -163,8 +179,16 @@ for (let i = 1; i < ZONE_COUNT; i++) {
     }
   }
   heading = chosen.heading;
-  centers.push({ x: chosen.x, z: chosen.z });
+  coreCenters.push({ x: chosen.x, z: chosen.z });
 }
+
+// Two training stages sit in front of Harrow Fields and keep the original 33
+// campaign centers exactly where they were.
+const centers = [
+  { x: -80, z: 150 },
+  { x: 80, z: 150 },
+  ...coreCenters
+];
 
 /* ------------------------------ curved highways --------------------------- */
 // The main road bends between strongholds instead of running point-to-point.
@@ -246,7 +270,10 @@ for (let i = 0; i < centers.length; i++) {
   const region = regionForIndex(i);
   const r = mulberry32(0x9000 + i * 7919);
 
-  if (region === "farm") {
+  if (region === "beginning") {
+    addLocalRoad([{ x: c.x - 30, z: c.z }, { x: c.x + 30, z: c.z }], 3, 1.6);
+    addLocalRoad([{ x: c.x, z: c.z - 30 }, { x: c.x, z: c.z + 30 }], 3, 1.6);
+  } else if (region === "farm") {
     for (let k = 0; k < 2 + (i % 2); k++) {
       const a = r() * Math.PI * 2;
       const rad = 62 + r() * 42;
@@ -342,13 +369,47 @@ export const ZONES = centers.map((c, i) => {
   const name = ZONE_NAMES[i];
   const region = regionForIndex(i);
   const regionDef = REGIONS[region];
-  const pal = PALETTES[region];
-  const r = mulberry32(0x51de + i * 977);
-  const bossKind = i === ZONE_COUNT - 1 ? "director" : i === ZONE_COUNT - 2 ? "captain" : null;
+  const pal = PALETTES[region] || PALETTES.farm;
+  const coreIndex = i - 2;
+  const r = mulberry32(0x51de + coreIndex * 977);
+  const bossKind = coreIndex === CORE_ZONE_COUNT - 1 ? "director" : coreIndex === CORE_ZONE_COUNT - 2 ? "captain" : null;
   const isBoss = !!bossKind;
-  const total = i === ZONE_COUNT - 1 ? 44 : i === ZONE_COUNT - 2 ? 38 : 18 + Math.round(i * 1.5);
+  const total = coreIndex === CORE_ZONE_COUNT - 1 ? 44 : coreIndex === CORE_ZONE_COUNT - 2 ? 38 : 18 + Math.round(coreIndex * 1.5);
   const props = [];
   const spawnAngles = [];
+
+  if (i < 2) {
+    // Training yard: no buildings, just a few crates for cover and a short
+    // ring of spawn points. The battle itself is a normal wave of four or six
+    // hostiles, so everything the player learns uses the real combat systems.
+    props.push(
+      { kind: "box", x0: c.x - 15, y0: 4, z0: c.z - 3, sx: 4, sy: 2, sz: 3, color: 15, top: true },
+      { kind: "box", x0: c.x + 10, y0: 4, z0: c.z - 12, sx: 3, sy: 2, sz: 4, color: 8, top: true },
+      { kind: "box", x0: c.x - 6, y0: 4, z0: c.z + 12, sx: 5, sy: 2, sz: 3, color: 16, top: true },
+      { kind: "box", x0: c.x + 13, y0: 4, z0: c.z + 9, sx: 3, sy: 2, sz: 3, color: 15, top: true }
+    );
+    for (let k = 0; k < 24; k++) {
+      spawnAngles.push({ a: (k / 24) * Math.PI * 2 + r() * 0.2, rad: 14 + r() * 22 });
+    }
+    return {
+      index: i,
+      id: i + 1,
+      name,
+      region,
+      regionName: regionDef.name,
+      regionLabel: regionDef.label,
+      regionColor: regionDef.color,
+      flavour: ZONE_FLAVOUR[i],
+      x: c.x, z: c.z,
+      total: i === 0 ? 4 : 6,
+      isBoss: false,
+      boss: null,
+      props,
+      spawnAngles,
+      cleared: false,
+      isIntro: true
+    };
+  }
 
   const overlaps = (x0, z0, w, d, pad = 3) => {
     for (const p of props) {
@@ -377,8 +438,8 @@ export const ZONES = centers.map((c, i) => {
       const x0 = Math.round(x - opts.w / 2);
       const z0 = Math.round(z - opts.d / 2);
       if (Math.hypot(x - c.x, z - c.z) < 18) continue;
-      if (i === 0 && x0 < 24 && x0 + opts.w > -24 && z0 < 112 && z0 + opts.d > 56) continue;
-      if (i === 0 && Math.hypot(x - 0, z - 95) < 32) continue;
+      if (coreIndex === 0 && x0 < 24 && x0 + opts.w > -24 && z0 < 112 && z0 + opts.d > 56) continue;
+      if (coreIndex === 0 && Math.hypot(x - 0, z - 95) < 32) continue;
       if (overlaps(x0, z0, opts.w, opts.d, 3)) continue;
       if (touchesRoad(x0, z0, opts.w, opts.d, 4)) continue;
       const doorSide = opts.doorSide || doorToward(c, x, z);
@@ -407,7 +468,7 @@ export const ZONES = centers.map((c, i) => {
       const x = Math.round(c.x + Math.cos(ang) * rad);
       const z = Math.round(c.z + Math.sin(ang) * rad);
       if (Math.hypot(x - c.x, z - c.z) < 17) continue;
-      if (i === 0 && x > -24 && x < 24 && z > 56 && z < 112) continue;
+      if (coreIndex === 0 && x > -24 && x < 24 && z > 56 && z < 112) continue;
       if (touchesRoad(x - 2, z - 2, 4, 4, 1)) continue;
       if (overlaps(x - 2, z - 2, 4, 4, 1)) continue;
       if (treeOverlaps(x - 2, z - 2, 4, 4, 1)) continue;

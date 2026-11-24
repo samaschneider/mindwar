@@ -501,7 +501,7 @@ const enemies = new EnemyManager({
     },
     onBattleStart: (zone) => {
       if (state === "playing") {
-        audio.setMusicMode(zone && zone.index >= 31 ? "final" : "battle");
+        audio.setMusicMode(battleMusicMode(zone ? zone.index : enemies.activeIndex));
         audio.setMusicDucked(false);
       }
     },
@@ -722,7 +722,12 @@ function readSave(slot = activeSlot) {
     const raw = localStorage.getItem(slotKey(slot));
     if (!raw) return null;
     const data = JSON.parse(raw);
-    if (!data || data.v !== 1 || !Array.isArray(data.cleared)) return null;
+    if (!data) return null;
+    if (data.v === 1 && Array.isArray(data.cleared)) {
+      const cleared = [...new Set([0, 1, ...data.cleared.map(i => i + 2)])].sort((a, b) => a - b);
+      return { ...data, v: 2, cleared };
+    }
+    if (data.v !== 2 || !Array.isArray(data.cleared)) return null;
     return data;
   } catch (e) {
     return null;
@@ -754,7 +759,7 @@ function refreshContinueButton() {
   if (existingSave) {
     const info = $("continue-info");
     if (info) {
-      info.textContent = `WORLD ${String(activeSlot + 1).padStart(2, "0")} · ${existingSave.cleared.length} / 33 SECURED · ${existingSave.kills || 0} KILLS`;
+      info.textContent = `WORLD ${String(activeSlot + 1).padStart(2, "0")} · ${existingSave.cleared.length} / 35 SECURED · ${existingSave.kills || 0} KILLS`;
     }
   }
 }
@@ -764,7 +769,7 @@ function saveGame() {
   if (!gameStarted || state === "dead" || state === "victory") return;
   try {
     const data = {
-      v: 1,
+      v: 2,
       ts: Date.now(),
       player: player.getSaveData(),
       cleared: enemies.states.filter(s => s.cleared).map(s => s.zone.index),
@@ -1084,8 +1089,8 @@ function continueOperation(save) {
   hud.show(true);
   hud.hideBoss();
   hud.setPrompt(null);
-  hud.banner("OPERATION RESTORED", "ECHO COMPANY", `${save.cleared.length} / 33 STRONGHOLDS SECURED`, true);
-  hud.comms("MARA", `Back on the net, Captain. ${save.cleared.length} of 33 beacons dark. Vex knows we're still breathing.`, 6400);
+  hud.banner("OPERATION RESTORED", "ECHO COMPANY", `${save.cleared.length} / 35 CHECKPOINTS SECURED`, true);
+  hud.comms("MARA", `Back on the net, Captain. ${save.cleared.length} of 35 checkpoints dark. Vex knows we're still breathing.`, 6400);
   saveGame();
 }
 
@@ -1172,7 +1177,7 @@ function renderCampaignSlots() {
     if (save) {
       const lastIdx = save.cleared.length ? Math.max(...save.cleared) : -1;
       const where = lastIdx >= 0 ? ZONES[lastIdx].name.toUpperCase() : "HARROW FIELDS";
-      meta.textContent = `${save.cleared.length} / 33 SECURED · ${save.kills || 0} KILLS · ${where}`;
+      meta.textContent = `${save.cleared.length} / 35 SECURED · ${save.kills || 0} KILLS · ${where}`;
     } else {
       meta.textContent = "EMPTY WORLD // READY FOR DEPLOYMENT";
     }
@@ -1245,7 +1250,7 @@ function pauseGame() {
   $("pause-screen").classList.remove("hidden");
   hud.setPrompt(null);
   fillStats($("pause-stats"), [
-    [String(enemies.states.filter(s => s.cleared).length).padStart(2, "0") + " / 33", "STRONGHOLDS"],
+    [String(enemies.states.filter(s => s.cleared).length).padStart(2, "0") + " / 35", "CHECKPOINTS"],
     [String(enemies.kills), "CONFIRMED KILLS"],
     [String(enemies.allies.filter(a => !a.downed).length + 1), "SQUAD ACTIVE"],
     [formatTime(Date.now() - sessionStart), "OPERATION TIME"]
@@ -1256,15 +1261,19 @@ function battleActive() {
   return enemies.states.some(s => s.active && !s.cleared);
 }
 
+function battleMusicMode(index = enemies.activeIndex) {
+  if (index >= ZONE_COUNT - 2) return "final";
+  if (index < 2) return "battle2";
+  return index % 2 === 0 ? "battle" : "battle2";
+}
+
 function regionMusicMode() {
+  if (enemies.nextIndex < 2) return "title";
   const region = nearestZone(player.pos.x, player.pos.z).zone.region;
+  if (region === "beginning") return "title";
   if (region === "suburb") return "suburb";
   if (region === "city") return "city";
   return "farm";
-}
-
-function battleMusicMode(index = enemies.activeIndex) {
-  return index >= 31 ? "final" : "battle";
 }
 
 function currentMusicMode() {
@@ -1454,7 +1463,7 @@ function showDeath() {
   hud.show(false);
   fillStats($("death-stats"), [
     [String(enemies.kills), "ELIMINATIONS"],
-    [String(enemies.states.filter(s => s.cleared).length) + " / 33", "STRONGHOLDS"],
+    [String(enemies.states.filter(s => s.cleared).length) + " / 35", "CHECKPOINTS"],
     [formatTime(Date.now() - sessionStart), "SURVIVED"],
     [Math.round(player.totalDamageTaken).toLocaleString("en-US"), "DAMAGE TAKEN"]
   ]);
@@ -1497,7 +1506,7 @@ function showVictory() {
   hud.setPrompt(null);
   hud.show(false);
   fillStats($("victory-stats"), [
-    ["33 / 33", "STRONGHOLDS"],
+    ["35 / 35", "CHECKPOINTS"],
     [String(enemies.kills), "ELIMINATIONS"],
     [String(enemies.allies.filter(a => !a.downed).length + 1), "SQUAD ALIVE"],
     [formatTime(Date.now() - sessionStart), "OPERATION TIME"]

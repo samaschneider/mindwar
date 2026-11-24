@@ -53,6 +53,12 @@ const BATTLE_MELODIES = [
   { name: "rise", lead: [69, 72, 74, 76], answer: [65, 69, 72, 71] },
   { name: "hammer", lead: [72, 72, 74, 71], answer: [69, 69, 67, 64] }
 ];
+const BATTLE2_MELODIES = [
+  { name: "charge", lead: [74, 72, 69, 65], answer: [69, 65, 62, 65] },
+  { name: "drive", lead: [69, 74, 77, 74], answer: [65, 69, 72, 69] },
+  { name: "low", lead: [62, 65, 69, 72], answer: [57, 62, 65, 62] },
+  { name: "hammer", lead: [74, 74, 77, 72], answer: [69, 69, 65, 62] }
+];
 
 // Region themes. Farmland is open and slow; Cedar's Vill is colder and more
 // mechanical; Meridian is Vex's low, hostile theme. The final two checkpoints
@@ -115,12 +121,12 @@ const FINAL_THEME = {
   ostinato: [0, 0, 12, 7, 0, 12, 7, 12]
 };
 
-const MUSIC_BPM = { title: 66, battle: 118, farm: 60, suburb: 72, city: 50, final: 126 };
+const MUSIC_BPM = { title: 66, battle: 118, battle2: 124, farm: 60, suburb: 72, city: 50, final: 126 };
 
 function musicGainFor(mode) {
   if (mode === "city") return MUSIC_CITY_GAIN;
   if (mode === "final") return MUSIC_FINAL_GAIN;
-  if (mode === "battle") return MUSIC_BATTLE_GAIN;
+  if (mode === "battle" || mode === "battle2") return MUSIC_BATTLE_GAIN;
   return MUSIC_TITLE_GAIN;
 }
 
@@ -150,6 +156,10 @@ export class AudioEngine {
     this.battleMelodyIndex = -1;
     this.battleVariationName = "";
     this.battleMelody = BATTLE_MELODIES[0];
+    this.battle2Variation = -1;
+    this.battle2MelodyIndex = -1;
+    this.battle2VariationName = "";
+    this.battle2Melody = BATTLE2_MELODIES[0];
   }
 
   ensure() {
@@ -446,6 +456,7 @@ export class AudioEngine {
 
   scheduleMusicStep(step, t0, stepDur) {
     if (this.musicMode === "battle") this.scheduleBattleStep(step, t0, stepDur);
+    else if (this.musicMode === "battle2") this.scheduleBattle2Step(step, t0, stepDur);
     else if (this.musicMode === "final") this.scheduleFinalBattleStep(step, t0, stepDur);
     else if (EXPLORE_THEMES[this.musicMode]) {
       this.scheduleRegionStep(step, t0, stepDur, this.musicMode);
@@ -625,6 +636,60 @@ export class AudioEngine {
     }
   }
 
+  pickBattle2Variation() {
+    const count = BATTLE2_MELODIES.length;
+    let melody = Math.floor(Math.random() * count);
+    if (count > 1 && melody === this.battle2MelodyIndex) {
+      melody = (melody + 1 + Math.floor(Math.random() * (count - 1))) % count;
+    }
+    this.battle2MelodyIndex = melody;
+    this.battle2Variation = melody;
+    this.battle2Melody = BATTLE2_MELODIES[melody];
+    this.battle2VariationName = this.battle2Melody.name;
+  }
+
+  scheduleBattle2Step(step, t0, stepDur) {
+    if (step === 0) this.pickBattle2Variation();
+    const bar = Math.floor(step / 16) % 4;
+    const s = step % 16;
+    // Second battle theme: Dm - Bb - F - C, brighter and more martial than the
+    // Am battle loop, but still minor and hard-driven.
+    const chords = [
+      [50, 53, 57, 62],   // Dm
+      [46, 50, 53, 58],   // Bb
+      [53, 57, 60, 65],   // F
+      [48, 52, 55, 60]    // C
+    ];
+    const bassRoots = [38, 34, 41, 36];
+    const chord = chords[bar];
+    const root = bassRoots[bar];
+    const melody = this.battle2Melody || BATTLE2_MELODIES[0];
+
+    if (s % 2 === 0) {
+      const offsets = [0, 0, 12, 7, 0, 12, 7, 12];
+      this.pianoNote(this.mtof(root + offsets[s / 2]), t0, stepDur * 1.7, 0.1, null, 0.45);
+    }
+    const arp = [0, 2, 1, 3, 2, 1, 0, 2, 1, 3, 2, 0, 1, 2, 3, 1];
+    this.pianoNote(this.mtof(chord[arp[s]] + 12), t0, stepDur * 0.9, 0.044, this.arpBus, 0.3);
+
+    if (s === 0) {
+      for (const note of chord) {
+        this.pianoNote(this.mtof(note), t0, stepDur * 4.6, 0.042, null, 0.4);
+      }
+      this.pianoNote(this.mtof(melody.lead[bar]), t0, stepDur * 3.5, 0.054, this.arpBus, 0.18);
+    }
+    if (s === 8) {
+      for (const note of chord.slice(1, 4)) {
+        this.pianoNote(this.mtof(note), t0, stepDur * 2.3, 0.035, null, 0.4);
+      }
+      this.pianoNote(this.mtof(melody.answer[bar]), t0, stepDur * 2.7, 0.045, this.arpBus, 0.28);
+    }
+    if ((bar === 1 || bar === 3) && s === 0) {
+      this.pianoNote(this.mtof(root - 12), t0, stepDur * 8, 0.07, null, 0.5);
+    }
+  }
+
+
   scheduleMusic() {
     if (!this.ctx || !this.musicStarted) return;
     const now = this.ctx.currentTime;
@@ -687,7 +752,7 @@ export class AudioEngine {
   }
 
   setMusicMode(mode) {
-    if (!["title", "battle", "farm", "suburb", "city", "final"].includes(mode)) return;
+    if (!["title", "battle", "battle2", "farm", "suburb", "city", "final"].includes(mode)) return;
     if (this.musicMode === mode) return;
     this.musicMode = mode;
     if (!this.ctx || !this.musicStarted || !this.musicGain) return;

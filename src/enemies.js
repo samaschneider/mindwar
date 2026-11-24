@@ -1651,7 +1651,7 @@ export class EnemyManager {
       const remaining = Math.max(0, total - active.killed);
       const dist = Math.round(Math.hypot(this.player.pos.x - active.zone.x, this.player.pos.z - active.zone.z));
       this.hud.setObjective(
-        `CHECKPOINT ${String(active.zone.id).padStart(2, "0")} / 33 // ${active.zone.regionName}`,
+        `CHECKPOINT ${String(active.zone.id).padStart(2, "0")} / 35 // ${active.zone.regionName}`,
         active.zone.name.toUpperCase(),
         `${active.zone.regionLabel} // HOSTILES REMAINING ${remaining} OF ${total}`,
         active.killed / total,
@@ -1660,7 +1660,7 @@ export class EnemyManager {
     } else if (next) {
       const dist = Math.round(Math.hypot(this.player.pos.x - next.zone.x, this.player.pos.z - next.zone.z));
       this.hud.setObjective(
-        `NEXT CHECKPOINT // ${String(next.zone.id).padStart(2, "0")} / 33`,
+        `NEXT CHECKPOINT // ${String(next.zone.id).padStart(2, "0")} / 35`,
         next.zone.name.toUpperCase(),
         `${next.zone.regionName} // CLEAR THIS CHECKPOINT TO ADVANCE // ${dist} m`,
         cleared / ZONE_COUNT,
@@ -1753,23 +1753,43 @@ export class EnemyManager {
     const bossKind = state.zone.boss;
     const total = this.totalFor(state);
     this.audio.alarm();
-    this.hud.banner(
-      bossKind === "director"
-        ? "FINAL CHECKPOINT // 33"
-        : bossKind === "captain"
-          ? "BOSS CHECKPOINT // 32"
-          : `CHECKPOINT ${String(state.zone.id).padStart(2, "0")} // ${total} HOSTILES`,
-      state.zone.name.toUpperCase(),
-      bossKind === "director"
-        ? "DIRECTOR VEX // CHORUS PRIME"
-        : bossKind === "captain"
-          ? "CAPTAIN VOSS // VEX'S HAND"
-          : "CHORUS GARRISON DETECTED — ELIMINATE ALL",
-      false
-    );
-    this.hud.toast("CHECKPOINT ENGAGED", `${state.zone.name.toUpperCase()} // ${total} MIND-CONTROLLED`, "amber");
-    this.hud.comms("MARA", maraLine("engage", { n: total }), 6200);
-    if (state.zone.index % 5 === 4) {
+    if (state.zone.index < 2) {
+      const stage = state.zone.index + 1;
+      this.hud.banner(
+        `THE BEGINNING // STAGE ${stage}`,
+        state.zone.name.toUpperCase(),
+        stage === 1
+          ? "MOVE // AIM // FIRE // CLEAR THE FIELD"
+          : "GRENADES // KNIFE // COVER // KEEP THE SQUAD ALIVE",
+        false
+      );
+      this.hud.toast("TRAINING ENGAGED", `${state.zone.name.toUpperCase()} // ${total} HOSTILES`, "green");
+      this.hud.comms(
+        "MARA",
+        stage === 1
+          ? "Move with WASD, aim with the mouse, fire with LMB, reload with R. Four hostiles. Clear the field, Captain."
+          : "Second drill. Grenades with G, knife with X, and use the crates for cover. Six hostiles. Keep moving.",
+        9000
+      );
+    } else {
+      this.hud.banner(
+        bossKind === "director"
+          ? "FINAL CHECKPOINT // 35"
+          : bossKind === "captain"
+            ? "BOSS CHECKPOINT // 34"
+            : `CHECKPOINT ${String(state.zone.id).padStart(2, "0")} // ${total} HOSTILES`,
+        state.zone.name.toUpperCase(),
+        bossKind === "director"
+          ? "DIRECTOR VEX // CHORUS PRIME"
+          : bossKind === "captain"
+            ? "CAPTAIN VOSS // VEX'S HAND"
+            : "CHORUS GARRISON DETECTED — ELIMINATE ALL",
+        false
+      );
+      this.hud.toast("CHECKPOINT ENGAGED", `${state.zone.name.toUpperCase()} // ${total} MIND-CONTROLLED`, "amber");
+      this.hud.comms("MARA", maraLine("engage", { n: total }), 6200);
+    }
+    if (state.zone.index % 5 === 4 && state.zone.index >= 2) {
       setTimeout(() => this.hud.comms("DIRECTOR VEX", VILLAIN_LINES[(state.zone.index / 5 | 0) % VILLAIN_LINES.length], 7000), 800);
     }
     state.spawnTimer = 0.15;
@@ -1835,8 +1855,10 @@ export class EnemyManager {
 
   spawnEnemy(state) {
     const zone = state.zone;
-    let typeKey = chooseRole(zone.region);
-    if (typeKey !== "sniper" && state.spawned < 3 && state.snipersSpawned === 0 && state.snipersSpawned < state.maxSnipers) {
+    let typeKey = zone.index < 2
+      ? (zone.index === 0 ? "conscript" : (Math.random() < 0.5 ? "conscript" : "rifleman"))
+      : chooseRole(zone.region);
+    if (zone.index >= 2 && typeKey !== "sniper" && state.spawned < 3 && state.snipersSpawned === 0 && state.snipersSpawned < state.maxSnipers) {
       typeKey = "sniper";
     }
     if (typeKey === "sniper" && (state.snipersSpawned >= state.maxSnipers || this.player === null)) {
@@ -1887,7 +1909,7 @@ export class EnemyManager {
     this.effects.explosion(new THREE.Vector3(pos.x, pos.y + 1.5, pos.z), 2);
     this.audio.bossRoar();
     this.hud.banner(
-      captain ? `BOSS CHECKPOINT // ${String(zone.id).padStart(2, "0")}` : "FINAL CHECKPOINT // 33",
+      captain ? `BOSS CHECKPOINT // ${String(zone.id).padStart(2, "0")}` : "FINAL CHECKPOINT // 35",
       captain ? "CAPTAIN VOSS" : "THE DIRECTOR",
       captain ? "VEX'S HAND // BREAK THE INNER GATE" : "KILL VEX // BREAK THE CHORUS",
       false
@@ -2091,9 +2113,18 @@ export class EnemyManager {
     this.clearedCount = this.states.filter(s => s.cleared).length;
     this.world.setZoneCleared(state.zone.index);
     this.hud.banner("CHECKPOINT SECURED", state.zone.name.toUpperCase(), "NEXT CHECKPOINT UNLOCKED // SUPPLIES RECOVERED", true);
-    this.hud.toast("CHECKPOINT CLEARED", `${state.zone.id} / 33 // ${state.zone.name.toUpperCase()}`, "green");
-    this.hud.comms("MARA", maraLine("clear", { count: this.clearedCount }), 6200);
+    this.hud.toast("CHECKPOINT CLEARED", `${state.zone.id} / 35 // ${state.zone.name.toUpperCase()}`, "green");
+    if (state.zone.index === 0) {
+      this.hud.banner("STAGE 1 CLEAR", "THE BEGINNING", "NEXT: STAGE 2 // GRENADES, KNIFE, COVER", true);
+      this.hud.comms("MARA", "Good. Next drill: grenades with G, the knife with X, and use cover. Six hostiles this time.", 8600);
+    } else if (state.zone.index === 1) {
+      this.hud.banner("TRAINING COMPLETE", "THE BEGINNING", "HARROW FIELDS UNLOCKED // THE CAMPAIGN BEGINS", true);
+      this.hud.comms("MARA", "Training's done, Captain. Harrow Fields is live. Everything from here is the real war.", 8600);
+    } else {
+      this.hud.comms("MARA", maraLine("clear", { count: this.clearedCount }), 6200);
+    }
     this.audio.zoneClear();
+    this.updateNext();
     this.callbacks.onBattleEnd?.(state.zone);
 
     if (this.pickups) {
@@ -2101,7 +2132,6 @@ export class EnemyManager {
       this.pickups.supplyDrop(new THREE.Vector3(state.zone.x + 4, y, state.zone.z + 4));
     }
     for (const a of this.allies) if (a.downed) a.revive(0.5);
-    this.updateNext();
     this.netEvent?.("zoneClear", {
       index: state.zone.index,
       cleared: this.states.map((s, i) => s.cleared ? i : -1).filter(i => i >= 0)
