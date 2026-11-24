@@ -1084,14 +1084,16 @@ class Ally {
     this.health = this.maxHealth;
     this.downed = false;
     this.downTimer = 0;
-    this.fireTimer = this.expert ? 0.3 + Math.random() * 0.2 : Math.random() * 0.8;
-    // Engagement envelope and magazine. Allies are good shots, not laser
-    // turrets: they need a clear line and a loaded rifle.
-    this.range = this.expert ? 46 : 40;
+    this.fireTimer = this.expert ? 0.6 + Math.random() * 0.6 : Math.random() * 0.8;
+    // Engagement envelope and magazine. Mara is support, not the main gun:
+    // short reach, a slow shot cadence and a reaction delay before she opens
+    // fire, so the player gets first crack at most enemies.
+    this.range = this.expert ? 36 : 40;
     this.magSize = this.expert ? 20 : 24;
     this.ammo = this.magSize;
     this.reloadTime = this.expert ? 2.0 : 2.8;
     this.reloadTimer = 0;
+    this.engageTimer = 0;
     this.losTimer = 0;
     this.target = null;
     this.canSee = false;
@@ -1147,6 +1149,7 @@ class Ally {
         this.ammo = this.magSize;
       }
     }
+    this.engageTimer = Math.max(0, this.engageTimer - dt);
     const dxp = player.pos.x - this.pos.x, dzp = player.pos.z - this.pos.z;
     const dp = Math.hypot(dxp, dzp);
 
@@ -1160,6 +1163,7 @@ class Ally {
       this.losTimer = this.expert ? 0.08 + Math.random() * 0.06 : 0.18 + Math.random() * 0.14;
       const eye = new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z);
       const nowMs = performance.now();
+      const px = player.pos.x, pz = player.pos.z;
       let best = null, bd = this.range;
       for (const e of manager.enemies) {
         if (e.dead) continue;
@@ -1167,7 +1171,12 @@ class Ally {
         // Leave a nearly-dead enemy the Captain has already hit for the
         // Captain to finish; allies should not vacuum up every kill.
         const reserved = e.health <= e.maxHealth * 0.4 && nowMs - (e.lastPlayerHit || 0) < 5000;
-        if (d < bd && !reserved && manager.world.hasLOS(
+        // Mara only opens up on an untouched enemy when it is close enough to
+        // threaten the Captain. Long-range targets she fights only if someone
+        // has already bloodied them, so the player gets first contact.
+        const opening = this.expert && e.health >= e.maxHealth - 0.01 &&
+          Math.hypot(e.pos.x - px, e.pos.z - pz) > 22;
+        if (d < bd && !reserved && !opening && manager.world.hasLOS(
           eye,
           new THREE.Vector3(e.pos.x, e.pos.y + 1.2, e.pos.z))) {
           bd = d; best = e;
@@ -1181,8 +1190,14 @@ class Ally {
           bd = d; best = manager.boss;
         }
       }
+      const previous = this.target;
       this.target = best;
       this.canSee = !!best;
+      if (best && best !== previous) {
+        this.engageTimer = this.expert ? 1.0 + Math.random() * 0.5 : 0.5 + Math.random() * 0.3;
+      } else if (!best) {
+        this.engageTimer = 0;
+      }
       if (best) this.alertTimer = Math.max(this.alertTimer, 5);
     }
 
@@ -1219,7 +1234,7 @@ class Ally {
       this.fireTimer -= dt;
       if (this.reloadTimer > 0) {
         // Magazine empty: hold fire until the reload finishes.
-      } else if (this.fireTimer <= 0) {
+      } else if (this.fireTimer <= 0 && this.engageTimer <= 0) {
         const eye = new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z);
         const targetEye = new THREE.Vector3(target.pos.x, target.pos.y + 1.2, target.pos.z);
         this.canSee = manager.world.hasLOS(eye, targetEye);
@@ -1234,7 +1249,7 @@ class Ally {
             const near = Math.hypot(player.pos.x - this.pos.x, player.pos.z - this.pos.z) < 16;
             if (near) manager.audio.reload();
           }
-          this.fireTimer = this.expert ? 0.34 + Math.random() * 0.14 : 0.65 + Math.random() * 0.25;
+          this.fireTimer = this.expert ? 0.75 + Math.random() * 0.25 : 0.65 + Math.random() * 0.25;
         } else {
           this.fireTimer = 0.2;
         }
@@ -1363,7 +1378,7 @@ class Ally {
     const hits = manager.raycast(rayOrigin, dir, maxDist);
     if (hits.length) {
       const h = hits[0];
-      const base = (this.expert ? 45 : 18) * 0.7;
+      const base = this.expert ? 20 : 12.6;
       const dmg = h.headshot ? base * 1.8 : base;
       manager.damage(h.enemy, dmg, { headshot: h.headshot, ally: this, weapon: null });
       manager.effects.tracer(start, h.point, 0x7fe8ff, 0.055);

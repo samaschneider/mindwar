@@ -79,9 +79,9 @@ Co-op notes:
 - The lobby **NICKNAME** is shown in the roster and above your soldier. Duplicate nicknames get a
   `-2`, `-3` suffix so players stay distinguishable.
 - Co-op progress is per-session and is never written to the single-player save.
-- Co-op deploys with **Mara as the only AI companion**. She is the squad's combat specialist:
-  2,600 HP, faster reactions, strong accuracy and a rapid-fire rifle at about two and a half
-  times the damage of a normal ally.
+- Co-op deploys with **Mara as the only AI companion**. She is a tough support shooter:
+  2,600 HP, faster reactions, strong accuracy and a steady rifle at about 1.6 times the damage
+  of a normal ally.
 - Co-op is harder without flooding the map: each checkpoint starts at the **normal solo enemy
   count** and adds **20% for every additional player** (2 players 1.2x, 4 players 1.6x, 8 players
   2.4x). Enemies have **1.75x health** and deal **1.4x damage**, and the simultaneous cap scales
@@ -235,8 +235,10 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
 - **Mara at your side**: Echo Company deploys with Mara as your only AI squadmate.
   She follows, takes cover, shoots independently, goes down, and can be revived with `E`.
   Mara has 2,600 HP, faster target acquisition, a higher rate of fire, decent accuracy and
-  headshot-capable damage. She engages out to 46 m, carries a 20-round magazine and pauses to
-  reload when it runs dry. She also leaves a nearly-dead enemy the Captain has already hit
+  headshot-capable damage. She engages out to 36 m, carries a 20-round magazine and pauses to
+  reload when it runs dry. She deliberately holds fire on untouched enemies farther than 22 m
+  from the player and only helps with them after someone has damaged them, giving the player
+  first contact. She also leaves a nearly-dead enemy the Captain has already hit
   (below 40% health within the last 5 s) for the Captain to finish. The HUD shows the full
   headcount and collapses excess cards into a +N summary.
 - **Climbable ladders**: every building has a metal wall ladder on the outside of one wall.
@@ -430,15 +432,18 @@ The game was driven in Chromium at 1600 x 900 during development:
   post-battle field refit automatically applied +10% damage dealt and -5% damage taken (capped at
   -60%) to every player in sequence, and
   a downed player was revived by another player holding E;
-- Mara verified as an expert ally: 2,600 HP, expert flag active, 0.012 spread, 46 m engagement
-  range, 31.5 base rifle damage (70% of the previous 45), a 20-round magazine with a 2.0 s
-  reload, a 0.34-0.48 s fire interval, and the ally line-of-sight gate now lets her engage
-  instead of holding fire; host-authoritative and mirrored to clients as a single network puppet;
+- Mara verified as an expert ally: 2,600 HP, expert flag active, 0.012 spread, 36 m engagement
+  range, 20 base rifle damage, a 20-round magazine with a 2.0 s reload, a 0.75-1.0 s fire interval,
+  a 1.0-1.5 s reaction delay before opening fire, and the ally line-of-sight gate now lets her
+  engage instead of holding fire; host-authoritative and mirrored to clients as a single network
+  puppet;
+- Mara's support behaviour verified: a full-health target 30 m from the player was ignored until
+  damaged, and she only opened fire after the reaction delay;
 - ally fire rebalanced and verified: Mara at 24 m hit about 89% with few headshots after the
   spread/aim change; riflemen stop acquiring targets past 40 m;
-- ally damage share verified: Mara dealt about 83 DPS over an 8 s test after the 30% cut (down
-  from roughly 119 DPS, and 1,000 DPS before the rebalance), so the player gets most of the
-  damage and the kills;
+- ally damage share verified: Mara dealt about 22 DPS over a 6 s test after the support rebalance
+  (down from roughly 83 DPS, and 1,000 DPS before the earlier cuts), so the player gets most of
+  the damage and the kills;
 - kill-claim verified: a low-health enemy the player had just damaged was ignored by Mara and
   left alive for the player to finish;
 - ally reload verified: Mara fired a 20-round magazine empty, entered the 2.0 s reload and came
