@@ -1468,6 +1468,8 @@ export class EnemyManager {
     this.boss = null;
     this.kills = 0;
     this.clearedCount = 0;
+    this.battleTheme = "battle";
+    this.lastBattleTheme = null;
     this.totalFor = state => Math.max(1, Math.round(state.zone.total * this.enemyCountMultiplier));
     this.states = ZONES.map(zone => {
       const maxAliveBase = Math.min(30, 14 + Math.floor(zone.index * 0.55));
@@ -1758,10 +1760,19 @@ export class EnemyManager {
     return this.world.spawnPointFor(zone, Math.PI * 0.28, 12, true).clone();
   }
 
+  pickBattleTheme(index) {
+    if (index >= ZONE_COUNT - 2) return "final";
+    if (index < 2) return "battle";
+    const theme = Math.random() < 0.5 ? "battle" : "battle2";
+    this.lastBattleTheme = theme;
+    return theme;
+  }
+
   activateZone(state) {
     state.active = true;
     this.activeIndex = state.zone.index;
-    this.netEvent?.("battleStart", { index: state.zone.index });
+    this.battleTheme = this.pickBattleTheme(state.zone.index);
+    this.netEvent?.("battleStart", { index: state.zone.index, theme: this.battleTheme });
     this.callbacks.onBattleStart?.(state.zone);
     this.world.setProgress(this.nextIndex, state.zone.index);
     const bossKind = state.zone.boss;

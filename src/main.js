@@ -501,7 +501,7 @@ const enemies = new EnemyManager({
     },
     onBattleStart: (zone) => {
       if (state === "playing") {
-        audio.setMusicMode(battleMusicMode(zone ? zone.index : enemies.activeIndex));
+        audio.setMusicMode(battleMusicMode());
         audio.setMusicDucked(false);
       }
     },
@@ -1261,10 +1261,8 @@ function battleActive() {
   return enemies.states.some(s => s.active && !s.cleared);
 }
 
-function battleMusicMode(index = enemies.activeIndex) {
-  if (index >= ZONE_COUNT - 2) return "final";
-  if (index < 2) return "battle";
-  return index % 2 === 0 ? "battle" : "battle2";
+function battleMusicMode() {
+  return enemies.battleTheme || "battle";
 }
 
 function regionMusicMode() {

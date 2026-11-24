@@ -298,9 +298,11 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   a row. Exploration uses three regional themes: **Harrow County** at 60 BPM (open Em–C–G–D),
   **Cedar's Vill** at 72 BPM (colder Dm–B♭–F–C), and **Meridian**, which uses **Vex's darker,
   50 BPM chromatic Dm–B♭–A♭–A theme** with a low register and dark cutoff. **The Beginning** uses
-  the title theme during its two training stages. Normal battles rotate two arrangements: the
-  118 BPM Am battle and a 124 BPM Dm–B♭–F–C **Battle II**, each with four lead/answer phrases and a
-  driving left-hand ostinato; the tutorial fights use the first battle theme. The last two checkpoints —
+  the title theme during its two training stages. Each normal battle randomly selects one of two
+  arrangements: the 118 BPM Am battle or a 124 BPM Dm–B♭–F–C **Battle II**, each with four
+  lead/answer phrases and a driving left-hand ostinato; the tutorial fights use the first battle
+  theme. Mode changes crossfade over about a second, the old bus darkening while the new one
+  swells in. The last two checkpoints —
   **Voss's Gate** and **The Director** — use a separate **126 BPM epic final battle theme**: a
   broad D–F–G–A lead with octave doubling, high bells, a heavy ostinato and low tolling octaves,
   built from Vex's material. No drums or synth pads are used.
@@ -430,7 +432,10 @@ The game was driven in Chromium at 1600 x 900 during development:
   (assault, counter, rise, hammer) with no immediate repeat, and the live battle sequencer
   rotated from `counter` to `hammer` after one four-bar cycle; the score page matches;
 - Battle II variation verified: eight consecutive selections covered charge, drive, low and
-  hammer with no immediate repeat at 124 BPM; both battle themes alternate across the campaign;
+  hammer; normal battles randomly select Battle I or Battle II, so either can play;
+- music transitions verified: each mode change builds a new music bus at 35% of the target,
+  fades the old bus out over a second and opens the new filter, so the cues overlap instead of
+  cutting to silence; the score player uses the same crossfade;
 - score-player verified: Title, Harrow County, Cedar's Vill, Vex, Battle, Battle II and Final Battle
   buttons switched modes and levels (2.0/2.0/2.0/2.4/1.7/1.7/1.85), the NOW PLAYING panel showed
   the matching theme text, and title/battle/battle2 rotations update live with each variant;

@@ -815,9 +815,12 @@ class CoopClient {
         state.active = true;
         enemies.activeIndex = data.index;
       }
-      const mode = data.index >= ZONE_COUNT - 2 ? "final"
-        : data.index < 2 ? "battle"
-          : data.index % 2 === 0 ? "battle" : "battle2";
+      const mode = data.theme === "battle" || data.theme === "battle2" || data.theme === "final"
+        ? data.theme
+        : data.index >= ZONE_COUNT - 2 ? "final"
+          : data.index < 2 ? "battle"
+            : "battle";
+      enemies.battleTheme = mode;
       this.deps.audio.setMusicMode(mode);
       this.deps.audio.setMusicDucked(false);
       this.deps.hud.toast("CHECKPOINT ENGAGED", `${state ? state.zone.name.toUpperCase() : "HOSTILES"} // HOST SIMULATION`, "amber");

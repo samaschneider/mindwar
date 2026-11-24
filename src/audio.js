@@ -140,6 +140,7 @@ export class AudioEngine {
     this.lastStep = 0;
     this.musicStarted = false;
     this.musicGain = null;
+    this.musicBus = null;
     this.musicTimer = null;
     this.musicStep = 0;
     this.musicNext = 0;
@@ -704,6 +705,33 @@ export class AudioEngine {
     }
   }
 
+  createMusicBus() {
+    const ctx = this.ctx;
+    const gain = ctx.createGain();
+    gain.gain.value = 0.0001;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 5200;
+    filter.Q.value = 0.4;
+    gain.connect(filter).connect(this.master);
+
+    // Echo send for the arpeggio.
+    const arp = ctx.createGain();
+    arp.gain.value = 0.55;
+    const delay = ctx.createDelay(0.6);
+    delay.delayTime.value = 0.19;
+    const feedback = ctx.createGain();
+    feedback.gain.value = 0.24;
+    const wet = ctx.createGain();
+    wet.gain.value = 0.5;
+    arp.connect(gain);
+    arp.connect(delay);
+    delay.connect(feedback).connect(delay);
+    delay.connect(wet).connect(gain);
+
+    return { gain, filter, arp, delay, feedback, wet };
+  }
+
   startMusic(mode = "title") {
     this.ensure();
     if (!this.ctx) return;
@@ -716,29 +744,14 @@ export class AudioEngine {
     this.musicMode = mode;
     this.musicDucked = false;
 
-    this.musicGain = this.ctx.createGain();
-    this.musicGain.gain.value = 0.0001;
-    const busFilter = this.ctx.createBiquadFilter();
-    busFilter.type = "lowpass";
-    busFilter.frequency.value = 5200;
-    busFilter.Q.value = 0.4;
-    this.musicGain.connect(busFilter).connect(this.master);
+    this.musicBus = this.createMusicBus();
+    this.musicGain = this.musicBus.gain;
+    this.arpBus = this.musicBus.arp;
 
-    // Echo send for the arpeggio.
-    this.arpBus = this.ctx.createGain();
-    this.arpBus.gain.value = 0.55;
-    const delay = this.ctx.createDelay(0.6);
-    delay.delayTime.value = 0.19;
-    const feedback = this.ctx.createGain();
-    feedback.gain.value = 0.24;
-    const wet = this.ctx.createGain();
-    wet.gain.value = 0.5;
-    this.arpBus.connect(this.musicGain);
-    this.arpBus.connect(delay);
-    delay.connect(feedback).connect(delay);
-    delay.connect(wet).connect(this.musicGain);
-
-    this.setMusicDucked(false);
+    const now = this.ctx.currentTime;
+    const target = musicGainFor(mode);
+    this.musicGain.gain.setValueAtTime(0.0001, now);
+    this.musicGain.gain.exponentialRampToValueAtTime(target, now + 0.6);
     this.ensureMusicScheduler();
   }
 
@@ -757,14 +770,39 @@ export class AudioEngine {
     this.musicMode = mode;
     if (!this.ctx || !this.musicStarted || !this.musicGain) return;
     const now = this.ctx.currentTime;
+    const oldBus = this.musicBus;
+    const newBus = this.createMusicBus();
+    this.musicBus = newBus;
+    this.musicGain = newBus.gain;
+    this.arpBus = newBus.arp;
+
+    // Crossfade the old arrangement into a darker, quieter tail while the new
+    // one opens up; each bus keeps its own notes and echo so the transition
+    // overlaps instead of cutting to silence.
+    const target = this.musicDucked ? MUSIC_DUCKED_GAIN : musicGainFor(mode);
+    const gain = newBus.gain.gain;
+    gain.setValueAtTime(Math.max(0.0001, target * 0.35), now);
+    gain.exponentialRampToValueAtTime(target, now + 0.55);
+    newBus.filter.frequency.setValueAtTime(2100, now);
+    newBus.filter.frequency.exponentialRampToValueAtTime(5200, now + 0.7);
+
+    if (oldBus) {
+      const oldGain = oldBus.gain.gain;
+      oldGain.cancelScheduledValues(now);
+      oldGain.setValueAtTime(Math.max(0.0001, oldGain.value), now);
+      oldGain.exponentialRampToValueAtTime(0.0001, now + 1.0);
+      oldBus.filter.frequency.cancelScheduledValues(now);
+      oldBus.filter.frequency.setValueAtTime(Math.max(220, oldBus.filter.frequency.value), now);
+      oldBus.filter.frequency.exponentialRampToValueAtTime(900, now + 1.0);
+      setTimeout(() => {
+        for (const node of [oldBus.gain, oldBus.filter, oldBus.arp, oldBus.delay, oldBus.feedback, oldBus.wet]) {
+          try { node.disconnect(); } catch (e) { /* already gone */ }
+        }
+      }, 1400);
+    }
+
     this.musicStep = 0;
     this.musicNext = now + 0.12;
-    const target = this.musicDucked ? MUSIC_DUCKED_GAIN : musicGainFor(mode);
-    const g = this.musicGain.gain;
-    g.cancelScheduledValues(now);
-    g.setValueAtTime(Math.max(0.0001, g.value), now);
-    g.exponentialRampToValueAtTime(0.0001, now + 0.08);
-    g.exponentialRampToValueAtTime(target, now + 0.38);
   }
 
   setMusicDucked(ducked) {

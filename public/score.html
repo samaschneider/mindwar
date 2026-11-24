@@ -322,6 +322,7 @@ class ScoreEngine {
     this.master = null;
     this.noise = null;
     this.musicGain = null;
+    this.bus = null;
     this.arpBus = null;
     this.started = false;
     this.mode = "title";
@@ -633,6 +634,30 @@ class ScoreEngine {
     }
   }
 
+  createBus() {
+    const ctx = this.ctx;
+    const gain = ctx.createGain();
+    gain.gain.value = 0.0001;
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.value = 5200;
+    filter.Q.value = 0.4;
+    gain.connect(filter).connect(this.master);
+    const arp = ctx.createGain();
+    arp.gain.value = 0.55;
+    const delay = ctx.createDelay(0.6);
+    delay.delayTime.value = 0.19;
+    const feedback = ctx.createGain();
+    feedback.gain.value = 0.24;
+    const wet = ctx.createGain();
+    wet.gain.value = 0.5;
+    arp.connect(gain);
+    arp.connect(delay);
+    delay.connect(feedback).connect(delay);
+    delay.connect(wet).connect(gain);
+    return { gain, filter, arp, delay, feedback, wet };
+  }
+
   start(mode = "title") {
     this.ensure();
     if (!this.ctx) return;
@@ -644,31 +669,14 @@ class ScoreEngine {
     this.started = true;
     this.mode = mode;
 
-    this.musicGain = this.ctx.createGain();
-    this.musicGain.gain.value = 0.0001;
-    const busFilter = this.ctx.createBiquadFilter();
-    busFilter.type = "lowpass";
-    busFilter.frequency.value = 5200;
-    busFilter.Q.value = 0.4;
-    this.musicGain.connect(busFilter).connect(this.master);
-
-    this.arpBus = this.ctx.createGain();
-    this.arpBus.gain.value = 0.55;
-    const delay = this.ctx.createDelay(0.6);
-    delay.delayTime.value = 0.19;
-    const feedback = this.ctx.createGain();
-    feedback.gain.value = 0.24;
-    const wet = this.ctx.createGain();
-    wet.gain.value = 0.5;
-    this.arpBus.connect(this.musicGain);
-    this.arpBus.connect(delay);
-    delay.connect(feedback).connect(delay);
-    delay.connect(wet).connect(this.musicGain);
+    this.bus = this.createBus();
+    this.musicGain = this.bus.gain;
+    this.arpBus = this.bus.arp;
 
     const now = this.ctx.currentTime;
     const target = PLAYER_GAIN[mode] || 2.0;
     this.musicGain.gain.setValueAtTime(0.0001, now);
-    this.musicGain.gain.exponentialRampToValueAtTime(target, now + 0.45);
+    this.musicGain.gain.exponentialRampToValueAtTime(target, now + 0.6);
 
     this.step = 0;
     this.next = now + 0.12;
@@ -681,14 +689,35 @@ class ScoreEngine {
     this.mode = mode;
     if (!this.ctx || !this.started || !this.musicGain) return;
     const now = this.ctx.currentTime;
+    const oldBus = this.bus;
+    const newBus = this.createBus();
+    this.bus = newBus;
+    this.musicGain = newBus.gain;
+    this.arpBus = newBus.arp;
+
+    const target = PLAYER_GAIN[mode] || 2.0;
+    newBus.gain.gain.setValueAtTime(Math.max(0.0001, target * 0.35), now);
+    newBus.gain.gain.exponentialRampToValueAtTime(target, now + 0.55);
+    newBus.filter.frequency.setValueAtTime(2100, now);
+    newBus.filter.frequency.exponentialRampToValueAtTime(5200, now + 0.7);
+
+    if (oldBus) {
+      const oldGain = oldBus.gain.gain;
+      oldGain.cancelScheduledValues(now);
+      oldGain.setValueAtTime(Math.max(0.0001, oldGain.value), now);
+      oldGain.exponentialRampToValueAtTime(0.0001, now + 1.0);
+      oldBus.filter.frequency.cancelScheduledValues(now);
+      oldBus.filter.frequency.setValueAtTime(Math.max(220, oldBus.filter.frequency.value), now);
+      oldBus.filter.frequency.exponentialRampToValueAtTime(900, now + 1.0);
+      setTimeout(() => {
+        for (const node of [oldBus.gain, oldBus.filter, oldBus.arp, oldBus.delay, oldBus.feedback, oldBus.wet]) {
+          try { node.disconnect(); } catch (e) { /* already gone */ }
+        }
+      }, 1400);
+    }
+
     this.step = 0;
     this.next = now + 0.12;
-    const target = PLAYER_GAIN[mode] || 2.0;
-    const g = this.musicGain.gain;
-    g.cancelScheduledValues(now);
-    g.setValueAtTime(Math.max(0.0001, g.value), now);
-    g.exponentialRampToValueAtTime(0.0001, now + 0.08);
-    g.exponentialRampToValueAtTime(target, now + 0.38);
   }
 
   stop() {
