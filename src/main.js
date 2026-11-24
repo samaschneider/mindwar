@@ -584,6 +584,12 @@ function buildIntroDialogue() {
     el.textContent = line;
     wrap.appendChild(el);
   }
+  // The line that was selected first on page load should close the sequence,
+  // so the first visible transmission becomes the last one.
+  if (introLines.length > 1) {
+    introLines.push(introLines.shift());
+    wrap.appendChild(wrap.firstElementChild);
+  }
   introIndex = 0;
   renderIntroLine();
 }
