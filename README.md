@@ -179,8 +179,9 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
 - **Battles start manually or automatically**: stand at the next checkpoint and press **E** to
   open a confirmation, or open the tactical map and click the amber next-checkpoint marker. Both
   routes show the checkpoint name, region and hostile count with **START BATTLE** and **CANCEL**.
-  Walking within **10 m** of an unbeaten gate also starts the battle automatically, so a fresh
-  gate cannot be walked past or ignored.
+  Walking within **68 m** of an unbeaten gate also starts the battle automatically, as it did
+  before the confirmation prompt existed, so a fresh gate cannot be walked past or ignored. The
+  map confirmation still allows an early start from anywhere.
 - **33 strongholds**, each with a live battle: 18 hostiles at Harrow Fields, rising to 38 at
   Voss's Gate and 44 at the Director's tower. The Army of the Chorus totals about 1,380 soldiers,
   spawned in waves.
@@ -367,8 +368,9 @@ The game was driven in Chromium at 1600 x 900 during development:
 - manual checkpoint start verified both ways: pressing E at the next beacon opened the
   confirmation and START BATTLE spawned the wave; clicking the next checkpoint on the map opened
   the same confirmation, and cancelling restored the map or gameplay without starting;
-- automatic gate start verified: walking within 10 m of the next unbeaten gate activated the
-  battle without pressing E, while the E prompt still appeared at 16 m for an early start;
+- automatic gate start verified: walking within 68 m of the next unbeaten gate activated the
+  battle without pressing E, matching the original trigger; the map confirmation still allows an
+  early start from anywhere;
 - five-world archive verified: starting WORLD 02 made it the active world and saved there, loading
   it restored that world, and clearing it left WORLD 01 untouched;
 - all 32 future checkpoints are marked LOCKED on the map at the start of a new operation;

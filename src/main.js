@@ -2162,7 +2162,7 @@ function animate(now = performance.now()) {
       const next = enemies.states[enemies.nextIndex];
       if (next && !next.cleared) {
         const d = Math.hypot(player.pos.x - next.zone.x, player.pos.z - next.zone.z);
-        if (d < 10) enemies.activateZone(next);
+        if (d < 68) enemies.activateZone(next);
       }
     }
     player.update(dt, input);
