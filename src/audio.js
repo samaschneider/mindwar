@@ -1,5 +1,11 @@
 // All audio is synthesised at runtime with WebAudio. No asset files.
 
+// Music sits well under gunfire in the mix but must still be clearly audible.
+// The standalone score page uses the same levels relative to its master gain.
+const MUSIC_TITLE_GAIN = 1.7;
+const MUSIC_BATTLE_GAIN = 1.5;
+const MUSIC_DUCKED_GAIN = 0.5;
+
 export class AudioEngine {
   constructor() {
     this.ctx = null;
@@ -471,7 +477,7 @@ export class AudioEngine {
     const now = this.ctx.currentTime;
     this.musicStep = 0;
     this.musicNext = now + 0.12;
-    const target = this.musicDucked ? 0.055 : (mode === "battle" ? 0.22 : 0.19);
+    const target = this.musicDucked ? MUSIC_DUCKED_GAIN : (mode === "battle" ? MUSIC_BATTLE_GAIN : MUSIC_TITLE_GAIN);
     const g = this.musicGain.gain;
     g.cancelScheduledValues(now);
     g.setValueAtTime(Math.max(0.0001, g.value), now);
@@ -482,7 +488,7 @@ export class AudioEngine {
   setMusicDucked(ducked) {
     this.musicDucked = ducked;
     if (!this.ctx || !this.musicGain) return;
-    const target = ducked ? 0.055 : (this.musicMode === "battle" ? 0.22 : 0.19);
+    const target = ducked ? MUSIC_DUCKED_GAIN : (this.musicMode === "battle" ? MUSIC_BATTLE_GAIN : MUSIC_TITLE_GAIN);
     const g = this.musicGain.gain;
     const now = this.ctx.currentTime;
     // Cancel any mode-crossfade ramp so the duck state always wins.

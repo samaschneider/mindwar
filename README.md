@@ -278,7 +278,7 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   cleared. The title theme also returns on pause, map, death and victory screens. `N` mutes
   everything. To listen to both cues outside the game, open **`/score.html`** (or
   `public/score.html` from disk): it runs the same piano engine with Play title, Play battle,
-  Stop and a volume slider, mixed louder for standalone listening.
+  Stop and a volume slider, at the same mix level as the game.
 
 ![Tactical map](shots/mindwar/04_map.png)
 
@@ -374,7 +374,9 @@ The game was driven in Chromium at 1600 x 900 during development:
 - both music modes verified as piano-only arrangements with the audio context running and the
   sequencer advancing; the title theme started automatically on page load, stayed on during
   exploration, switched to the battle variation when a checkpoint activated and returned to the
-  title theme when the checkpoint cleared;
+  title theme when the checkpoint cleared; the game mix was raised from 0.19/0.22 to 1.7/1.5
+  (title/battle) and the battle switch was confirmed live at 1.5 gain with the battle sequencer
+  stepping while the title sequencer was silent;
 - ally separation verified: two allies placed in the same position pushed apart on their next
   update;
 - X-key and middle-mouse knife punch verified: both hid the equipped gun, showed the knife swing,

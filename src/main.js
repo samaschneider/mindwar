@@ -1806,7 +1806,7 @@ coop.init({
 
 initIntro();
 
-window.__mindwar = { player, world, enemies, camera, scene, hud, renderer, input, coop, get state() { return state; } };
+window.__mindwar = { player, world, enemies, camera, scene, hud, renderer, input, coop, audio, get state() { return state; } };
 
 menuCamera();
 let lastFrame = performance.now();
