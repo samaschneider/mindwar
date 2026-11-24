@@ -109,13 +109,19 @@
   <p>
     A dark piano score: A minor, Fmaj7, D minor, E minor, 66 BPM in the title screen and
     118 BPM in battle. The title theme rotates four lead melodies, four arpeggio shapes and four
-    left-hand patterns. Battle keeps the same harmony but drives it with a left-hand ostinato,
-    sixteenth-note arpeggios and four different lead/answer phrases. Everything is generated in
+    left-hand patterns. The exploration score changes by region: Harrow County at 60 BPM, Cedar's
+    Vill at 72 BPM, and Meridian with Vex's 54 BPM theme. Battle keeps the same harmony but drives
+    it with a left-hand ostinato, sixteenth-note arpeggios and four different lead/answer phrases.
+    The final two gates use a harder 138 BPM final battle theme. Everything is generated in
     WebAudio at runtime; the game ships no audio files.
   </p>
   <div class="buttons">
     <button id="title" class="primary">Play title theme</button>
+    <button id="farm">Harrow County</button>
+    <button id="suburb">Cedar's Vill</button>
+    <button id="city">Vex's theme</button>
     <button id="battle">Play battle theme</button>
+    <button id="final">Final battle</button>
     <button id="stop" class="ghost">Stop</button>
   </div>
   <div class="row">
@@ -166,6 +172,82 @@ const BATTLE_MELODIES = [
   { name: "rise", lead: [69, 72, 74, 76], answer: [65, 69, 72, 71] },
   { name: "hammer", lead: [72, 72, 74, 71], answer: [69, 69, 67, 64] }
 ];
+const EXPLORE_THEMES = {
+  farm: {
+    bpm: 60,
+    chords: [[52, 55, 59, 64], [48, 52, 55, 60], [43, 47, 50, 55], [50, 54, 57, 62]],
+    roots: [40, 36, 43, 38],
+    melody: [71, 76, 74, 66],
+    echo: [67, 64, 62, 62],
+    arp: [2, 1, 0, 2, 1, 0, 2, 1],
+    arpVol: 0.038,
+    bass: [
+      { step: 0, note: 0, dur: 14, vol: 0.07, dark: 0.2 },
+      { step: 0, note: 7, dur: 11, vol: 0.03, dark: 0.25 },
+      { step: 8, note: -12, dur: 9, vol: 0.04, dark: 0.3 }
+    ]
+  },
+  suburb: {
+    bpm: 72,
+    chords: [[50, 53, 57, 62], [46, 50, 53, 58], [53, 57, 60, 65], [48, 52, 55, 60]],
+    roots: [38, 34, 41, 36],
+    melody: [77, 74, 72, 67],
+    echo: [72, 69, 65, 64],
+    arp: [1, 2, 0, 1, 2, 0, 1, 2],
+    arpVol: 0.042,
+    bass: [
+      { step: 0, note: 0, dur: 12, vol: 0.065, dark: 0.25 },
+      { step: 4, note: 7, dur: 7, vol: 0.026, dark: 0.3 },
+      { step: 8, note: -12, dur: 9, vol: 0.04, dark: 0.35 }
+    ]
+  },
+  city: {
+    bpm: 54,
+    chords: [[50, 53, 57, 62], [46, 50, 53, 58], [43, 46, 50, 55], [45, 49, 52, 57]],
+    roots: [38, 34, 43, 33],
+    melody: [62, 58, 55, 61],
+    echo: [57, 53, 50, 57],
+    arp: [0, 2, 1, 3, 0, 2, 1, 2],
+    arpVol: 0.034,
+    bass: [
+      { step: 0, note: 0, dur: 16, vol: 0.075, dark: 0.45 },
+      { step: 8, note: -12, dur: 10, vol: 0.05, dark: 0.5 }
+    ]
+  }
+};
+const FINAL_THEME = {
+  bpm: 138,
+  chords: [[50, 53, 57, 62], [46, 50, 53, 58], [43, 46, 50, 55], [45, 49, 52, 57]],
+  roots: [38, 34, 43, 33],
+  lead: [74, 70, 67, 73],
+  answer: [69, 65, 62, 69],
+  arp: [0, 2, 1, 3, 2, 1, 0, 2, 1, 3, 2, 0, 1, 2, 3, 1],
+  ostinato: [0, 0, 12, 7, 0, 12, 7, 12]
+};
+const MUSIC_BPM = { title: 66, battle: 118, farm: 60, suburb: 72, city: 54, final: 138 };
+const PLAYER_GAIN = { title: 2.0, battle: 1.7, farm: 2.0, suburb: 2.0, city: 2.0, final: 1.85 };
+const THEME_TEXT = {
+  farm: {
+    title: "Harrow County // Farmland",
+    copy: "Open Em–C–G–D at 60 BPM: wide broken chords, snow over the wheat.",
+    meta: "60 BPM // E MINOR // EXPLORATION"
+  },
+  suburb: {
+    title: "Cedar's Vill // Suburbs",
+    copy: "Colder Dm–B♭–F–C at 72 BPM, a mid-register figure moving through empty streets.",
+    meta: "72 BPM // D MINOR // EXPLORATION"
+  },
+  city: {
+    title: "Meridian // Vex's Theme",
+    copy: "Vex's low Dm–B♭–Gm–A theme at 54 BPM, with deep tolling bass under the capital.",
+    meta: "54 BPM // D MINOR // EXPLORATION"
+  },
+  final: {
+    title: "Final Battle // Vex's Last Stand",
+    copy: "138 BPM Vex material: a harder ostinato, chromatic lead and low tolling octaves for Voss's Gate and The Director.",
+    meta: "138 BPM // D MINOR // LAST TWO GATES"
+  }
+};
 const VARIATION_TEXT = {
   title: {
     descent: {
@@ -390,16 +472,72 @@ class ScoreEngine {
     }
   }
 
+  scheduleRegionStep(step, t0, stepDur, theme) {
+    const config = EXPLORE_THEMES[theme] || EXPLORE_THEMES.farm;
+    const bar = Math.floor(step / 16) % 4;
+    const s = step % 16;
+    const chord = config.chords[bar];
+    const root = config.roots[bar];
+
+    for (const hit of config.bass) {
+      if (s !== hit.step) continue;
+      this.pianoNote(this.mtof(root + hit.note), t0, stepDur * hit.dur, hit.vol, null, hit.dark);
+    }
+    if (s % 2 === 0) {
+      const arp = config.arp;
+      this.pianoNote(this.mtof(chord[arp[s / 2]] + 12), t0, stepDur * 3.4, config.arpVol, this.arpBus, 0.18);
+    }
+    if (s === 0) {
+      this.pianoNote(this.mtof(config.melody[bar]), t0, stepDur * 7.4, 0.04, this.arpBus, 0.16);
+    }
+    if (s === 12) {
+      this.pianoNote(this.mtof(config.echo[bar]), t0, stepDur * 4.6, 0.026, this.arpBus, 0.24);
+    }
+  }
+
+  scheduleFinalBattleStep(step, t0, stepDur) {
+    const bar = Math.floor(step / 16) % 4;
+    const s = step % 16;
+    const chord = FINAL_THEME.chords[bar];
+    const root = FINAL_THEME.roots[bar];
+
+    if (s % 2 === 0) {
+      const offsets = FINAL_THEME.ostinato;
+      this.pianoNote(this.mtof(root + offsets[s / 2]), t0, stepDur * 1.5, 0.115, null, 0.55);
+    }
+    const arp = FINAL_THEME.arp;
+    this.pianoNote(this.mtof(chord[arp[s]] + 12), t0, stepDur * 0.8, 0.045, this.arpBus, 0.4);
+
+    if (s === 0) {
+      for (const note of chord) {
+        this.pianoNote(this.mtof(note), t0, stepDur * 4.4, 0.044, null, 0.5);
+      }
+      this.pianoNote(this.mtof(FINAL_THEME.lead[bar]), t0, stepDur * 3.2, 0.056, this.arpBus, 0.25);
+    }
+    if (s === 8) {
+      for (const note of chord.slice(1, 4)) {
+        this.pianoNote(this.mtof(note), t0, stepDur * 2.2, 0.036, null, 0.5);
+      }
+      this.pianoNote(this.mtof(FINAL_THEME.answer[bar]), t0, stepDur * 2.6, 0.046, this.arpBus, 0.35);
+    }
+    if ((bar === 1 || bar === 3) && s === 0) {
+      this.pianoNote(this.mtof(root - 12), t0, stepDur * 8, 0.08, null, 0.6);
+    }
+  }
+
   schedule() {
     if (!this.ctx || !this.started) return;
     const now = this.ctx.currentTime;
     if (this.next < now - 0.4) this.next = now + 0.06;
-    const bpm = this.mode === "battle" ? 118 : 66;
+    const bpm = MUSIC_BPM[this.mode] || 66;
     const stepDur = 60 / bpm / 4;
     let guard = 0;
     while (this.next < now + 0.22 && guard++ < 24) {
       if (this.mode === "battle") this.scheduleBattleStep(this.step, this.next, stepDur);
-      else this.scheduleTitleStep(this.step, this.next, stepDur);
+      else if (this.mode === "final") this.scheduleFinalBattleStep(this.step, this.next, stepDur);
+      else if (EXPLORE_THEMES[this.mode]) {
+        this.scheduleRegionStep(this.step, this.next, stepDur, this.mode);
+      } else this.scheduleTitleStep(this.step, this.next, stepDur);
       this.step = (this.step + 1) % 64;
       this.next += stepDur;
     }
@@ -438,7 +576,7 @@ class ScoreEngine {
     delay.connect(wet).connect(this.musicGain);
 
     const now = this.ctx.currentTime;
-    const target = mode === "battle" ? 1.7 : 2.0;
+    const target = PLAYER_GAIN[mode] || 2.0;
     this.musicGain.gain.setValueAtTime(0.0001, now);
     this.musicGain.gain.exponentialRampToValueAtTime(target, now + 0.45);
 
@@ -455,7 +593,7 @@ class ScoreEngine {
     const now = this.ctx.currentTime;
     this.step = 0;
     this.next = now + 0.12;
-    const target = mode === "battle" ? 1.7 : 2.0;
+    const target = PLAYER_GAIN[mode] || 2.0;
     const g = this.musicGain.gain;
     g.cancelScheduledValues(now);
     g.setValueAtTime(Math.max(0.0001, g.value), now);
@@ -487,8 +625,9 @@ const g2d = canvas.getContext("2d");
 
 function showVariation(mode, source) {
   const raw = mode === "battle" ? source.battleVariationName : source.titleVariationName;
-  const parts = (raw || "descent/0/0").split("/");
-  const data = (VARIATION_TEXT[mode] && VARIATION_TEXT[mode][parts[0]]) || VARIATION_TEXT.title.descent;
+  const parts = (raw || (mode === "battle" ? "assault" : "descent/0/0")).split("/");
+  const data = (VARIATION_TEXT[mode] && VARIATION_TEXT[mode][parts[0]]) ||
+    (mode === "battle" ? VARIATION_TEXT.battle.assault : VARIATION_TEXT.title.descent);
   nowTitle.textContent = `${mode === "battle" ? "Battle" : "Title"} // ${data.title}`;
   nowCopy.textContent = data.copy;
   const bpm = mode === "battle" ? 118 : 66;
@@ -506,17 +645,43 @@ function showVariation(mode, source) {
 engine.onVariation = showVariation;
 showVariation("title", engine);
 
-function play(mode) {
-  engine.start(mode);
-  status.textContent = mode === "battle"
-    ? "PLAYING // BATTLE THEME // 118 BPM // A MINOR"
-    : "PLAYING // TITLE THEME // 66 BPM // A MINOR";
+function showTheme(mode) {
+  const data = THEME_TEXT[mode];
+  if (!data) return;
+  nowTitle.textContent = data.title;
+  nowCopy.textContent = data.copy;
+  nowMeta.textContent = data.meta;
 }
 
-document.getElementById("title").addEventListener("click", () => play("title"));
-document.getElementById("battle").addEventListener("click", () => play("battle"));
+const STATUS_TEXT = {
+  title: "PLAYING // TITLE THEME // 66 BPM // A MINOR",
+  farm: "PLAYING // HARROW COUNTY // 60 BPM // E MINOR",
+  suburb: "PLAYING // CEDAR'S VILL // 72 BPM // D MINOR",
+  city: "PLAYING // MERIDIAN // VEX'S THEME // 54 BPM",
+  battle: "PLAYING // BATTLE THEME // 118 BPM // A MINOR",
+  final: "PLAYING // FINAL BATTLE // 138 BPM // D MINOR"
+};
+
+function setActiveButton(mode) {
+  document.querySelectorAll(".buttons button").forEach(btn => {
+    btn.classList.toggle("primary", btn.id === mode);
+  });
+}
+
+function play(mode) {
+  engine.start(mode);
+  status.textContent = STATUS_TEXT[mode] || STATUS_TEXT.title;
+  if (THEME_TEXT[mode]) showTheme(mode);
+  else showVariation(mode, engine);
+  setActiveButton(mode);
+}
+
+for (const mode of ["title", "farm", "suburb", "city", "battle", "final"]) {
+  document.getElementById(mode)?.addEventListener("click", () => play(mode));
+}
 document.getElementById("stop").addEventListener("click", () => {
   engine.stop();
+  setActiveButton(null);
   status.textContent = "STOPPED // CLICK A THEME TO PLAY AGAIN";
 });
 document.getElementById("vol").addEventListener("input", e => engine.setVolume(parseFloat(e.target.value)));

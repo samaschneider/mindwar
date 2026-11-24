@@ -299,12 +299,12 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   The title theme starts as soon as the page loads where the browser allows autoplay, and falls
   back to the first click/key press when it does not. It plays on the title and menu screens; the
   regional theme plays while exploring that region and the correct battle or final-battle theme
-  starts when a checkpoint activates. `N` mutes everything. To listen to the title and battle
-  cues outside the game, open **`/score.html`** (or
-  `public/score.html` from disk): it runs the same piano engine with Play title, Play battle,
-  Stop and a volume slider, at the same mix level as the game. Its **NOW PLAYING** panel updates
-  live with the current variation, showing a name, a short description and the arrangement
-  (e.g. `TITLE // ASCENT`, or `BATTLE // HAMMER`).
+  starts when a checkpoint activates. `N` mutes everything. To listen to the full score outside the
+  game, open **`/score.html`** (or `public/score.html` from disk): it runs the same piano engine
+  with buttons for **Title**, **Harrow County**, **Cedar's Vill**, **Vex's theme**, **Battle**,
+  **Final Battle** and **Stop**, plus a volume slider. Its **NOW PLAYING** panel updates live with
+  the current movement or variant, showing a name, a short description and BPM/key/arrangement
+  details (e.g. `HARROW COUNTY // FARMLAND`, `TITLE // ASCENT`, `BATTLE // HAMMER`).
 
 ![Tactical map](shots/mindwar/04_map.png)
 
@@ -421,9 +421,9 @@ The game was driven in Chromium at 1600 x 900 during development:
 - battle-theme variation verified: 12 consecutive selections covered all four battle phrases
   (assault, counter, rise, hammer) with no immediate repeat, and the live battle sequencer
   rotated from `counter` to `hammer` after one four-bar cycle; the score page matches;
-- score-player variation text verified: the NOW PLAYING panel updates on every automatic rotation
-  and manual pick with the variation name, a dedicated description and arrangement metadata
-  (e.g. `TITLE // LOW`, `BATTLE // HAMMER`);
+- score-player verified: Title, Harrow County, Cedar's Vill, Vex, Battle and Final Battle buttons
+  switched modes and levels (2.0/2.0/2.0/2.0/1.7/1.85), the NOW PLAYING panel showed the matching
+  theme text, and title/battle rotations still update live with each variant;
 - regional score verified: deploying in Harrow County set the 60 BPM farm theme, teleporting to
   Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's 54 BPM city theme,
   a normal checkpoint activated the 118 BPM battle theme, and zone 31 activated the 138 BPM final
