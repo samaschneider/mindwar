@@ -579,6 +579,7 @@ export class Enemy {
     this.height = this.isBoss ? (captain ? 2.5 : 3.0) : 1.8;
     this.dead = false;
     this.deathTimer = 0;
+    this.lastPlayerHit = 0;
     this.spawnTimer = this.isBoss ? 1.0 : 0.65;
     this.spawnTotal = this.spawnTimer;
     this.fireTimer = this.isBoss ? 1.2 : 1.0 + Math.random() * 1.8;
@@ -1083,13 +1084,13 @@ class Ally {
     this.health = this.maxHealth;
     this.downed = false;
     this.downTimer = 0;
-    this.fireTimer = this.expert ? 0.1 + Math.random() * 0.2 : Math.random() * 0.8;
+    this.fireTimer = this.expert ? 0.3 + Math.random() * 0.2 : Math.random() * 0.8;
     // Engagement envelope and magazine. Allies are good shots, not laser
     // turrets: they need a clear line and a loaded rifle.
     this.range = this.expert ? 46 : 40;
-    this.magSize = this.expert ? 24 : 30;
+    this.magSize = this.expert ? 20 : 24;
     this.ammo = this.magSize;
-    this.reloadTime = this.expert ? 1.9 : 2.6;
+    this.reloadTime = this.expert ? 2.0 : 2.8;
     this.reloadTimer = 0;
     this.losTimer = 0;
     this.target = null;
@@ -1158,11 +1159,15 @@ class Ally {
     if (this.losTimer <= 0) {
       this.losTimer = this.expert ? 0.08 + Math.random() * 0.06 : 0.18 + Math.random() * 0.14;
       const eye = new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z);
+      const nowMs = performance.now();
       let best = null, bd = this.range;
       for (const e of manager.enemies) {
         if (e.dead) continue;
         const d = Math.hypot(e.pos.x - this.pos.x, e.pos.z - this.pos.z);
-        if (d < bd && manager.world.hasLOS(
+        // Leave a nearly-dead enemy the Captain has already hit for the
+        // Captain to finish; allies should not vacuum up every kill.
+        const reserved = e.health <= e.maxHealth * 0.4 && nowMs - (e.lastPlayerHit || 0) < 5000;
+        if (d < bd && !reserved && manager.world.hasLOS(
           eye,
           new THREE.Vector3(e.pos.x, e.pos.y + 1.2, e.pos.z))) {
           bd = d; best = e;
@@ -1218,7 +1223,9 @@ class Ally {
         const eye = new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z);
         const targetEye = new THREE.Vector3(target.pos.x, target.pos.y + 1.2, target.pos.z);
         this.canSee = manager.world.hasLOS(eye, targetEye);
-        if (this.canSee) {
+        const reserved = target.health <= target.maxHealth * 0.4 &&
+          performance.now() - (target.lastPlayerHit || 0) < 5000;
+        if (this.canSee && !reserved) {
           this.shoot(target, manager);
           this.ammo -= 1;
           if (this.ammo <= 0) {
@@ -1227,7 +1234,7 @@ class Ally {
             const near = Math.hypot(player.pos.x - this.pos.x, player.pos.z - this.pos.z) < 16;
             if (near) manager.audio.reload();
           }
-          this.fireTimer = this.expert ? 0.1 + Math.random() * 0.06 : 0.3 + Math.random() * 0.16;
+          this.fireTimer = this.expert ? 0.34 + Math.random() * 0.14 : 0.65 + Math.random() * 0.25;
         } else {
           this.fireTimer = 0.2;
         }
@@ -1356,7 +1363,7 @@ class Ally {
     const hits = manager.raycast(rayOrigin, dir, maxDist);
     if (hits.length) {
       const h = hits[0];
-      const base = this.expert ? 150 : 52;
+      const base = this.expert ? 45 : 18;
       const dmg = h.headshot ? base * 1.8 : base;
       manager.damage(h.enemy, dmg, { headshot: h.headshot, ally: this, weapon: null });
       manager.effects.tracer(start, h.point, 0x7fe8ff, 0.055);
@@ -1964,6 +1971,7 @@ export class EnemyManager {
       this.netDamage?.(enemy, amount, opts);
       return false;
     }
+    if (!(opts.ally instanceof Ally)) enemy.lastPlayerHit = performance.now();
     enemy.onDamaged(opts);
     enemy.health -= Math.max(1, amount);
     if (enemy.health > 0) {

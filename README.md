@@ -74,8 +74,8 @@ Co-op notes:
   `-2`, `-3` suffix so players stay distinguishable.
 - Co-op progress is per-session and is never written to the single-player save.
 - Co-op deploys with **Mara as the only AI companion**. She is the squad's combat specialist:
-  2,600 HP, faster reactions, strong accuracy and a rapid-fire rifle at roughly triple the
-  damage of a normal ally.
+  2,600 HP, faster reactions, strong accuracy and a rapid-fire rifle at about two and a half
+  times the damage of a normal ally.
 - Co-op is harder: each checkpoint has **four times the enemies**, and enemies have **1.75x
   health** and deal **1.4x damage**. Up to **120 enemies** can be alive at once in the largest
   checkpoints.
@@ -229,11 +229,12 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   revived with `E`.
   Allies have 900 HP, faster target acquisition, a higher rate of fire, decent accuracy and
   headshot-capable damage, so a full squad is a real fighting force. They engage out to 40 m
-  (Mara 46 m), carry a magazine (30 rounds, Mara 24) and pause to reload when it runs dry, so
-  they cannot hose a checkpoint forever. Allies also separate from
-  each other so they never stand inside the same body. When one ally is alert or in a firefight,
-  nearby allies fall in and follow them into the fight. The HUD shows the full headcount and
-  collapses excess cards into a +N summary.
+  (Mara 46 m), carry a magazine (24 rounds, Mara 20) and pause to reload when it runs dry, so
+  they cannot hose a checkpoint forever. They also leave a nearly-dead enemy the Captain has
+  already hit (below 40% health within the last 5 s) for the Captain to finish. Allies separate
+  from each other so they never stand inside the same body. When one ally is alert or in a
+  firefight, nearby allies fall in and follow them into the fight. The HUD shows the full
+  headcount and collapses excess cards into a +N summary.
 - **Climbable ladders**: every building has a metal wall ladder on the outside of one wall.
   Ladders are thin wall-mounted plates (about 4 cm deep), not metre-thick blocks, so they no
   longer fill the camera when you climb or walk past them. Walk into the ladder and hold forward
@@ -420,13 +421,17 @@ The game was driven in Chromium at 1600 x 900 during development:
   -60%) to every player in sequence, and
   a downed player was revived by another player holding E;
 - Mara verified as an expert ally: 2,600 HP, expert flag active, 0.012 spread, 46 m engagement
-  range, a 24-round magazine with a 1.9 s reload, a 0.10-0.16 s fire interval, and the ally
-  line-of-sight gate now lets her engage instead of holding fire; host-authoritative and mirrored
-  to clients as a single network puppet;
+  range, 45 base rifle damage, a 20-round magazine with a 2.0 s reload, a 0.34-0.48 s fire
+  interval, and the ally line-of-sight gate now lets her engage instead of holding fire;
+  host-authoritative and mirrored to clients as a single network puppet;
 - ally fire rebalanced and verified: Mara at 24 m hit about 89% with few headshots after the
-  spread/aim change, down from near-perfect; riflemen stop acquiring targets past 40 m;
-- ally reload verified: Mara fired a 24-round magazine empty, entered the 1.9 s reload and came
-  back with a full magazine; Jax uses a 30-round magazine and a 2.6 s reload on the same path;
+  spread/aim change; riflemen stop acquiring targets past 40 m;
+- ally damage share verified: Mara dealt about 119 DPS over an 8 s test (down from roughly
+  1,000 DPS), so the player gets most of the damage and the kills;
+- kill-claim verified: a low-health enemy the player had just damaged was ignored by Mara and
+  left alive for the player to finish;
+- ally reload verified: Mara fired a 20-round magazine empty, entered the 2.0 s reload and came
+  back with a full magazine; Jax uses a 24-round magazine and a 2.8 s reload on the same path;
 - hold-E player revive verified end to end: host downed, client held E for 2.5 s, host returned to
   play at 400 HP with the downed screen closed;
 - Vex verified with two additional elite praetorian guards spawned beside him (two heavies within
