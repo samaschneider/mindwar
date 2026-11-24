@@ -74,7 +74,8 @@ Co-op notes:
   `-2`, `-3` suffix so players stay distinguishable.
 - Co-op progress is per-session and is never written to the single-player save.
 - Co-op deploys with **Mara as the only AI companion**. She is the squad's combat specialist:
-  2,600 HP, faster reactions, tighter aim and roughly triple the rifle damage of a normal ally.
+  2,600 HP, faster reactions, near-perfect accuracy and a rapid-fire rifle at roughly triple the
+  damage of a normal ally.
 - Co-op is harder: each checkpoint has **four times the enemies**, and enemies have **1.75x
   health** and deal **1.4x damage**. Up to **120 enemies** can be alive at once in the largest
   checkpoints.
@@ -411,8 +412,10 @@ The game was driven in Chromium at 1600 x 900 during development:
   post-battle field refit automatically applied +10% damage dealt and -5% damage taken (capped at
   -60%) to every player in sequence, and
   a downed player was revived by another player holding E;
-- Mara verified as an expert ally: 2,600 HP, expert flag active, faster fire and stronger damage,
-  host-authoritative and mirrored to clients as a single network puppet;
+- Mara verified as an expert ally: 2,600 HP, expert flag active, near-perfect aim (0.0012 spread,
+  exact torso/head aim), a 0.10-0.16 s fire interval, and the ally line-of-sight gate now lets her
+  engage instead of holding fire; host-authoritative and mirrored to clients as a single network
+  puppet;
 - hold-E player revive verified end to end: host downed, client held E for 2.5 s, host returned to
   play at 400 HP with the downed screen closed;
 - Vex verified with two additional elite praetorian guards spawned beside him (two heavies within

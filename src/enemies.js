@@ -1083,7 +1083,7 @@ class Ally {
     this.health = this.maxHealth;
     this.downed = false;
     this.downTimer = 0;
-    this.fireTimer = Math.random() * 0.8;
+    this.fireTimer = this.expert ? 0.1 + Math.random() * 0.2 : Math.random() * 0.8;
     this.losTimer = 0;
     this.target = null;
     this.canSee = false;
@@ -1141,21 +1141,27 @@ class Ally {
     this.losTimer -= dt;
     if (this.losTimer <= 0) {
       this.losTimer = this.expert ? 0.08 + Math.random() * 0.06 : 0.18 + Math.random() * 0.14;
+      const eye = new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z);
       let best = null, bd = 68;
       for (const e of manager.enemies) {
         if (e.dead) continue;
         const d = Math.hypot(e.pos.x - this.pos.x, e.pos.z - this.pos.z);
         if (d < bd && manager.world.hasLOS(
-          new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z),
+          eye,
           new THREE.Vector3(e.pos.x, e.pos.y + 1.2, e.pos.z))) {
           bd = d; best = e;
         }
       }
       if (manager.boss && !manager.boss.dead) {
         const d = Math.hypot(manager.boss.pos.x - this.pos.x, manager.boss.pos.z - this.pos.z);
-        if (d < bd) best = manager.boss;
+        if (d < bd && manager.world.hasLOS(
+          eye,
+          new THREE.Vector3(manager.boss.pos.x, manager.boss.pos.y + 1.2, manager.boss.pos.z))) {
+          bd = d; best = manager.boss;
+        }
       }
       this.target = best;
+      this.canSee = !!best;
       if (best) this.alertTimer = Math.max(this.alertTimer, 5);
     }
 
@@ -1190,9 +1196,16 @@ class Ally {
       this.model.group.rotation.y += diff * Math.min(1, dt * 8);
 
       this.fireTimer -= dt;
-      if (this.fireTimer <= 0 && this.canSee !== false) {
-        this.fireTimer = this.expert ? 0.14 + Math.random() * 0.08 : 0.34 + Math.random() * 0.2;
-        this.shoot(target, manager);
+      if (this.fireTimer <= 0) {
+        const eye = new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z);
+        const targetEye = new THREE.Vector3(target.pos.x, target.pos.y + 1.2, target.pos.z);
+        this.canSee = manager.world.hasLOS(eye, targetEye);
+        if (this.canSee) {
+          this.fireTimer = this.expert ? 0.1 + Math.random() * 0.06 : 0.3 + Math.random() * 0.16;
+          this.shoot(target, manager);
+        } else {
+          this.fireTimer = 0.2;
+        }
       }
       if (dist > 26) { moveX = dx; moveZ = dz; }
       else if (dist < 8) { moveX = -dx; moveZ = -dz; }
@@ -1289,25 +1302,31 @@ class Ally {
   }
 
   shoot(target, manager) {
-    const origin = manager.player.camera.position.clone();
     const start = this.model.parts.muzzle
       ? this.model.parts.muzzle.getWorldPosition(new THREE.Vector3())
       : new THREE.Vector3(this.pos.x, this.pos.y + 1.5, this.pos.z);
-    const headAim = Math.random() < (this.expert ? 0.55 : 0.28);
+    // Mara fires from eye level so a low wall or her own rifle model can never
+    // clip an otherwise clear shot. The tracer still leaves the muzzle.
+    const rayOrigin = this.expert
+      ? new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z)
+      : start;
+    const headAim = Math.random() < (this.expert ? 0.8 : 0.28);
     const aimPoint = new THREE.Vector3(
       target.pos.x,
-      target.pos.y + (headAim ? 1.68 : 1.15),
+      target.pos.y + (headAim ? 1.72 : 1.08),
       target.pos.z
     );
-    const dir = aimPoint.clone().sub(start).normalize();
-    const spread = this.expert ? 0.0035 : 0.009;
+    const dir = aimPoint.clone().sub(rayOrigin).normalize();
+    // Mara is a designated marksman: her shots land inside the hit sphere at
+    // every practical range, while the riflemen still scatter a little.
+    const spread = this.expert ? 0.0012 : 0.008;
     dir.x += (Math.random() - 0.5) * spread;
     dir.y += (Math.random() - 0.5) * spread * 0.8;
     dir.z += (Math.random() - 0.5) * spread;
     dir.normalize();
-    const wall = manager.world.raycast(start, dir, 68);
+    const wall = manager.world.raycast(rayOrigin, dir, 68);
     const maxDist = wall ? wall.dist : 68;
-    const hits = manager.raycast(start, dir, maxDist);
+    const hits = manager.raycast(rayOrigin, dir, maxDist);
     if (hits.length) {
       const h = hits[0];
       const base = this.expert ? 150 : 52;
@@ -1322,7 +1341,6 @@ class Ally {
     manager.effects.muzzle(start, 0x8ff0ff, 0.4);
     manager.audio.enemyShot(12);
     this.alertTimer = Math.max(this.alertTimer, 6);
-    void origin;
   }
 }
 
