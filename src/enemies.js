@@ -1349,6 +1349,8 @@ const SQUAD_NAMES = [
   "KESTREL", "DOC", "TALON", "VEGA", "ORION", "ECHO", "CORVUS", "NIX",
   "STRAY", "HEX", "MOTH", "GRAVE"
 ];
+// The Captain plus five squadmates: Mara and four Echo riflemen.
+const SQUAD_LIMIT = 5;
 const VILLAIN_LINES = [
   "Every soldier you kill is a neighbour you failed to save.",
   "There is no cure, Captain. The Chorus does not let go.",
@@ -1381,7 +1383,7 @@ export class EnemyManager {
     this.enemies = [];
     this.allies = [];
     this.recruits = [];
-    this.squadLimit = SQUAD_NAMES.length;
+    this.squadLimit = SQUAD_LIMIT;
     // Co-op scales the wave size, enemy armour and enemy damage; team upgrades
     // add further player-damage and incoming-damage multipliers on top.
     this.enemyCountMultiplier = 1;
@@ -1482,8 +1484,8 @@ export class EnemyManager {
       this.scene.remove(a.model.group);
     }
     this.allies = [];
-    const saved = Array.isArray(names) ? names.slice(0, SQUAD_NAMES.length) : [];
-    const list = saved.concat(SQUAD_NAMES.filter(n => !saved.includes(n))).slice(0, SQUAD_NAMES.length);
+    const saved = Array.isArray(names) ? names.slice(0, SQUAD_LIMIT) : [];
+    const list = saved.concat(SQUAD_NAMES.filter(n => !saved.includes(n))).slice(0, SQUAD_LIMIT);
     this.spawnSquad(list);
     for (const a of this.allies) a.health = a.maxHealth * 0.8;
   }

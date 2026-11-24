@@ -3,11 +3,11 @@
 A complete 3D voxel open-world FPS campaign built with Three.js. One continuous, streamed
 voxel nation locked in winter. Thirty-three strongholds. Roughly 1,380 **permanently**
 mind-controlled soldiers. Seven holdable weapons, a quick knife punch, frag grenades and a rocket
-launcher. A 20-man squad under your command, and no cap on health or ammunition.
+launcher. Five squadmates under your command, and no cap on health or ammunition.
 
 Director Vex has weaponised the Chorus signal - a broadcast that permanently overwrites the mind
 of everyone it touches. There is no cure and no rescue. You are the Captain of **Echo Company**,
-twenty soldiers the signal cannot reach. Fight north through snowbound farmland, suburbs and the
+five soldiers the signal cannot reach. Fight north through snowbound farmland, suburbs and the
 capital; break all 33 beacons, destroy Captain Voss and put Vex in the ground.
 
 ![Title screen](shots/mindwar/01_title.png)
@@ -210,7 +210,7 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
 
 ![Rooftop sniper](shots/mindwar/09_sniper.png)
 
-![Echo Company's 20-man squad in the snow](shots/mindwar/02_spawn.png)
+![Echo Company's five-strong squad in the snow](shots/mindwar/02_spawn.png)
 
 ![Futuristic weapon materials and edge lighting](shots/mindwar/15_gun_texture.png)
 
@@ -224,8 +224,9 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   and invite links / `?nointro` bypass it.
 - **Player power fantasy**: 1,000 starting integrity versus 58-250 HP soldiers, and weapons
   that one-shot or two-shot body targets. Health and reserve ammunition pickups have **no cap**.
-- **20 soldiers under your command**: Echo Company deploys with twenty named allies from the
-  start. They follow, take cover, shoot independently, go down, and can be revived with `E`.
+- **Five squadmates under your command**: Echo Company deploys with five named allies from the
+  start (Mara, Jax, Sable, Rook and Nova). They follow, take cover, shoot independently, go down,
+  and can be revived with `E`.
   Allies have 900 HP, much faster target acquisition, a higher rate of fire, tighter accuracy and
   headshot-capable damage, so a full squad is a real fighting force. Allies also separate from
   each other so they never stand inside the same body. When one ally is alert or in a firefight,
@@ -349,8 +350,8 @@ The game was driven in Chromium at 1600 x 900 during development:
 - knife punch arc verified: a close punch killed a conscript instantly;
 - grenade fuse/projectile behaviour verified, and a direct bazooka rocket hit killed a
   150 HP breacher;
-- 20-man starting squad verified: Echo Company deployed 20 allies, the HUD showed
-  "21 STRONG" with a +N overflow summary, and every ally was revivable;
+- six-strong starting squad verified: Echo Company deployed 5 allies (Mara, Jax, Sable, Rook,
+  Nova), the HUD showed "6 STRONG", and every ally was revivable;
 - enemy vision verified front/back: a target in the forward cone was acquired, while the same
   target behind an unaware enemy was not;
 - damage reaction verified: enemies immediately target the shooter after being hit, flinch,

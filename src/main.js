@@ -995,7 +995,7 @@ function newOperation() {
   hud.show(true);
   hud.hideBoss();
   hud.setPrompt(null);
-  hud.banner("OPERATION BREAKWATER", "ECHO COMPANY", "20-MAN SQUAD // ONE CONTINUOUS SPRAWL", false);
+  hud.banner("OPERATION BREAKWATER", "ECHO COMPANY", "5-MAN SQUAD // ONE CONTINUOUS SPRAWL", false);
   hud.comms("MARA", maraLine("intro"), 7600);
   setTimeout(() => {
     if (state === "playing") hud.comms("DIRECTOR VEX", "Echo Company. Twenty minds in the sprawl I cannot hear. How delightfully temporary.", 7600);
