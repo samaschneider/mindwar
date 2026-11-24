@@ -282,10 +282,12 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
 - Procedural audio: every gunshot, reload, pickup, alarm and footstep is synthesised with
   WebAudio. No asset files are used.
 - **Piano-only score** with two modes built from the same sad song. The title theme is a soft
-  66 BPM piano piece in A minor / Fmaj7 / Dm / Em with sparse left-hand roots, a slow descending
-  broken chord and a melancholy melody. The battle track is a tense 118 BPM variation of that
-  theme: same minor harmony and descending melody, but a driving left-hand ostinato, dark
-  sixteenth-note right-hand figures and low tolling octaves. No drums or synth pads are used.
+  66 BPM piano piece in A minor / Fmaj7 / Dm / Em. Every four-bar pass randomly chooses one of
+  four lead melodies (including a rising second theme), one of four broken-chord shapes and one
+  of four left-hand root/fifth patterns, so the loop keeps changing and the lead never repeats
+  twice in a row. The battle track is a tense 118 BPM variation of the same harmony, with a
+  driving left-hand ostinato, dark sixteenth-note right-hand figures and low tolling octaves.
+  No drums or synth pads are used.
   The title theme starts as soon as the page loads where the browser allows autoplay, and falls
   back to the first click/key press when it does not. The title theme plays outside combat; the
   battle variation starts when a checkpoint battle activates and stops when that battle is
@@ -397,6 +399,10 @@ The game was driven in Chromium at 1600 x 900 during development:
   title theme when the checkpoint cleared; the game mix was raised from 0.19/0.22 to 1.7/1.5
   (title/battle) and the battle switch was confirmed live at 1.5 gain with the battle sequencer
   stepping while the title sequencer was silent;
+- title-theme variation verified: 12 consecutive selections covered all four lead melodies and
+  12 distinct melody/arpeggio/bass combinations with no repeated lead, and the live sequencer
+  rotated from `ascent/0/3` to `descent/1/0` after one four-bar cycle; the standalone score page
+  uses the same variation set;
 - ally separation verified: two allies placed in the same position pushed apart on their next
   update;
 - X-key and middle-mouse knife punch verified: both hid the equipped gun, showed the knife swing,

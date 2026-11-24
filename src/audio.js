@@ -6,6 +6,43 @@ const MUSIC_TITLE_GAIN = 1.7;
 const MUSIC_BATTLE_GAIN = 1.5;
 const MUSIC_DUCKED_GAIN = 0.5;
 
+// Title-theme material. The harmony stays A minor / Fmaj7 / D minor / E minor,
+// but each four-bar pass picks a different lead melody, broken-chord shape and
+// left-hand pattern, so the loop does not repeat the same eight bars forever.
+const TITLE_MELODIES = [
+  { name: "descent", lead: [76, 74, 72, 71], echo: [72, 69, 67, 64] },
+  { name: "ascent", lead: [72, 74, 77, 76], echo: [69, 72, 74, 72] },
+  { name: "low", lead: [69, 72, 74, 71], echo: [65, 69, 72, 67] },
+  { name: "wide", lead: [76, 72, 74, 67], echo: [72, 69, 67, 64] }
+];
+const TITLE_ARPS = [
+  [3, 2, 1, 0, 2, 1, 0, 2],
+  [2, 3, 1, 0, 3, 2, 1, 0],
+  [1, 2, 3, 2, 0, 1, 2, 1],
+  [3, 1, 2, 0, 2, 0, 1, 2]
+];
+const TITLE_BASSES = [
+  [
+    { step: 0, note: 0, dur: 14, vol: 0.062, dark: 0.15 },
+    { step: 0, note: 7, dur: 12, vol: 0.03, dark: 0.2 },
+    { step: 8, note: -12, dur: 9, vol: 0.04, dark: 0.25 }
+  ],
+  [
+    { step: 0, note: 0, dur: 14, vol: 0.062, dark: 0.15 },
+    { step: 4, note: 7, dur: 8, vol: 0.028, dark: 0.2 },
+    { step: 8, note: -12, dur: 9, vol: 0.04, dark: 0.25 },
+    { step: 12, note: 7, dur: 6, vol: 0.022, dark: 0.22 }
+  ],
+  [
+    { step: 0, note: 0, dur: 16, vol: 0.055, dark: 0.18 },
+    { step: 6, note: -12, dur: 11, vol: 0.045, dark: 0.28 }
+  ],
+  [
+    { step: 0, note: 0, dur: 12, vol: 0.06, dark: 0.15 },
+    { step: 8, note: 7, dur: 10, vol: 0.032, dark: 0.2 }
+  ]
+];
+
 export class AudioEngine {
   constructor() {
     this.ctx = null;
@@ -22,6 +59,12 @@ export class AudioEngine {
     this.musicBpm = 102;
     this.musicMode = "title";
     this.musicDucked = false;
+    this.titleVariation = -1;
+    this.titleMelodyIndex = -1;
+    this.titleVariationName = "";
+    this.titleMelody = TITLE_MELODIES[0];
+    this.titleArp = TITLE_ARPS[0];
+    this.titleBass = TITLE_BASSES[0];
   }
 
   ensure() {
@@ -321,7 +364,25 @@ export class AudioEngine {
     else this.scheduleTitleStep(step, t0, stepDur);
   }
 
+  pickTitleVariation() {
+    const count = TITLE_MELODIES.length;
+    let melody = Math.floor(Math.random() * count);
+    if (count > 1 && melody === this.titleMelodyIndex) {
+      melody = (melody + 1 + Math.floor(Math.random() * (count - 1))) % count;
+    }
+    const arp = Math.floor(Math.random() * TITLE_ARPS.length);
+    const bass = Math.floor(Math.random() * TITLE_BASSES.length);
+    this.titleMelodyIndex = melody;
+    this.titleVariation = melody * TITLE_ARPS.length * TITLE_BASSES.length +
+      arp * TITLE_BASSES.length + bass;
+    this.titleMelody = TITLE_MELODIES[melody];
+    this.titleArp = TITLE_ARPS[arp];
+    this.titleBass = TITLE_BASSES[bass];
+    this.titleVariationName = `${this.titleMelody.name}/${arp}/${bass}`;
+  }
+
   scheduleTitleStep(step, t0, stepDur) {
+    if (step === 0) this.pickTitleVariation();
     const bar = Math.floor(step / 16) % 4;
     const s = step % 16;
     const chords = [
@@ -333,30 +394,28 @@ export class AudioEngine {
     const bassRoots = [45, 41, 38, 40];
     const chord = chords[bar];
     const root = bassRoots[bar];
+    const melody = this.titleMelody || TITLE_MELODIES[0];
+    const arp = this.titleArp || TITLE_ARPS[0];
+    const bass = this.titleBass || TITLE_BASSES[0];
 
-    // Left hand: soft root and fifth, allowed to ring a little longer.
-    if (s === 0) {
-      this.pianoNote(this.mtof(root), t0, stepDur * 14, 0.062, null, 0.15);
-      this.pianoNote(this.mtof(root + 7), t0, stepDur * 12, 0.03, null, 0.2);
-    }
-    if (s === 8) {
-      this.pianoNote(this.mtof(root - 12), t0, stepDur * 9, 0.04, null, 0.25);
+    // Left hand: one of four root/fifth/octave patterns.
+    for (const hit of bass) {
+      if (s !== hit.step) continue;
+      this.pianoNote(this.mtof(root + hit.note), t0, stepDur * hit.dur, hit.vol, null, hit.dark);
     }
 
-    // Right hand: a slow descending broken chord.
+    // Right hand: a broken chord that changes shape between passes.
     if (s % 2 === 0) {
-      const arp = [3, 2, 1, 0, 2, 1, 0, 2];
       this.pianoNote(this.mtof(chord[arp[s / 2]] + 12), t0, stepDur * 3.8, 0.045, this.arpBus, 0.15);
     }
 
-    // Sparse, descending melody. The line resolves down into the minor key.
+    // Sparse lead and answer. The lead melody rotates between four phrases,
+    // including a new rising line, so consecutive passes sing different tunes.
     if (s === 0) {
-      const melody = [76, 74, 72, 71][bar];
-      this.pianoNote(this.mtof(melody), t0, stepDur * 6.2, 0.036, this.arpBus, 0.1);
+      this.pianoNote(this.mtof(melody.lead[bar]), t0, stepDur * 6.2, 0.036, this.arpBus, 0.1);
     }
     if (s === 12) {
-      const echo = [72, 69, 67, 64][bar];
-      this.pianoNote(this.mtof(echo), t0, stepDur * 4.4, 0.025, this.arpBus, 0.2);
+      this.pianoNote(this.mtof(melody.echo[bar]), t0, stepDur * 4.4, 0.025, this.arpBus, 0.2);
     }
   }
 
