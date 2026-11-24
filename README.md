@@ -3,11 +3,11 @@
 A complete 3D voxel open-world FPS campaign built with Three.js. One continuous, streamed
 voxel nation locked in winter. Thirty-three strongholds. Roughly 1,380 **permanently**
 mind-controlled soldiers. Seven holdable weapons, a quick knife punch, frag grenades and a rocket
-launcher. Two squadmates under your command, and no cap on health or ammunition.
+launcher. Mara at your side, and no cap on health or ammunition.
 
 Director Vex has weaponised the Chorus signal - a broadcast that permanently overwrites the mind
 of everyone it touches. There is no cure and no rescue. You are the Captain of **Echo Company**,
-three soldiers the signal cannot reach. Fight north through snowbound farmland, suburbs and the
+two soldiers the signal cannot reach. Fight north through snowbound farmland, suburbs and the
 capital; break all 33 beacons, destroy Captain Voss and put Vex in the ground.
 
 ![Title screen](shots/mindwar/01_title.png)
@@ -211,7 +211,7 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
 
 ![Rooftop sniper](shots/mindwar/09_sniper.png)
 
-![Echo Company's three-strong squad in the snow](shots/mindwar/02_spawn.png)
+![Echo Company's two-strong squad in the snow](shots/mindwar/02_spawn.png)
 
 ![Futuristic weapon materials and edge lighting](shots/mindwar/15_gun_texture.png)
 
@@ -225,16 +225,12 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   and invite links / `?nointro` bypass it.
 - **Player power fantasy**: 1,000 starting integrity versus 58-250 HP soldiers, and weapons
   that one-shot or two-shot body targets. Health and reserve ammunition pickups have **no cap**.
-- **Two squadmates under your command**: Echo Company deploys with two named allies from the
-  start (Mara and Jax). They follow, take cover, shoot independently, go down, and can be
-  revived with `E`.
-  Allies have 900 HP, faster target acquisition, a higher rate of fire, decent accuracy and
-  headshot-capable damage, so a full squad is a real fighting force. They engage out to 40 m
-  (Mara 46 m), carry a magazine (24 rounds, Mara 20) and pause to reload when it runs dry, so
-  they cannot hose a checkpoint forever. They also leave a nearly-dead enemy the Captain has
-  already hit (below 40% health within the last 5 s) for the Captain to finish. Allies separate
-  from each other so they never stand inside the same body. When one ally is alert or in a
-  firefight, nearby allies fall in and follow them into the fight. The HUD shows the full
+- **Mara at your side**: Echo Company deploys with Mara as your only AI squadmate.
+  She follows, takes cover, shoots independently, goes down, and can be revived with `E`.
+  Mara has 2,600 HP, faster target acquisition, a higher rate of fire, decent accuracy and
+  headshot-capable damage. She engages out to 46 m, carries a 20-round magazine and pauses to
+  reload when it runs dry. She also leaves a nearly-dead enemy the Captain has already hit
+  (below 40% health within the last 5 s) for the Captain to finish. The HUD shows the full
   headcount and collapses excess cards into a +N summary.
 - **Climbable ladders**: every building has a metal wall ladder on the outside of one wall.
   Ladders are thin wall-mounted plates (about 4 cm deep), not metre-thick blocks, so they no
@@ -357,8 +353,8 @@ The game was driven in Chromium at 1600 x 900 during development:
 - knife punch arc verified: a close punch killed a conscript instantly;
 - grenade fuse/projectile behaviour verified, and a direct bazooka rocket hit killed a
   150 HP breacher;
-- three-strong starting squad verified: Echo Company deployed 2 allies (Mara and Jax), the HUD
-  showed "3 STRONG", and both were revivable;
+- two-strong starting squad verified: Echo Company deployed Mara as the only ally, the HUD showed
+  "2 STRONG", and she was revivable;
 - enemy vision verified front/back: a target in the forward cone was acquired, while the same
   target behind an unaware enemy was not;
 - damage reaction verified: enemies immediately target the shooter after being hit, flinch,
