@@ -816,7 +816,7 @@ class CoopClient {
         enemies.activeIndex = data.index;
       }
       const mode = data.index >= ZONE_COUNT - 2 ? "final"
-        : data.index < 2 ? "battle2"
+        : data.index < 2 ? "battle"
           : data.index % 2 === 0 ? "battle" : "battle2";
       this.deps.audio.setMusicMode(mode);
       this.deps.audio.setMusicDucked(false);

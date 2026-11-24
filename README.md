@@ -185,7 +185,8 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
 - **The Beginning + 33 strongholds**: two tutorial stages before Harrow Fields. Stage 1 fields
   four conscripts and teaches movement, aiming, firing and reloading; stage 2 fields six
   conscripts/riflemen and teaches grenades, the knife and using cover. The tutorial uses the title
-  theme for exploration and **Battle II** for its fights, then hands off to Harrow County. The
+  theme for exploration and the **first battle theme** for its fights, then hands off to Harrow
+  County. Mara follows but holds fire during both stages, so the player clears them. The
   campaign then runs 33 live battles: 18 hostiles at Harrow Fields, rising to 38 at
   Voss's Gate and 44 at the Director's tower. The Army of the Chorus totals about 1,380 soldiers,
   spawned in waves.
@@ -299,7 +300,7 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   50 BPM chromatic Dm–B♭–A♭–A theme** with a low register and dark cutoff. **The Beginning** uses
   the title theme during its two training stages. Normal battles rotate two arrangements: the
   118 BPM Am battle and a 124 BPM Dm–B♭–F–C **Battle II**, each with four lead/answer phrases and a
-  driving left-hand ostinato; the tutorial fights use Battle II. The last two checkpoints —
+  driving left-hand ostinato; the tutorial fights use the first battle theme. The last two checkpoints —
   **Voss's Gate** and **The Director** — use a separate **126 BPM epic final battle theme**: a
   broad D–F–G–A lead with octave doubling, high bells, a heavy ostinato and low tolling octaves,
   built from Vex's material. No drums or synth pads are used.
@@ -438,7 +439,8 @@ The game was driven in Chromium at 1600 x 900 during development:
   city theme, a normal checkpoint activated the 118 BPM battle theme, Battle II ran at 124 BPM,
   and zone 33 activated the 126 BPM final battle theme; all switches ran without console errors;
 - 35-checkpoint tutorial verified: The Beginning deployed four conscripts in stage 1 and six in
-  stage 2, showed the title theme between fights, used Battle II for both battles, taught
+  stage 2, showed the title theme between fights, used the first battle theme for both battles,
+  made Mara hold fire so the player cleared them, taught
   movement/fire/reload and then grenades/knife/cover, and handed off to a normal 118 BPM Harrow
   Fields battle;
 - v1 save migration verified: old cleared indices were shifted by two and the two training stages

@@ -1263,7 +1263,7 @@ function battleActive() {
 
 function battleMusicMode(index = enemies.activeIndex) {
   if (index >= ZONE_COUNT - 2) return "final";
-  if (index < 2) return "battle2";
+  if (index < 2) return "battle";
   return index % 2 === 0 ? "battle" : "battle2";
 }
 

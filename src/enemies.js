@@ -1153,6 +1153,16 @@ class Ally {
     const dxp = player.pos.x - this.pos.x, dzp = player.pos.z - this.pos.z;
     const dp = Math.hypot(dxp, dzp);
 
+    // The two training stages belong to the player. Mara follows and can be
+    // hurt, but she holds fire so the tutorial is not cleared for them.
+    const activeBattle = manager.states[manager.activeIndex];
+    const holdFire = !!activeBattle && activeBattle.active && !activeBattle.cleared &&
+      activeBattle.zone.index < 2;
+    if (holdFire) {
+      this.target = null;
+      this.canSee = false;
+    }
+
     if (dp > 58) {
       this.pos.set(player.pos.x + 2.5, player.pos.y + 0.2, player.pos.z + 2.5);
     }
@@ -1161,6 +1171,7 @@ class Ally {
     this.losTimer -= dt;
     if (this.losTimer <= 0) {
       this.losTimer = this.expert ? 0.08 + Math.random() * 0.06 : 0.18 + Math.random() * 0.14;
+      if (!holdFire) {
       const eye = new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z);
       const nowMs = performance.now();
       const px = player.pos.x, pz = player.pos.z;
@@ -1199,6 +1210,7 @@ class Ally {
         this.engageTimer = 0;
       }
       if (best) this.alertTimer = Math.max(this.alertTimer, 5);
+      }
     }
 
     // If another nearby ally is already alert, fall in with them. This keeps
@@ -1232,7 +1244,9 @@ class Ally {
       this.model.group.rotation.y += diff * Math.min(1, dt * 8);
 
       this.fireTimer -= dt;
-      if (this.reloadTimer > 0) {
+      if (holdFire) {
+        // Training stage: Mara deliberately does not shoot.
+      } else if (this.reloadTimer > 0) {
         // Magazine empty: hold fire until the reload finishes.
       } else if (this.fireTimer <= 0 && this.engageTimer <= 0) {
         const eye = new THREE.Vector3(this.pos.x, this.pos.y + 1.45, this.pos.z);
