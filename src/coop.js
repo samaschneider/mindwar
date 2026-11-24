@@ -814,7 +814,7 @@ class CoopClient {
         state.active = true;
         enemies.activeIndex = data.index;
       }
-      this.deps.audio.setMusicMode("battle");
+      this.deps.audio.setMusicMode(data.index >= 31 ? "final" : "battle");
       this.deps.audio.setMusicDucked(false);
       this.deps.hud.toast("CHECKPOINT ENGAGED", `${state ? state.zone.name.toUpperCase() : "HOSTILES"} // HOST SIMULATION`, "amber");
       return;
@@ -826,7 +826,9 @@ class CoopClient {
         if (state) state.active = false;
       }
       enemies.applyCleared(indices);
-      this.deps.audio.setMusicMode("title");
+      const region = enemies.states[data.index]?.zone.region || "farm";
+      const exploreMode = region === "suburb" ? "suburb" : region === "city" ? "city" : "farm";
+      this.deps.audio.setMusicMode(exploreMode);
       this.deps.audio.setMusicDucked(false);
       const zone = enemies.states[data.index]?.zone;
       this.deps.hud.toast(

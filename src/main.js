@@ -6,7 +6,7 @@ import { PickupManager } from "./pickups.js";
 import { Effects } from "./effects.js";
 import { HUD } from "./hud.js";
 import { AudioEngine } from "./audio.js";
-import { ZONES, ZONE_COUNT } from "./zones.js";
+import { ZONES, ZONE_COUNT, nearestZone } from "./zones.js";
 import { coop } from "./coop.js";
 import { maraLine } from "./mara.js";
 
@@ -468,6 +468,7 @@ let lastBeacon = { x: START_X, z: START_Z, yaw: 0 };
 let sessionStart = Date.now();
 let saveTimer = 0;
 let lastSaveAt = 0;
+let regionMusicTimer = 0;
 let gameStarted = false;
 let victorySeen = false;
 let lowHealthWarned = false;
@@ -494,15 +495,15 @@ const enemies = new EnemyManager({
       coop.sendFinale(zone.index, bossPos);
       startEndingSequence(zone, bossPos);
     },
-    onBattleStart: () => {
+    onBattleStart: (zone) => {
       if (state === "playing") {
-        audio.setMusicMode("battle");
+        audio.setMusicMode(zone && zone.index >= 31 ? "final" : "battle");
         audio.setMusicDucked(false);
       }
     },
     onBattleEnd: () => {
       if (state === "playing") {
-        audio.setMusicMode("title");
+        audio.setMusicMode(regionMusicMode());
         audio.setMusicDucked(false);
       }
     },
@@ -612,6 +613,8 @@ function startCoopOperation(role) {
   victorySeen = false;
   state = "playing";
   newOperation();
+  audio.startMusic(regionMusicMode());
+  audio.setMusicDucked(false);
   hud.banner(
     "CO-OP OPERATION",
     "HUMAN SQUAD + MARA",
@@ -1041,12 +1044,12 @@ function continueOperation(save) {
 function deploy(useSave) {
   audio.ensure();
   audio.startAmbience();
-  audio.startMusic("title");
-  audio.setMusicDucked(false);
   $("start-screen").classList.add("hidden");
   if (useSave && existingSave) continueOperation(existingSave);
   else newOperation();
   state = "playing";
+  audio.startMusic(currentMusicMode());
+  audio.setMusicDucked(false);
   sessionStart = Date.now() - (useSave && existingSave ? existingSave.elapsed || 0 : 0);
   requestLock();
   saveGame();
@@ -1080,11 +1083,26 @@ function battleActive() {
   return enemies.states.some(s => s.active && !s.cleared);
 }
 
+function regionMusicMode() {
+  const region = nearestZone(player.pos.x, player.pos.z).zone.region;
+  if (region === "suburb") return "suburb";
+  if (region === "city") return "city";
+  return "farm";
+}
+
+function battleMusicMode(index = enemies.activeIndex) {
+  return index >= 31 ? "final" : "battle";
+}
+
+function currentMusicMode() {
+  return battleActive() ? battleMusicMode() : regionMusicMode();
+}
+
 function resumeGame() {
   if (state !== "paused" && state !== "map") return;
   $("pause-screen").classList.add("hidden");
   $("map-screen").classList.add("hidden");
-  audio.setMusicMode(battleActive() ? "battle" : "title");
+  audio.setMusicMode(currentMusicMode());
   audio.setMusicDucked(false);
   state = "playing";
   requestLock();
@@ -1114,7 +1132,7 @@ function closeMap() {
     $("pause-screen").classList.remove("hidden");
   } else {
     state = "playing";
-    audio.setMusicMode(battleActive() ? "battle" : "title");
+    audio.setMusicMode(currentMusicMode());
     audio.setMusicDucked(false);
     requestLock();
   }
@@ -1184,7 +1202,7 @@ function cancelBattleConfirm() {
     audio.setMusicDucked(true);
   } else {
     state = "playing";
-    audio.setMusicMode(battleActive() ? "battle" : "title");
+    audio.setMusicMode(currentMusicMode());
     audio.setMusicDucked(false);
     requestLock();
   }
@@ -1285,7 +1303,7 @@ function redeploy() {
   player.spawn(s.x, s.z, lastBeacon.yaw || 0);
   player.weapons.refillMags();
   state = "playing";
-  audio.setMusicMode("title");
+  audio.setMusicMode(currentMusicMode());
   audio.setMusicDucked(false);
   gameStarted = true;
   hud.setHealth(player.health);
@@ -1876,7 +1894,7 @@ $("btn-explore").addEventListener("click", () => {
   $("victory-screen").classList.add("hidden");
   player.weapons.root.visible = true;
   world.markerGroup.visible = true;
-  audio.setMusicMode("title");
+  audio.setMusicMode(regionMusicMode());
   audio.setMusicDucked(false);
   hud.show(true);
   state = "playing";
@@ -1953,6 +1971,15 @@ function animate(now = performance.now()) {
     }
     world.update(camera, dt);
   } else if (state === "playing") {
+    regionMusicTimer -= dt;
+    if (regionMusicTimer <= 0 && !battleActive()) {
+      regionMusicTimer = 1;
+      const musicMode = regionMusicMode();
+      if (audio.musicMode !== musicMode) {
+        audio.setMusicMode(musicMode);
+        audio.setMusicDucked(false);
+      }
+    }
     player.update(dt, input);
     input.reloadPressed = false;
     if (player.health <= 300 && !lowHealthWarned) {

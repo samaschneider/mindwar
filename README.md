@@ -281,18 +281,21 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
 - Pause, death/redeploy, victory and continue-operation flows.
 - Procedural audio: every gunshot, reload, pickup, alarm and footstep is synthesised with
   WebAudio. No asset files are used.
-- **Piano-only score** with two modes built from the same sad song. The title theme is a soft
-  66 BPM piano piece in A minor / Fmaj7 / Dm / Em. Every four-bar pass randomly chooses one of
-  four lead melodies (including a rising second theme), one of four broken-chord shapes and one
-  of four left-hand root/fifth patterns, so the loop keeps changing and the lead never repeats
-  twice in a row. The battle track is a tense 118 BPM variation of the same harmony, rotating
-  through four battle lead/answer phrases per four-bar pass, with a driving left-hand ostinato,
-  dark sixteenth-note right-hand figures and low tolling octaves. No drums or synth pads are used.
+- **Piano-only score with regional exploration themes**. The title theme is a soft 66 BPM piano
+  piece in A minor / Fmaj7 / Dm / Em. Every four-bar pass randomly chooses one of four lead
+  melodies (including a rising second theme), one of four broken-chord shapes and one of four
+  left-hand root/fifth patterns, so the loop keeps changing and the lead never repeats twice in
+  a row. Exploration uses three regional themes: **Harrow County** at 60 BPM (open Em–C–G–D),
+  **Cedar's Vill** at 72 BPM (colder Dm–B♭–F–C), and **Meridian**, which uses **Vex's low,
+  54 BPM Dm–B♭–Gm–A theme**. The normal battle track is a tense 118 BPM variation of the battle
+  harmony, rotating through four lead/answer phrases with a driving left-hand ostinato. The last
+  two checkpoints — **Voss's Gate** and **The Director** — use a separate 138 BPM final battle
+  theme built from Vex's material. No drums or synth pads are used.
   The title theme starts as soon as the page loads where the browser allows autoplay, and falls
-  back to the first click/key press when it does not. The title theme plays outside combat; the
-  battle variation starts when a checkpoint battle activates and stops when that battle is
-  cleared. The title theme also returns on pause, map, death and victory screens. `N` mutes
-  everything. To listen to both cues outside the game, open **`/score.html`** (or
+  back to the first click/key press when it does not. It plays on the title and menu screens; the
+  regional theme plays while exploring that region and the correct battle or final-battle theme
+  starts when a checkpoint activates. `N` mutes everything. To listen to the title and battle
+  cues outside the game, open **`/score.html`** (or
   `public/score.html` from disk): it runs the same piano engine with Play title, Play battle,
   Stop and a volume slider, at the same mix level as the game. Its **NOW PLAYING** panel updates
   live with the current variation, showing a name, a short description and the arrangement
@@ -411,6 +414,10 @@ The game was driven in Chromium at 1600 x 900 during development:
 - score-player variation text verified: the NOW PLAYING panel updates on every automatic rotation
   and manual pick with the variation name, a dedicated description and arrangement metadata
   (e.g. `TITLE // LOW`, `BATTLE // HAMMER`);
+- regional score verified: deploying in Harrow County set the 60 BPM farm theme, teleporting to
+  Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's 54 BPM city theme,
+  a normal checkpoint activated the 118 BPM battle theme, and zone 31 activated the 138 BPM final
+  battle theme; all switches ran without console errors;
 - ally separation verified: two allies placed in the same position pushed apart on their next
   update;
 - X-key and middle-mouse knife punch verified: both hid the equipped gun, showed the knife swing,
