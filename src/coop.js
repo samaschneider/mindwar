@@ -16,11 +16,11 @@ const CHECKPOINT_DAMAGE_BONUS = 0.10;
 const CHECKPOINT_DAMAGE_REDUCTION = 0.05;
 const MAX_DAMAGE_REDUCTION = 0.60;
 
-// Co-op waves are four times the solo checkpoints. The simultaneous cap is
-// scaled by the same factor (and capped) so the extra hostiles actually share
-// the battlefield instead of only lengthening each fight.
-const COOP_ENEMY_COUNT_MULTIPLIER = 4;
-const COOP_ENEMY_MAX_ALIVE_MULTIPLIER = 4;
+// Co-op waves grow by one fifth of the solo total for every additional
+// player: two players 1.2x, four players 1.6x, eight players 2.4x. The
+// simultaneous cap uses the same factor so the extra hostiles actually share
+// the battlefield instead of only lengthening each fight. Solo stays at 1x.
+const COOP_ENEMY_GROWTH_PER_PLAYER = 0.2;
 const COOP_MAX_ALIVE_CAP = 120;
 
 function r2(v) { return Math.round(v * 100) / 100; }
@@ -596,19 +596,21 @@ class CoopClient {
 
     const enemies = this.deps.enemies;
     enemies.netRole = this.role;
-    // Co-op is human players plus Mara, the squad's combat specialist. Waves
-    // are four times the solo size, enemies are much tougher and hit harder;
-    // checkpoint bonuses stack on top of that.
+    // Co-op is human players plus Mara. Waves start at the normal solo size
+    // and gain one fifth per additional player; enemies are tougher and hit
+    // harder, and checkpoint bonuses stack on top of that.
+    const playerCount = Math.max(2, this.roomPlayers.length || 2);
+    const waveMultiplier = 1 + COOP_ENEMY_GROWTH_PER_PLAYER * (playerCount - 1);
     enemies.squadLimit = 0;
     enemies.removeAllies?.();
-    enemies.enemyCountMultiplier = COOP_ENEMY_COUNT_MULTIPLIER;
+    enemies.enemyCountMultiplier = waveMultiplier;
     enemies.enemyHealthMultiplier = 1.75;
     enemies.enemyDamageMultiplier = 1.4;
     enemies.playerDamageMultiplier = 1;
     for (const s of enemies.states) {
       s.maxAlive = Math.min(
         COOP_MAX_ALIVE_CAP,
-        Math.round(s.maxAliveBase * COOP_ENEMY_MAX_ALIVE_MULTIPLIER)
+        Math.round(s.maxAliveBase * waveMultiplier)
       );
     }
     this.dealBonus = 0;

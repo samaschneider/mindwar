@@ -76,9 +76,10 @@ Co-op notes:
 - Co-op deploys with **Mara as the only AI companion**. She is the squad's combat specialist:
   2,600 HP, faster reactions, strong accuracy and a rapid-fire rifle at about two and a half
   times the damage of a normal ally.
-- Co-op is harder: each checkpoint has **four times the enemies**, and enemies have **1.75x
-  health** and deal **1.4x damage**. Up to **120 enemies** can be alive at once in the largest
-  checkpoints.
+- Co-op is harder without flooding the map: each checkpoint starts at the **normal solo enemy
+  count** and adds **20% for every additional player** (2 players 1.2x, 4 players 1.6x, 8 players
+  2.4x). Enemies have **1.75x health** and deal **1.4x damage**, and the simultaneous cap scales
+  by the same wave factor.
 - A downed player can be revived by a teammate **holding E** nearby for 2.5 seconds. The downed
   player has 30 seconds to bleed out, and can choose to bleed out immediately.
 - Press **F** near a teammate to share 20% of your health (up to 150) and 25% of your current
@@ -414,8 +415,9 @@ The game was driven in Chromium at 1600 x 900 during development:
   became `HOST-NICK-2`);
 - co-op Vex transmissions verified: the host broadcasts the deployment taunt to every player, and
   the downed/revived moments are sent to the team with the affected player's nickname;
-- co-op difficulty and support verified: Mara was the only AI ally, checkpoint totals doubled,
-  enemy health and damage multipliers halved back to 1.75x/1.4x, health/ammo sharing routed
+- co-op difficulty and support verified: Mara was the only AI ally, checkpoint totals scale
+  1.2x/1.6x/2.4x for 2/4/8 players, enemy health and damage multipliers are 1.75x/1.4x,
+  health/ammo sharing routed
   between clients, the
   post-battle field refit automatically applied +10% damage dealt and -5% damage taken (capped at
   -60%) to every player in sequence, and
