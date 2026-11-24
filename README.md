@@ -34,8 +34,9 @@ finale.
 1. Run the game and click **PLAY WITH OTHERS** on the title screen.
 2. **CREATE ROOM**, then send the six-character code or the invite link to your friends.
 3. Everyone joins, enters a nickname and clicks **READY UP**.
-4. The host clicks **START BRIEFING**, everyone reads Mara's briefing with **NEXT**, and the host
-   cannot deploy until every player has marked **READY**. The host cannot start alone.
+4. The host clicks **START BRIEFING**, everyone reads Mara's briefing with **NEXT**, and clicks
+   **READY**. Only when every player is ready does the host's **START MISSION** button unlock;
+   the host clicks it to deploy. The host cannot start alone.
 
 Each invite link looks like `http://<host>:<port>/?room=CODE` and opens the lobby with the code
 pre-filled.
@@ -67,9 +68,11 @@ Co-op notes:
 - The host must stay in the session. If the host leaves, the room closes and the clients return
   to the title screen.
 - The host **cannot start alone**. Every joined player clicks **READY UP** in the lobby, then the
-  host starts the **briefing**. Each player reads four Mara transmissions with **NEXT**, clicks
-  **READY** on the last one, and deployment waits until everyone has done so. If the squad drops
-  below two during the briefing, it cancels back to the lobby.
+  host starts the **briefing**. Each player reads four Mara transmissions with **NEXT**, then clicks
+  **READY** on the last one. A host-only **START MISSION** button appears in the briefing, disabled
+  until every player has finished reading and clicked READY; the host clicks it to deploy. Clients
+  see **WAITING FOR HOST TO START**. If the squad drops below two during the briefing, it cancels
+  back to the lobby.
 - The briefing has a clearly labelled **EXIT** button in the top-right and **LEAVE CO-OP ROOM**
   at the bottom. Either one leaves the room and returns to the title screen; the operation will
   not start.
@@ -413,8 +416,10 @@ The game was driven in Chromium at 1600 x 900 during development:
   `?nointro`/invite links bypassed it, and there were no console errors;
 - co-op lobby and briefing verified: the host could not start alone, the start stayed disabled
   until the joining player clicked READY UP, the briefing showed four Mara transmissions with a
-  working NEXT button and READY on the last line, the host waited in the briefing until the client
-  was ready, and both players deployed together; a duplicate nickname was uniquified (`HOST-NICK`
+  working NEXT button and READY on the last line, the host's START MISSION button stayed disabled
+  until the client was ready and then started both players, the client did not get the button and
+  saw WAITING FOR HOST TO START, and both players deployed together; a duplicate nickname was
+  uniquified (`HOST-NICK`
   became `HOST-NICK-2`);
 - co-op Vex transmissions verified: the host broadcasts the deployment taunt to every player, and
   the downed/revived moments are sent to the team with the affected player's nickname;

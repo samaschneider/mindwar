@@ -86,6 +86,7 @@ class NetClient {
   startRoom() { return this.send("start"); }
   readyUp() { return this.send("ready"); }
   briefReady() { return this.send("briefReady"); }
+  startMission() { return this.send("briefStart"); }
   leaveRoom() { return this.send("leave"); }
 
   sendPlayer(state) { return this.send("p", state); }

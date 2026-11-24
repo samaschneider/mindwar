@@ -138,7 +138,7 @@ function cancelBriefing(room, reason) {
   broadcast(room, roomPayload(room));
 }
 
-function maybeStartBriefing(room) {
+function syncBriefing(room) {
   if (room.phase !== "briefing") return;
   if (room.players.length < 2) {
     cancelBriefing(room, "Not enough players to deploy. Waiting for replacements.");
@@ -148,11 +148,6 @@ function maybeStartBriefing(room) {
     t: "briefUpdate",
     players: room.players.map(p => ({ id: p.id, name: p.name, briefReady: !!p.briefReady }))
   });
-  if (room.players.every(p => p.briefReady)) {
-    room.phase = "started";
-    room.started = true;
-    broadcast(room, startPayload(room));
-  }
 }
 
 function broadcast(room, message, exceptId = null) {
@@ -185,7 +180,7 @@ function leaveRoom(ws) {
 
   broadcast(room, { t: "peerLeft", id: player.id, name: player.name });
   broadcast(room, roomPayload(room));
-  maybeStartBriefing(room);
+  syncBriefing(room);
 }
 
 export function attachRoomServer(httpServer, { path = "/ws" } = {}) {
@@ -329,14 +324,30 @@ export function attachRoomServer(httpServer, { path = "/ws" } = {}) {
         room.phase = "briefing";
         for (const p of room.players) p.briefReady = false;
         broadcast(room, { t: "briefing", code: room.code, players: roomPayload(room).players });
-        maybeStartBriefing(room);
+        syncBriefing(room);
         return;
       }
 
       if (msg.t === "briefReady") {
         if (room.phase !== "briefing" || me.briefReady) return;
         me.briefReady = true;
-        maybeStartBriefing(room);
+        syncBriefing(room);
+        return;
+      }
+
+      if (msg.t === "briefStart") {
+        if (ws.playerId !== room.hostId || room.phase !== "briefing") return;
+        if (room.players.length < 2) {
+          send(ws, { t: "error", message: "Wait for at least one more player." });
+          return;
+        }
+        if (!room.players.every(p => p.briefReady)) {
+          send(ws, { t: "error", message: "Everyone must finish the briefing first." });
+          return;
+        }
+        room.phase = "started";
+        room.started = true;
+        broadcast(room, startPayload(room));
         return;
       }
 
@@ -349,7 +360,7 @@ export function attachRoomServer(httpServer, { path = "/ws" } = {}) {
         room.players = room.players.filter(p => p.id !== target.id);
         broadcast(room, { t: "peerLeft", id: target.id, name: target.name });
         broadcast(room, roomPayload(room));
-        maybeStartBriefing(room);
+        syncBriefing(room);
         setTimeout(() => {
           try { target.ws.close(4001, "kicked"); } catch (e) { /* ignore */ }
         }, 80);

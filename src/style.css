@@ -625,6 +625,8 @@ h1 span { color: transparent; -webkit-text-stroke: 2px var(--amber); text-shadow
 .brief-waiting-row .mp-kick { margin-left: auto; }
 #brief-status { min-height: 14px; margin: 8px 0 4px; font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: #8da192; }
 .brief-actions { margin-top: 10px; }
+.brief-start-row { margin-top: 12px; }
+.brief-start-row .btn { width: 100%; }
 .mp-kick:hover { background: rgba(255, 79, 79, 0.15); color: #fff; }
 .pause-coop { margin: 12px 0 4px; padding-top: 12px; border-top: 1px solid rgba(255,181,69,0.16); max-height: 32vh; overflow-y: auto; }
 .pause-coop-row {

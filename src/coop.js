@@ -129,6 +129,7 @@ class CoopClient {
     this.briefIndex = 0;
     this.briefLocalReady = false;
     this.briefPlayers = [];
+    this.briefStarting = false;
   }
 
   init(deps) {
@@ -163,6 +164,7 @@ class CoopClient {
     $("btn-brief-ready")?.addEventListener("click", () => this.sendBriefReady());
     $("btn-brief-leave")?.addEventListener("click", () => this.leaveRoom());
     $("btn-brief-exit")?.addEventListener("click", () => this.leaveRoom());
+    $("btn-brief-start")?.addEventListener("click", () => this.startMission());
     $("btn-downed-giveup")?.addEventListener("click", () => this.bleedOut());
     $("mp-code")?.addEventListener("keydown", e => { if (e.key === "Enter") this.joinRoom(); });
     $("mp-name")?.addEventListener("keydown", e => { if (e.key === "Enter") this.joinRoom(); });
@@ -370,6 +372,7 @@ class CoopClient {
     }
     this.briefIndex = 0;
     this.briefLocalReady = false;
+    this.briefStarting = false;
     this.briefPlayers = (msg.players || []).map(p => ({ ...p, briefReady: !!p.briefReady }));
     $("mp-screen")?.classList.add("hidden");
     $("brief-screen")?.classList.remove("hidden");
@@ -377,6 +380,7 @@ class CoopClient {
     if (status) status.textContent = "READ THE BRIEFING // NEXT TO CONTINUE";
     this.renderBriefLine();
     this.renderBriefWaiting(this.briefPlayers);
+    this.renderBriefStart();
   }
 
   renderBriefLine() {
@@ -412,24 +416,72 @@ class CoopClient {
     $("btn-brief-ready")?.classList.add("hidden");
     const me = this.briefPlayers.find(p => p.id === net.id);
     if (me) me.briefReady = true;
+    const waiting = this.briefPlayers.filter(p => !p.briefReady && p.id !== net.id);
     const status = $("brief-status");
-    if (status) status.textContent = "READY // WAITING FOR THE REST OF THE SQUAD";
+    if (status) {
+      status.textContent = waiting.length
+        ? "READY // WAITING FOR THE REST OF THE SQUAD"
+        : this.isHost
+          ? "ALL PLAYERS READY // START MISSION WHEN READY"
+          : "SQUAD READY // WAITING FOR HOST TO START";
+    }
+    this.renderBriefStart();
     this.renderBriefWaiting(this.briefPlayers);
   }
 
   handleBriefUpdate(msg) {
     this.briefPlayers = (msg.players || []).map(p => ({ ...p }));
     this.renderBriefWaiting(this.briefPlayers);
+    this.renderBriefStart();
     const waiting = this.briefPlayers.filter(p => !p.briefReady && p.id !== net.id);
     const status = $("brief-status");
     if (!status) return;
     if (this.briefLocalReady) {
       status.textContent = waiting.length
         ? `WAITING FOR ${waiting.map(p => p.name).join(", ")}`
-        : "SQUAD READY // DEPLOYING";
+        : this.isHost
+          ? "ALL PLAYERS READY // START MISSION WHEN READY"
+          : "SQUAD READY // WAITING FOR HOST TO START";
     } else {
       status.textContent = "READ THE BRIEFING // NEXT TO CONTINUE";
     }
+  }
+
+  renderBriefStart() {
+    const btn = $("btn-brief-start");
+    if (!btn) return;
+    if (!this.isHost) {
+      btn.classList.add("hidden");
+      return;
+    }
+    btn.classList.remove("hidden");
+    const allReady = this.briefPlayers.length >= 2 &&
+      this.briefPlayers.every(p => p.briefReady);
+    btn.disabled = !allReady || this.briefStarting;
+    btn.title = allReady
+      ? "All players are ready. Start the operation."
+      : "Every player must finish the briefing and click READY first.";
+    if (!this.briefStarting) btn.innerHTML = 'START MISSION <span>›</span>';
+  }
+
+  startMission() {
+    if (!this.isHost || this.briefStarting) return;
+    if (this.briefPlayers.length < 2 || !this.briefPlayers.every(p => p.briefReady)) return;
+    this.briefStarting = true;
+    const btn = $("btn-brief-start");
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "STARTING...";
+    }
+    const status = $("brief-status");
+    if (status) status.textContent = "STARTING OPERATION...";
+    net.startMission();
+    setTimeout(() => {
+      if (this.active || !this.briefStarting) return;
+      this.briefStarting = false;
+      this.renderBriefStart();
+      if (status) status.textContent = "COULD NOT START // TRY AGAIN";
+    }, 3000);
   }
 
   renderBriefWaiting(players) {
