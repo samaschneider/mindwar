@@ -9,6 +9,7 @@ import { AudioEngine } from "./audio.js";
 import { ZONES, ZONE_COUNT, nearestZone } from "./zones.js";
 import { coop } from "./coop.js";
 import { maraLine } from "./mara.js";
+import { briefingFor, debriefFor, coopStoryLine } from "./story.js";
 
 const $ = id => document.getElementById(id);
 const LEGACY_SAVE_KEY = "mindwar_operation_v1";
@@ -455,6 +456,11 @@ function updatePadSetup(gp, dt) {
 let mapReturn = "playing";
 let battleConfirmIndex = -1;
 let battleConfirmReturn = "playing";
+let storyLines = [];
+let storyIndex = 0;
+let storyTyping = false;
+let storyTypeTimer = null;
+let storyFullText = "";
 let locked = false;
 let fallbackLook = false;
 let draggingLook = false;
@@ -492,6 +498,12 @@ const enemies = new EnemyManager({
         saveGame();
       } else {
         clearSave();
+      }
+      if (coop.active) {
+        const story = coopStoryLine(zone);
+        if (story) hud.comms(story.speaker, story.text, 7000);
+      } else if (!stats.final && zone.index !== 0) {
+        setTimeout(() => showStoryCard(zone), 900);
       }
     },
     onVictory: () => { if (state === "playing") showVictory(); },
@@ -1367,6 +1379,11 @@ function openBattleConfirm(index) {
     meta.textContent =
       `${zoneState.zone.regionName.toUpperCase()} // ${enemies.totalFor(zoneState)} HOSTILES // CHECKPOINT ${String(zoneState.zone.id).padStart(2, "0")}`;
   }
+  const copy = $("battle-confirm-copy");
+  if (copy) {
+    const brief = briefingFor(zoneState.zone);
+    copy.textContent = brief || "Deploy into this stronghold now?";
+  }
   $("battle-confirm").classList.remove("hidden");
   audio.ui();
 }
@@ -1408,6 +1425,101 @@ function startConfirmedBattle() {
   if (zoneState && !zoneState.cleared) enemies.activateZone(zoneState);
   audio.ui();
   requestLock();
+}
+
+/* ------------------------------- story cards ------------------------------ */
+function finishStoryTyping() {
+  if (storyTypeTimer) {
+    clearInterval(storyTypeTimer);
+    storyTypeTimer = null;
+  }
+  storyTyping = false;
+  const text = $("story-text");
+  if (text) {
+    text.textContent = storyFullText;
+    text.classList.remove("typing");
+  }
+}
+
+function renderStoryLine() {
+  const line = storyLines[storyIndex];
+  if (!line) return;
+  storyFullText = line.text;
+  storyTyping = true;
+  const speaker = $("story-speaker");
+  if (speaker) speaker.textContent = line.speaker;
+  const text = $("story-text");
+  if (text) {
+    text.textContent = "";
+    text.classList.add("typing");
+  }
+  const last = storyIndex >= storyLines.length - 1;
+  const next = $("btn-story-next");
+  if (next) next.innerHTML = last ? 'CLOSE <span>›</span>' : 'NEXT <span>›</span>';
+  const progress = $("story-progress");
+  if (progress) {
+    progress.textContent = `TRANSMISSION ${storyIndex + 1} / ${storyLines.length}`;
+  }
+  if (storyTypeTimer) clearInterval(storyTypeTimer);
+  let i = 0;
+  storyTypeTimer = setInterval(() => {
+    i += 1;
+    if (text) text.textContent = storyFullText.slice(0, i);
+    if (i >= storyFullText.length) finishStoryTyping();
+  }, 18);
+}
+
+function storyAdvance() {
+  if (state !== "story") return;
+  if (storyTyping) {
+    finishStoryTyping();
+    return;
+  }
+  if (storyIndex < storyLines.length - 1) {
+    storyIndex += 1;
+    renderStoryLine();
+    return;
+  }
+  closeStory();
+}
+
+function closeStory() {
+  if (state !== "story") return;
+  if (storyTypeTimer) clearInterval(storyTypeTimer);
+  storyTypeTimer = null;
+  storyTyping = false;
+  $("story-screen")?.classList.add("hidden");
+  hud.show(true);
+  state = "playing";
+  audio.setMusicDucked(false);
+  requestLock();
+}
+
+function showStoryCard(zone) {
+  if (coop.active || state !== "playing" || battleActive()) return;
+  const beat = debriefFor(zone);
+  if (!beat || !beat.lines.length) return;
+  storyLines = beat.lines;
+  storyIndex = 0;
+  state = "story";
+  document.exitPointerLock?.();
+  hud.setPrompt(null);
+  hud.show(false);
+  $("zone-banner")?.classList.add("hidden");
+  audio.setMusicDucked(true);
+  const chapter = $("story-chapter");
+  const title = $("story-title");
+  if (beat.chapter) {
+    chapter.textContent = beat.chapter;
+    chapter.classList.remove("hidden");
+  } else chapter.classList.add("hidden");
+  if (beat.title) {
+    title.textContent = beat.title;
+    title.classList.remove("hidden");
+  } else title.classList.add("hidden");
+  $("story-screen")?.classList.remove("hidden");
+  audio.ui();
+  renderStoryLine();
 }
 
 function drawMap() {
@@ -1804,6 +1916,18 @@ window.addEventListener("keydown", (e) => {
     cancelBattleConfirm();
     return;
   }
+  if (state === "story") {
+    if (e.code === "Enter" || e.code === "Space") {
+      e.preventDefault();
+      storyAdvance();
+      return;
+    }
+    if (e.code === "Escape") {
+      e.preventDefault();
+      closeStory();
+      return;
+    }
+  }
   // Let the lobby nickname, room-code and other form controls receive normal
   // typing; otherwise the game's WASD handler swallows the letters.
   if (isUiTarget(e.target)) return;
@@ -2072,6 +2196,8 @@ $("campaign-map").addEventListener("click", (e) => {
 });
 $("btn-battle-start").addEventListener("click", () => { audio.ui(); startConfirmedBattle(); });
 $("btn-battle-cancel").addEventListener("click", () => { audio.ui(); cancelBattleConfirm(); });
+$("btn-story-next").addEventListener("click", () => { audio.ui(); storyAdvance(); });
+$("btn-story-skip").addEventListener("click", () => { audio.ui(); closeStory(); });
 $("btn-redeploy").addEventListener("click", () => { audio.ui(); redeploy(); });
 $("btn-death-restart").addEventListener("click", () => {
   audio.ui();

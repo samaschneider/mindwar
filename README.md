@@ -150,10 +150,11 @@ Node or its dependencies.
 | `1` - `7` / mouse wheel | Switch weapon |
 | `G` | Throw a frag grenade |
 | `E` | Engage the next checkpoint / revive a downed squadmate; hold for 2.5 s to revive a downed co-op player |
+| `Enter` / `Space` | Advance a story transmission |
+| `Esc` | Skip the current story card / close a confirmation / pause |
 | `F` | Share health and ammo with a nearby co-op teammate |
 | `M` | Tactical map |
 | `N` | Mute / unmute audio |
-| `Esc` | Pause / release mouse |
 
 **Input:** Mouse + Keyboard is the active control scheme. **Controller support is under
 development** and disabled for now, so a connected pad cannot interfere with mouse or keyboard
@@ -190,6 +191,11 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   campaign then runs 33 live battles: 18 hostiles at Harrow Fields, rising to 38 at
   Voss's Gate and 44 at the Director's tower. The Army of the Chorus totals about 1,380 soldiers,
   spawned in waves.
+- **Radio story in three acts**: Mara, Vex and Voss carry a serialised story through the 35
+  checkpoints. Act I–III chapter cards and key transmissions play after major gates in an
+  animated letterboxed card with typed text, NEXT/SKIP and Escape; ordinary clears stay in the
+  HUD radio. The battle confirmation includes a Mara briefing, and co-op receives the story as
+  radio lines without pausing the fight.
 - **Winter war**: the whole nation is snowbound. Cold fog and pale sunlight, snow-capped surfaces,
   frost-rimed roofs and fields, and constant wind-driven snowfall that follows the camera.
 - **Two-stage command chain**: **Captain Voss** holds the 32nd stronghold with 3,400 HP and a
@@ -340,6 +346,7 @@ descending mountain:
 | File | Role |
 | --- | --- |
 | `src/main.js` | Renderer, red/blue sky lighting, game states, input, campaign flow, save/continue, menus, light/mountain finale |
+| `src/story.js` | Region briefings and the three-act Mara/Vex/Voss radio story |
 | `src/world.js` | Chunk generation, winter block atlas, textured meshing, regional terrain, roads, roofs, trees, beacons, snowfall, collision, voxel raycasts |
 | `src/zones.js` | National route, regional road network, 35 checkpoints, farms/suburbs/city props and spawn layout |
 | `src/player.js` | First-person movement, voxel collision, step-up, camera, health, interaction |
@@ -439,6 +446,9 @@ The game was driven in Chromium at 1600 x 900 during development:
 - score-player verified: Title, Harrow County, Cedar's Vill, Vex, Battle, Battle II and Final Battle
   buttons switched modes and levels (2.0/2.0/2.0/2.4/1.7/1.7/1.85), the NOW PLAYING panel showed
   the matching theme text, and title/battle/battle2 rotations update live with each variant;
+- story layer verified: the Act I card appeared after the tutorial with chapter/title, typed
+  text and NEXT/SKIP, paused the game and resumed on close; a pre-battle confirmation showed the
+  Mara briefing for Mill Creek; co-op routes the same beats through HUD radio;
 - regional score verified: The Beginning set the title theme, Harrow County set the 60 BPM farm
   theme, Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's darker 50 BPM
   city theme, a normal checkpoint activated the 118 BPM battle theme, Battle II ran at 124 BPM,
