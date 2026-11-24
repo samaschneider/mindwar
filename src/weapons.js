@@ -12,7 +12,7 @@ export const KNIFE = {
 export const WEAPONS = [
   {
     id: "pistol", name: "VK-9 SIDEARM", short: "VK-9", mode: "SEMI",
-    damage: 78, headshot: 2.4, rpm: 340, auto: false, mag: 14, reserve: 210,
+    damage: 78, headshot: 2.4, rpm: 340, auto: false, mag: 28, reserve: 210,
     spread: 0.0045, moveSpread: 0.011, reload: 1.1, pellets: 1,
     recoil: 0.012, range: 170, tracer: 0xffd58a, audio: "pistol", flash: 0.16,
     adsFov: 67, adsFactor: 0.16,
@@ -20,7 +20,7 @@ export const WEAPONS = [
   },
   {
     id: "smg", name: "HORNET SMG", short: "HORNET", mode: "AUTO",
-    damage: 32, headshot: 2.0, rpm: 820, auto: true, mag: 45, reserve: 630,
+    damage: 32, headshot: 2.0, rpm: 820, auto: true, mag: 90, reserve: 630,
     spread: 0.014, moveSpread: 0.02, reload: 1.5, pellets: 1,
     recoil: 0.006, range: 130, tracer: 0xffe0a0, audio: "smg", flash: 0.14,
     adsFov: 64, adsFactor: 0.3,
@@ -28,7 +28,7 @@ export const WEAPONS = [
   },
   {
     id: "rifle", name: "WARDEN AR", short: "WARDEN", mode: "AUTO",
-    damage: 54, headshot: 2.2, rpm: 580, auto: true, mag: 36, reserve: 420,
+    damage: 54, headshot: 2.2, rpm: 580, auto: true, mag: 72, reserve: 420,
     spread: 0.0065, moveSpread: 0.024, reload: 1.85, pellets: 1,
     recoil: 0.0095, range: 220, tracer: 0xffcf78, audio: "rifle", flash: 0.2,
     adsFov: 57, adsFactor: 0.12,
@@ -36,7 +36,7 @@ export const WEAPONS = [
   },
   {
     id: "shotgun", name: "BREAKER 12", short: "BREAKER", mode: "PUMP",
-    damage: 24, headshot: 1.6, rpm: 95, auto: false, mag: 8, reserve: 96,
+    damage: 24, headshot: 1.6, rpm: 95, auto: false, mag: 16, reserve: 96,
     spread: 0.075, moveSpread: 0.032, reload: 2.25, pellets: 9,
     recoil: 0.036, range: 70, tracer: 0xffbc6a, audio: "shotgun", flash: 0.34,
     adsFov: 70, adsFactor: 0.58,
@@ -44,7 +44,7 @@ export const WEAPONS = [
   },
   {
     id: "dmr", name: "M-14 RANGER", short: "RANGER", mode: "SEMI",
-    damage: 108, headshot: 2.2, rpm: 200, auto: false, mag: 12, reserve: 180,
+    damage: 108, headshot: 2.2, rpm: 200, auto: false, mag: 24, reserve: 180,
     spread: 0.0022, moveSpread: 0.016, reload: 2.05, pellets: 1,
     recoil: 0.021, range: 280, tracer: 0xffe0a0, audio: "dmr", flash: 0.22,
     adsFov: 30, adsFactor: 0.05, scope: true, scopeZoom: "3.0×",
@@ -52,16 +52,16 @@ export const WEAPONS = [
   },
   {
     id: "rail", name: "LONGSHOT RAIL", short: "LONGSHOT", mode: "CHARGE",
-    damage: 340, headshot: 2.0, rpm: 52, auto: false, mag: 5, reserve: 40,
-    spread: 0.0012, moveSpread: 0.018, reload: 2.6, pellets: 1,
+    damage: 340, headshot: 2.0, rpm: 52, auto: false, mag: 10, reserve: 40,
+    spread: 0.0012, moveSpread: 0.018, reload: 1.3, pellets: 1,
     recoil: 0.045, range: 320, tracer: 0x7fe8ff, audio: "rail", flash: 0.3,
     adsFov: 22, adsFactor: 0.035, scope: true, scopeZoom: "4.0×",
     falloffStart: 999, falloffMin: 1, shotTracers: 1, pierce: 3
   },
   {
     id: "bazooka", name: "M-90 BAZOOKA", short: "M-90", mode: "ROCKET",
-    damage: 620, headshot: 1, rpm: 35, auto: false, mag: 1, reserve: 6,
-    spread: 0.003, moveSpread: 0.01, reload: 2.9, pellets: 1,
+    damage: 620, headshot: 1, rpm: 35, auto: false, mag: 2, reserve: 6,
+    spread: 0.003, moveSpread: 0.01, reload: 1.45, pellets: 1,
     recoil: 0.075, range: 160, tracer: 0xffb46a, audio: "bazooka", flash: 0.4,
     adsFov: 72, adsFactor: 0.8, rocket: true, blastRadius: 14, blastDamage: 620,
     falloffStart: 999, falloffMin: 1, shotTracers: 0

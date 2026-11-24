@@ -195,11 +195,12 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   hit hard. All other enemy roles are restricted to ground-level spawns.
 - **7 holdable weapons, knife punch and grenades**:
   VK-9 sidearm, Hornet SMG, Warden AR, Breaker 12 shotgun, M-14 Ranger DMR,
-  Longshot railgun and M-90 bazooka. The semi-automatic M-14 carries 12 + 180 rounds and a
-  3.0x optic; the Longshot is a 5-round anti-materiel railgun with a 4.0x optic. `X` or middle
-  mouse performs a quick 260-damage knife punch without taking up a weapon slot. The bazooka
-  fires a real travelling rocket with a 14 m blast radius. `G` throws a long-arc bouncing frag
-  grenade with an 11 m blast radius, a 2.5-second fuse and roughly 25 m of throw distance. Ammo
+  Longshot railgun and M-90 bazooka. Every gun's magazine capacity is doubled. The semi-automatic
+  M-14 carries 24 + 180 rounds and a 3.0x optic; the Longshot is a 10-round anti-materiel railgun
+  with a 4.0x optic and a 1.3 s reload; the M-90 loads two rockets and reloads in 1.45 s. `X` or
+  middle mouse performs a quick 260-damage knife punch without taking up a weapon slot. The
+  bazooka fires a real travelling rocket with a 14 m blast radius. `G` throws a long-arc bouncing
+  frag grenade with an 11 m blast radius, a 2.5-second fuse and roughly 25 m of throw distance. Ammo
   crates also add grenades and bazooka rockets. All seven gun view models use machined composite
   panels, glowing cyan data buses, carbon-fibre furniture and edge lights.
 - **Aiming and explosives**: aiming tightens every gun; scoped first shots are near-pinpoint
@@ -349,7 +350,10 @@ The game was driven in Chromium at 1600 x 900 during development:
   finale all exercised;
 - ADS accuracy tightened across all guns; the DMR and Longshot scopes verified at 30 / 22 FOV
   with the view model hidden, working mil reticles and sub-0.0002 rad first-shot spread;
-- M-14 semi-automatic behaviour verified (one round per click) with 12 + 180 ammo;
+- weapon capacity/reload verified: every gun's magazine doubled (VK-9 28, Hornet 90, Warden 72,
+  Breaker 16, Ranger 24, Longshot 10, M-90 2), with the Longshot at a 1.3 s reload and the
+  bazooka at 1.45 s;
+- M-14 semi-automatic behaviour verified (one round per click) with 24 + 180 ammo;
 - knife punch arc verified: a close punch killed a conscript instantly;
 - grenade fuse/projectile behaviour verified, and a direct bazooka rocket hit killed a
   150 HP breacher;
