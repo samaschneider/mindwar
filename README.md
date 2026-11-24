@@ -183,7 +183,8 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   Walking within **68 m** of an unbeaten gate also starts the battle automatically, as it did
   before the confirmation prompt existed, so a fresh gate cannot be walked past or ignored. The
   map confirmation still allows an early start from anywhere.
-- **The Beginning + 33 strongholds**: two tutorial stages before Harrow Fields. Stage 1 fields
+- **The Beginning + 33 strongholds**: a new world deploys in the training yard. Two tutorial
+  stages run before Harrow Fields. Stage 1 fields
   four conscripts and teaches movement, aiming, firing and reloading; stage 2 fields six
   conscripts/riflemen and teaches grenades, the knife and using cover. The tutorial uses the title
   theme for exploration and the **first battle theme** for its fights, then hands off to Harrow

@@ -1054,12 +1054,17 @@ function updateEnding(dt) {
 }
 
 /* ------------------------------- new / load ------------------------------- */
+function beginningSpawn() {
+  const intro = ZONES[0];
+  return safeSpawn(intro.x, intro.z + 22);
+}
+
 function newOperation() {
   clearSave();
   $("downed-screen")?.classList.add("hidden");
   player.weapons.clearProjectiles();
   player.weapons.root.visible = true;
-  const start = safeSpawn(START_X, START_Z);
+  const start = beginningSpawn();
   player.spawn(start.x, start.z, 0);
   enemies.setPlayer(player);
   enemies.updateNext();
@@ -1084,7 +1089,7 @@ function continueOperation(save) {
   player.weapons.root.visible = true;
   player.restore(save.player);
   if (player.collidesAt(player.pos.x, player.pos.y, player.pos.z)) {
-    const s = safeSpawn(START_X, START_Z);
+    const s = beginningSpawn();
     player.pos.set(s.x, s.y, s.z);
   }
   enemies.setPlayer(player);
@@ -1099,7 +1104,7 @@ function continueOperation(save) {
     const spot = safeSpawn(z.x, z.z + 18);
     lastBeacon = { x: spot.x, z: spot.z, yaw: 0 };
   } else {
-    const spot = safeSpawn(START_X, START_Z);
+    const spot = beginningSpawn();
     lastBeacon = { x: spot.x, z: spot.z, yaw: 0 };
   }
   sessionStart = Date.now() - (save.elapsed || 0);
