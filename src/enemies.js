@@ -1363,7 +1363,7 @@ class Ally {
     const hits = manager.raycast(rayOrigin, dir, maxDist);
     if (hits.length) {
       const h = hits[0];
-      const base = this.expert ? 45 : 18;
+      const base = (this.expert ? 45 : 18) * 0.7;
       const dmg = h.headshot ? base * 1.8 : base;
       manager.damage(h.enemy, dmg, { headshot: h.headshot, ally: this, weapon: null });
       manager.effects.tracer(start, h.point, 0x7fe8ff, 0.055);

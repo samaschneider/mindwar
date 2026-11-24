@@ -421,13 +421,14 @@ The game was driven in Chromium at 1600 x 900 during development:
   -60%) to every player in sequence, and
   a downed player was revived by another player holding E;
 - Mara verified as an expert ally: 2,600 HP, expert flag active, 0.012 spread, 46 m engagement
-  range, 45 base rifle damage, a 20-round magazine with a 2.0 s reload, a 0.34-0.48 s fire
-  interval, and the ally line-of-sight gate now lets her engage instead of holding fire;
-  host-authoritative and mirrored to clients as a single network puppet;
+  range, 31.5 base rifle damage (70% of the previous 45), a 20-round magazine with a 2.0 s
+  reload, a 0.34-0.48 s fire interval, and the ally line-of-sight gate now lets her engage
+  instead of holding fire; host-authoritative and mirrored to clients as a single network puppet;
 - ally fire rebalanced and verified: Mara at 24 m hit about 89% with few headshots after the
   spread/aim change; riflemen stop acquiring targets past 40 m;
-- ally damage share verified: Mara dealt about 119 DPS over an 8 s test (down from roughly
-  1,000 DPS), so the player gets most of the damage and the kills;
+- ally damage share verified: Mara dealt about 83 DPS over an 8 s test after the 30% cut (down
+  from roughly 119 DPS, and 1,000 DPS before the rebalance), so the player gets most of the
+  damage and the kills;
 - kill-claim verified: a low-health enemy the player had just damaged was ignored by Mara and
   left alive for the player to finish;
 - ally reload verified: Mara fired a 20-round magazine empty, entered the 2.0 s reload and came
