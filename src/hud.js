@@ -51,6 +51,7 @@ export class HUD {
     this.radarCtx = this.el.radar.getContext("2d");
     this.mapCanvas = $("campaign-map");
     this.mapCtx = this.mapCanvas.getContext("2d");
+    this.mapHotspots = [];
     this.startMap = $("start-map");
     this.startMapCtx = this.startMap ? this.startMap.getContext("2d") : null;
     this.cache = {};
@@ -447,6 +448,7 @@ export class HUD {
     if (!canvas || !ctx) return;
     const { player, cleared = new Set(), nextIndex = 0, activeIndex = -1, compact = false } = opts;
     const W = canvas.width, H = canvas.height;
+    if (!compact) this.mapHotspots = [];
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = "#050908";
     ctx.fillRect(0, 0, W, H);
@@ -553,6 +555,9 @@ export class HUD {
         ctx.beginPath(); ctx.arc(x, y, compact ? 13 : 18, 0, Math.PI * 2); ctx.stroke();
       }
       const r = compact ? 5 : (isBoss ? 9 : 7);
+      if (!compact) {
+        this.mapHotspots.push({ index: z.index, x, y, r: Math.max(18, r + 14) });
+      }
       ctx.beginPath();
       ctx.arc(x, y, r, 0, Math.PI * 2);
       ctx.fillStyle = isCleared ? "#7dffb0" :

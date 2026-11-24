@@ -363,9 +363,27 @@
             <div class="legend-row"><i class="dot red"></i> DIRECTOR</div>
             <div class="legend-row"><i class="dot white"></i> ECHO COMPANY</div>
             <p>National Route 9 runs from Harrow County's farms, through Cedar's Vill, into Meridian. The Chorus seals every stronghold behind the one before it: clear the next checkpoint to unlock the following sector.</p>
+            <p class="map-click-hint">Click the amber next checkpoint to open the deployment confirmation.</p>
             <button id="btn-map-close" class="btn primary">CLOSE MAP <kbd>M</kbd></button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- ================= BATTLE CONFIRMATION ================= -->
+    <div id="battle-confirm" class="screen hidden">
+      <div class="modal confirm-modal">
+        <div class="eyebrow green">CHECKPOINT READY</div>
+        <h2 id="battle-confirm-name">CHECKPOINT</h2>
+        <div id="battle-confirm-meta" class="battle-confirm-meta"></div>
+        <p class="brief" id="battle-confirm-copy">
+          Deploy into this stronghold now? The battle starts the moment you confirm.
+        </p>
+        <div class="modal-actions">
+          <button id="btn-battle-start" class="btn primary">START BATTLE <span>›</span></button>
+          <button id="btn-battle-cancel" class="btn">CANCEL</button>
+        </div>
+        <div class="hint">Escape cancels and returns to where you were.</div>
       </div>
     </div>
 

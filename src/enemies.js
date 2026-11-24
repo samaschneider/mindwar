@@ -1595,12 +1595,6 @@ export class EnemyManager {
       }
       return;
     }
-    this.triggerTimer -= dt;
-    if (this.triggerTimer <= 0) {
-      this.triggerTimer = 0.2;
-      this.checkZoneTriggers();
-    }
-
     this.regionCheck -= dt;
     if (this.regionCheck <= 0) {
       this.regionCheck = 0.7;
@@ -1694,18 +1688,6 @@ export class EnemyManager {
     });
     this.hud.setSquad(this.player, this.allies);
     this.hud.setHealth(this.player.health);
-  }
-
-  checkZoneTriggers() {
-    // Campaign order is strict: only the next uncleared checkpoint can wake up.
-    if (this.states.some(s => s.active && !s.cleared)) return;
-    const next = this.states[this.nextIndex];
-    if (!next || next.cleared) return;
-    const points = [this.player.pos];
-    if (this.netPresence) points.push(...this.netPresence);
-    if (points.some(p => Math.hypot(p.x - next.zone.x, p.z - next.zone.z) < 68)) {
-      this.activateZone(next);
-    }
   }
 
   updateCheckpointLock() {
@@ -2131,6 +2113,15 @@ export class EnemyManager {
     this.callbacks.onZoneClear?.(state.zone, { kills: this.kills, cleared: this.clearedCount });
   }
 
+  checkpointReady() {
+    if (!this.player || this.netRole === "client") return null;
+    if (this.states.some(s => s.active && !s.cleared)) return null;
+    const next = this.states[this.nextIndex];
+    if (!next || next.cleared) return null;
+    const d = Math.hypot(this.player.pos.x - next.zone.x, this.player.pos.z - next.zone.z);
+    return d < 16 ? next : null;
+  }
+
   getInteractPrompt() {
     if (!this.player) return null;
     const p = this.player.pos;
@@ -2140,7 +2131,9 @@ export class EnemyManager {
       const d = Math.hypot(a.pos.x - p.x, a.pos.z - p.z);
       if (d < bd) { bd = d; best = a; }
     }
-    return best ? `REVIVE ${best.name}` : null;
+    if (best) return `REVIVE ${best.name}`;
+    const checkpoint = this.checkpointReady();
+    return checkpoint ? `ENGAGE ${checkpoint.zone.name.toUpperCase()}` : null;
   }
 
   tryInteract() {
@@ -2153,6 +2146,11 @@ export class EnemyManager {
         this.audio.pickup(true);
         return true;
       }
+    }
+    const checkpoint = this.checkpointReady();
+    if (checkpoint) {
+      this.callbacks.onRequestBattle?.(checkpoint.zone.index);
+      return true;
     }
     return false;
   }

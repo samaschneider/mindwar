@@ -450,6 +450,8 @@ function updatePadSetup(gp, dt) {
 }
 
 let mapReturn = "playing";
+let battleConfirmIndex = -1;
+let battleConfirmReturn = "playing";
 let locked = false;
 let fallbackLook = false;
 let draggingLook = false;
@@ -505,7 +507,8 @@ const enemies = new EnemyManager({
       }
     },
     onKill: () => { },
-    onRecruit: () => saveGame()
+    onRecruit: () => saveGame(),
+    onRequestBattle: index => openBattleConfirm(index)
   }
 });
 
@@ -1117,6 +1120,92 @@ function closeMap() {
   }
 }
 
+/* ---------------------------- battle confirmation ------------------------- */
+function requestBattle(index) {
+  const zoneState = enemies.states[index];
+  if (!zoneState) return;
+  if (zoneState.cleared) {
+    hud.toast("ALREADY SECURED", `${zoneState.zone.name.toUpperCase()} IS CLEAR`, "green");
+    return;
+  }
+  if (index !== enemies.nextIndex) {
+    hud.toast("CHECKPOINT SEALED", "Clear the current stronghold first.", "red");
+    return;
+  }
+  if (battleActive()) {
+    hud.toast("BATTLE IN PROGRESS", "Finish this checkpoint before starting another.", "amber");
+    return;
+  }
+  if (coop.active && !coop.isHost) {
+    hud.toast("HOST ONLY", "The host starts checkpoint battles.", "amber");
+    return;
+  }
+  openBattleConfirm(index);
+}
+
+function openBattleConfirm(index) {
+  if (state !== "playing" && state !== "map" && state !== "paused") return;
+  const zoneState = enemies.states[index];
+  if (!zoneState || zoneState.cleared) return;
+  if (battleActive()) return;
+  battleConfirmIndex = index;
+  battleConfirmReturn = state;
+  if (state === "map") $("map-screen").classList.add("hidden");
+  if (state === "paused") $("pause-screen").classList.add("hidden");
+  state = "confirm";
+  document.exitPointerLock?.();
+  hud.setPrompt(null);
+  audio.setMusicDucked(true);
+  const name = $("battle-confirm-name");
+  const meta = $("battle-confirm-meta");
+  if (name) name.textContent = zoneState.zone.name.toUpperCase();
+  if (meta) {
+    meta.textContent =
+      `${zoneState.zone.regionName.toUpperCase()} // ${enemies.totalFor(zoneState)} HOSTILES // CHECKPOINT ${String(zoneState.zone.id).padStart(2, "0")}`;
+  }
+  $("battle-confirm").classList.remove("hidden");
+  audio.ui();
+}
+
+function cancelBattleConfirm() {
+  if (state !== "confirm") return;
+  $("battle-confirm").classList.add("hidden");
+  const back = battleConfirmReturn;
+  battleConfirmIndex = -1;
+  if (back === "map") {
+    state = "map";
+    $("map-screen").classList.remove("hidden");
+    audio.setMusicMode("title");
+    audio.setMusicDucked(true);
+  } else if (back === "paused") {
+    state = "paused";
+    $("pause-screen").classList.remove("hidden");
+    audio.setMusicMode("title");
+    audio.setMusicDucked(true);
+  } else {
+    state = "playing";
+    audio.setMusicMode(battleActive() ? "battle" : "title");
+    audio.setMusicDucked(false);
+    requestLock();
+  }
+  audio.ui();
+}
+
+function startConfirmedBattle() {
+  if (state !== "confirm") return;
+  const index = battleConfirmIndex;
+  battleConfirmIndex = -1;
+  $("battle-confirm").classList.add("hidden");
+  $("map-screen").classList.add("hidden");
+  $("pause-screen").classList.add("hidden");
+  state = "playing";
+  audio.setMusicDucked(false);
+  const zoneState = enemies.states[index];
+  if (zoneState && !zoneState.cleared) enemies.activateZone(zoneState);
+  audio.ui();
+  requestLock();
+}
+
 function drawMap() {
   hud.drawMap({
     player,
@@ -1449,7 +1538,7 @@ function updateGamepad(dt) {
     if (actionJust("melee")) player.weapons.punch();
     if (actionJust("interact")) {
       player.enemies.tryInteract();
-      hud.setPrompt(player.enemies.getInteractPrompt());
+      if (state === "playing") hud.setPrompt(player.enemies.getInteractPrompt());
     }
     if (actionJust("grenade")) player.weapons.throwGrenade();
     if (actionJust("switchPrev")) player.weapons.cycle(-1);
@@ -1505,6 +1594,12 @@ function isUiTarget(target) {
 }
 
 window.addEventListener("keydown", (e) => {
+  // Escape must close the battle confirmation even when its buttons own focus.
+  if (e.code === "Escape" && state === "confirm") {
+    e.preventDefault();
+    cancelBattleConfirm();
+    return;
+  }
   // Let the lobby nickname, room-code and other form controls receive normal
   // typing; otherwise the game's WASD handler swallows the letters.
   if (isUiTarget(e.target)) return;
@@ -1532,7 +1627,7 @@ window.addEventListener("keydown", (e) => {
       if (state === "playing") {
         input.reviveHeld = true;
         player.enemies.tryInteract();
-        hud.setPrompt(player.externalPrompt || player.enemies.getInteractPrompt());
+        if (state === "playing") hud.setPrompt(player.externalPrompt || player.enemies.getInteractPrompt());
       }
       break;
     case "KeyM":
@@ -1567,6 +1662,7 @@ window.addEventListener("keydown", (e) => {
       if (state === "playing") pauseGame();
       else if (state === "map") closeMap();
       else if (state === "paused") resumeGame();
+      else if (state === "confirm") cancelBattleConfirm();
       break;
     default:
       break;
@@ -1756,6 +1852,19 @@ $("btn-abandon").addEventListener("click", () => {
   location.reload();
 });
 $("btn-map-close").addEventListener("click", () => { audio.ui(); closeMap(); });
+$("campaign-map").addEventListener("click", (e) => {
+  if (state !== "map") return;
+  const canvas = e.currentTarget;
+  const rect = canvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  const x = (e.clientX - rect.left) * canvas.width / rect.width;
+  const y = (e.clientY - rect.top) * canvas.height / rect.height;
+  const hit = (hud.mapHotspots || []).find(h => Math.hypot(h.x - x, h.y - y) <= h.r);
+  if (!hit) return;
+  requestBattle(hit.index);
+});
+$("btn-battle-start").addEventListener("click", () => { audio.ui(); startConfirmedBattle(); });
+$("btn-battle-cancel").addEventListener("click", () => { audio.ui(); cancelBattleConfirm(); });
 $("btn-redeploy").addEventListener("click", () => { audio.ui(); redeploy(); });
 $("btn-death-restart").addEventListener("click", () => {
   audio.ui();

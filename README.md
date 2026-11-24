@@ -149,7 +149,7 @@ Node or its dependencies.
 | `R` | Reload |
 | `1` - `7` / mouse wheel | Switch weapon |
 | `G` | Throw a frag grenade |
-| `E` | Revive a downed squadmate; hold for 2.5 s to revive a downed co-op player |
+| `E` | Engage the next checkpoint / revive a downed squadmate; hold for 2.5 s to revive a downed co-op player |
 | `F` | Share health and ammo with a nearby co-op teammate |
 | `M` | Tactical map |
 | `N` | Mute / unmute audio |
@@ -176,6 +176,10 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   sealed behind red containment fields, their beacons are dimmed and the tactical map marks
   them with padlocks and dashes the route beyond the next objective. Clearing a checkpoint
   moves the containment field forward to the following sector.
+- **Player-started battles**: battles no longer start just by walking near a beacon. Stand at the
+  next checkpoint and press **E** to open a confirmation, or open the tactical map and click the
+  amber next-checkpoint marker. Both routes show the checkpoint name, region and hostile count
+  with **START BATTLE** and **CANCEL**; cancelling returns you to the game or the map.
 - **33 strongholds**, each with a live battle: 18 hostiles at Harrow Fields, rising to 38 at
   Voss's Gate and 44 at the Director's tower. The Army of the Chorus totals about 1,380 soldiers,
   spawned in waves.
@@ -339,7 +343,7 @@ draws one material for all terrain.
 The game was driven in Chromium at 1600 x 900 during development:
 
 - steady 60 FPS with 213-255 streamed chunks and 52-65k triangles on screen;
-- full battle loop verified - zone trigger, wave spawning, squad damage, enemy deaths,
+- full battle loop verified - checkpoint confirmation, wave spawning, squad damage, enemy deaths,
   supply drops, zone clear, beacon colour change and squad revive prompt;
 - seven enemy roles observed in the live spawn mix; every rooftop occupant was a sniper and
   every non-sniper stayed at ground height;
@@ -347,8 +351,11 @@ The game was driven in Chromium at 1600 x 900 during development:
   aim/glint wind-up, firing and damage to the player;
 - 0 buildings intersect any road cell across all 33 zones;
 - checkpoint locking verified: entering a future sector was clamped at 101.2 m from its
-  centre, the red containment field appeared and no battle activated; after clearing the
-  previous checkpoint the next sector activated normally;
+  centre and the red containment field appeared; after clearing the previous checkpoint the
+  next checkpoint could be confirmed and started normally;
+- manual checkpoint start verified both ways: pressing E at the next beacon opened the
+  confirmation and START BATTLE spawned the wave; clicking the next checkpoint on the map opened
+  the same confirmation, and cancelling restored the map or gameplay without starting;
 - all 32 future checkpoints are marked LOCKED on the map at the start of a new operation;
 - save/continue restores cleared zones, allies, health and ammo;
 - death/redeploy, pause, tactical map, Captain Voss, Director Vex and the full light/mountain
