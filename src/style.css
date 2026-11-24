@@ -418,19 +418,33 @@ h1 span { color: transparent; -webkit-text-stroke: 2px var(--amber); text-shadow
 .intro-wave i:nth-child(3) { animation-delay: 0.4s; }
 .intro-wave i:nth-child(4) { animation-delay: 0.2s; }
 .intro-wave i:nth-child(5) { animation-delay: 0.05s; }
-.intro-dialogue-lines { position: relative; min-height: 68px; margin-top: 9px; }
-.intro-line {
-  position: absolute; inset: 0; opacity: 0;
-  font-size: clamp(14px, 1.45vw, 18px); line-height: 1.45; color: #eaf4ed;
-  animation: introDialogue 3s ease both;
+.intro-dialogue-lines {
+  display: grid; margin-top: 9px;
 }
+.intro-line {
+  grid-area: 1 / 1; opacity: 0; visibility: hidden;
+  font-size: clamp(14px, 1.45vw, 18px); line-height: 1.45; color: #eaf4ed;
+}
+.intro-line.is-active {
+  opacity: 1; visibility: visible;
+  animation: introLineIn 0.42s ease both;
+}
+.intro-dialogue-foot {
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 16px;
+  margin-top: 14px; padding-top: 11px; border-top: 1px solid rgba(255, 181, 69, 0.16);
+}
+.intro-dialogue-meta { display: flex; flex-direction: column; gap: 3px; }
+.intro-progress {
+  font-family: var(--mono); font-size: 9px; letter-spacing: 0.18em; color: var(--amber);
+}
+.intro-next { padding: 9px 18px; font-size: 10px; pointer-events: auto; }
 .intro-skip {
-  margin-top: 30px; padding: 11px 20px; font-size: 10px; opacity: 0;
-  animation: introFade 0.8s ease 3.4s forwards;
+  margin-top: 18px; padding: 8px 14px; font-size: 9px; opacity: 0;
+  animation: introFade 0.8s ease 1.2s forwards;
 }
 .intro-hint {
-  margin-top: 12px; font-family: var(--mono); font-size: 8px; letter-spacing: 0.2em;
-  color: #55675c; opacity: 0; animation: introFade 0.8s ease 4.2s forwards;
+  font-family: var(--mono); font-size: 8px; letter-spacing: 0.16em;
+  color: #55675c;
 }
 @keyframes introFade { to { opacity: 1; } }
 @keyframes introLogo {
@@ -438,11 +452,9 @@ h1 span { color: transparent; -webkit-text-stroke: 2px var(--amber); text-shadow
 }
 @keyframes introRule { to { width: min(560px, 76vw); } }
 @keyframes introWave { from { height: 3px; opacity: 0.45; } to { height: 12px; opacity: 1; } }
-@keyframes introDialogue {
-  0% { opacity: 0; transform: translateY(6px); }
-  9% { opacity: 1; transform: translateY(0); }
-  82% { opacity: 1; transform: translateY(0); }
-  100% { opacity: 0; transform: translateY(-4px); }
+@keyframes introLineIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 @keyframes introScan { from { transform: translateY(-4%); } to { transform: translateY(4%); } }
 

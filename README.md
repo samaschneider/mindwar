@@ -20,8 +20,8 @@ npm run dev
 ```
 
 Or double-click `run.bat` in this folder. Vite prints a local URL
-(`http://127.0.0.1:5173`). A skippable **launch intro** plays first; click or press any key to
-skip it, or add `?nointro` to jump straight to the title. Then click **DEPLOY ECHO COMPANY**, and
+(`http://127.0.0.1:5173`). A skippable **launch intro** plays first: read each Mara transmission
+and press **NEXT** to advance, then **ENTER** to reach the title. Add `?nointro` to jump straight to the title. Then click **DEPLOY ECHO COMPANY**, and
 the mouse will be captured. A production build is `npm run build` (output in `dist`);
 `npm start` builds and serves that output together with the co-op relay.
 
@@ -218,8 +218,9 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
 ![Longshot 4.0x optic](shots/mindwar/08_scope.png)
 
 - **Launch cinematic**: a short descending camera flyover with the MINDWAR title reveal and three
-  of Mara's intro radio lines, shown one at a time with a live signal animation. Click or press any
-  key to skip it; invite links and `?nointro` jump straight to the title.
+  of Mara's intro radio lines, shown one at a time with a live signal animation. Each line waits for
+  the **NEXT** button (the last one reads **ENTER**), so nothing advances on a timer; **SKIP INTRO**
+  and invite links / `?nointro` bypass it.
 - **Player power fantasy**: 1,000 starting integrity versus 58-250 HP soldiers, and weapons
   that one-shot or two-shot body targets. Health and reserve ammunition pickups have **no cap**.
 - **20 soldiers under your command**: Echo Company deploys with twenty named allies from the
@@ -392,8 +393,9 @@ The game was driven in Chromium at 1600 x 900 during development:
   host, and, in solo, a stray shot damaged an AI squadmate; friendly hits do not count as enemy
   kills;
 - launch intro verified: the descending camera and three random Mara radio lines play while the
-  title screen is hidden, then the intro fades out and the title appears; the skip button and
-  any-key skip both worked, `?nointro`/invite links bypass it, and there were no console errors;
+  title screen is hidden; every line stayed put until NEXT was pressed (no auto-advance after a
+  timed wait), the last line showed ENTER and opened the title, SKIP INTRO worked,
+  `?nointro`/invite links bypassed it, and there were no console errors;
 - co-op lobby and briefing verified: the host could not start alone, the start stayed disabled
   until the joining player clicked READY UP, the briefing showed four Mara transmissions with a
   working NEXT button and READY on the last line, the host waited in the briefing until the client

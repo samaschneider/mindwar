@@ -202,10 +202,16 @@
             <span class="intro-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
             MARA // ECHO COMPANY
           </div>
-          <div id="intro-dialogue-lines" class="intro-dialogue-lines"></div>
+          <div id="intro-dialogue-lines" class="intro-dialogue-lines" aria-live="polite"></div>
+          <div class="intro-dialogue-foot">
+            <div class="intro-dialogue-meta">
+              <span id="intro-progress" class="intro-progress"></span>
+              <span id="intro-next-hint" class="intro-hint">READ, THEN PRESS NEXT</span>
+            </div>
+            <button id="btn-intro-next" class="btn primary intro-next">NEXT <span>›</span></button>
+          </div>
         </div>
         <button id="btn-intro-skip" class="btn intro-skip">SKIP INTRO <span>›</span></button>
-        <div class="intro-hint">PRESS ANY KEY TO SKIP</div>
       </div>
     </div>
 

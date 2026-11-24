@@ -458,11 +458,10 @@ let lastMouseY = null;
 let menuT = 0;
 let introActive = false;
 let introT = 0;
-let introTimer = null;
-const INTRO_DIALOGUE_START = 2.2;
-const INTRO_LINE_TIME = 3.0;
+let introLines = [];
+let introIndex = 0;
 const INTRO_LINE_COUNT = 3;
-const INTRO_LENGTH = INTRO_DIALOGUE_START + INTRO_LINE_TIME * INTRO_LINE_COUNT + 0.2;
+const INTRO_CAMERA_TIME = 9.5;
 let lastBeacon = { x: START_X, z: START_Z, yaw: 0 };
 let sessionStart = Date.now();
 let saveTimer = 0;
@@ -526,40 +525,59 @@ enemies.setPickups(pickups);
 function finishIntro() {
   if (!introActive) return;
   introActive = false;
-  if (introTimer) {
-    clearTimeout(introTimer);
-    introTimer = null;
-  }
   const intro = $("intro-screen");
   if (intro) {
     intro.classList.add("intro-done");
     setTimeout(() => intro.classList.add("hidden"), 760);
   }
   $("start-screen")?.classList.remove("hidden");
-  window.removeEventListener("keydown", introKey, true);
 }
 
-function introKey(e) {
-  if (!introActive || e.repeat) return;
-  finishIntro();
+function renderIntroLine() {
+  const lines = [...document.querySelectorAll("#intro-dialogue-lines .intro-line")];
+  lines.forEach((el, i) => {
+    const active = i === introIndex;
+    el.classList.toggle("is-active", active);
+    el.setAttribute("aria-hidden", active ? "false" : "true");
+  });
+  const last = introIndex >= introLines.length - 1;
+  const next = $("btn-intro-next");
+  if (next) next.innerHTML = last ? 'ENTER <span>›</span>' : 'NEXT <span>›</span>';
+  const progress = $("intro-progress");
+  if (progress) progress.textContent = `TRANSMISSION ${introIndex + 1} / ${introLines.length}`;
+  const hint = $("intro-next-hint");
+  if (hint) hint.textContent = last ? "ENTER THE OPERATION" : "READ, THEN PRESS NEXT";
+}
+
+function introNext() {
+  if (!introActive) return;
+  if (introIndex < introLines.length - 1) {
+    introIndex++;
+    renderIntroLine();
+  } else {
+    finishIntro();
+  }
 }
 
 function buildIntroDialogue() {
   const wrap = $("intro-dialogue-lines");
   if (!wrap) return;
   wrap.innerHTML = "";
+  introLines = [];
   const seen = new Set();
   for (let i = 0; i < INTRO_LINE_COUNT; i++) {
     let line = maraLine("intro");
     let guard = 0;
     while (seen.has(line) && guard++ < 12) line = maraLine("intro");
     seen.add(line);
+    introLines.push(line);
     const el = document.createElement("div");
     el.className = "intro-line";
     el.textContent = line;
-    el.style.animationDelay = `${INTRO_DIALOGUE_START + i * INTRO_LINE_TIME}s`;
     wrap.appendChild(el);
   }
+  introIndex = 0;
+  renderIntroLine();
 }
 
 function initIntro() {
@@ -578,9 +596,8 @@ function initIntro() {
   intro?.classList.remove("hidden", "intro-done");
   start?.classList.add("hidden");
   buildIntroDialogue();
+  $("btn-intro-next")?.addEventListener("click", introNext);
   $("btn-intro-skip")?.addEventListener("click", finishIntro);
-  window.addEventListener("keydown", introKey, true);
-  introTimer = setTimeout(finishIntro, INTRO_LENGTH * 1000 + 300);
 }
 
 function startCoopOperation(role) {
@@ -1806,7 +1823,7 @@ function animate(now = performance.now()) {
     menuT += dt;
     if (introActive) {
       introT += dt;
-      const p = Math.min(1, introT / INTRO_LENGTH);
+      const p = Math.min(1, introT / INTRO_CAMERA_TIME);
       const ease = 1 - Math.pow(1 - p, 3);
       const x = START_X + Math.sin(introT * 0.12) * 28;
       const z = START_Z + 62 - ease * 48;
