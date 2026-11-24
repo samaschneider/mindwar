@@ -231,7 +231,9 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   nearby allies fall in and follow them into the fight. The HUD shows the full headcount and
   collapses excess cards into a +N summary.
 - **Climbable ladders**: every building has a metal wall ladder on the outside of one wall.
-  Walk into the ladder and hold forward to climb, back to descend. The top rung meets the roof
+  Ladders are thin wall-mounted plates (about 4 cm deep), not metre-thick blocks, so they no
+  longer fill the camera when you climb or walk past them. Walk into the ladder and hold forward
+  to climb, back to descend. The top rung meets the roof
   so you can step straight off; flat-roof parapets are notched at the ladder. Squadmates and
   enemies use the same ladders to follow you onto rooftops, and enemies no longer snap to a roof
   when they brush against a wall.

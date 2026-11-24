@@ -354,6 +354,14 @@ const FACES = [
   { dir: [0, 0, -1], corners: [[1, 0, 0], [0, 0, 0], [0, 1, 0], [1, 1, 0]], shade: 0.78 }
 ];
 
+// Ladders are thin wall-mounted plates, not full cubes: 4 cm deep, about
+// two-thirds of a cell wide. The climb volume is still the whole cell, so
+// they remain easy to grab without a metre of geometry filling the view.
+const LADDER_PANEL_DEPTH = 0.04;
+const LADDER_PANEL_WIDTH = 0.62;
+const LADDER_PANEL_GAP = 0.015;
+const LADDER_SIDES = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+
 function hash2(x, z, seed = 0) {
   let h = Math.imul(x | 0, 374761393) + Math.imul(z | 0, 668265263) + Math.imul(seed, 1442695041);
   h = Math.imul(h ^ (h >>> 13), 1274126177);
@@ -798,9 +806,55 @@ export class World {
           const v1 = 1 - row / ATLAS_COLS - eps;
           const faceUV = [[u0, v0], [u1, v0], [u1, v1], [u0, v1]];
 
+          if (c === LADDER) {
+            // Find the wall this ladder is mounted on. The top rung can sit
+            // above the roof, so look a few blocks down for the building face.
+            let sideX = 0, sideZ = 0;
+            for (let back = 0; back <= 6 && !sideX && !sideZ; back++) {
+              for (const [sx, sz] of LADDER_SIDES) {
+                const nb = this.getBlock(wx + sx, y - back, wz + sz);
+                if (nb && nb !== LADDER) { sideX = sx; sideZ = sz; break; }
+              }
+            }
+            if (sideX || sideZ) {
+              const halfW = LADDER_PANEL_WIDTH / 2;
+              const localX = x + 0.5, localZ = z + 0.5;
+              let bx0, bx1, bz0, bz1;
+              if (sideX) {
+                const wall = x + (sideX > 0 ? 1 : 0);
+                const inner = wall - sideX * LADDER_PANEL_GAP;
+                const outer = inner - sideX * LADDER_PANEL_DEPTH;
+                bx0 = Math.min(inner, outer); bx1 = Math.max(inner, outer);
+                bz0 = localZ - halfW; bz1 = localZ + halfW;
+              } else {
+                const wall = z + (sideZ > 0 ? 1 : 0);
+                const inner = wall - sideZ * LADDER_PANEL_GAP;
+                const outer = inner - sideZ * LADDER_PANEL_DEPTH;
+                bz0 = Math.min(inner, outer); bz1 = Math.max(inner, outer);
+                bx0 = localX - halfW; bx1 = localX + halfW;
+              }
+              for (const face of FACES) {
+                const shade = face.shade * jitter;
+                for (let k = 0; k < 4; k++) {
+                  const corner = face.corners[k];
+                  positions.push(bx0 + corner[0] * (bx1 - bx0), y + corner[1], bz0 + corner[2] * (bz1 - bz0));
+                  normals.push(...face.dir);
+                  colors.push(shade, shade, shade);
+                  uvs.push(faceUV[k][0], faceUV[k][1]);
+                }
+                indices.push(vcount, vcount + 1, vcount + 2, vcount, vcount + 2, vcount + 3);
+                vcount += 4;
+              }
+            }
+            continue;
+          }
+
           for (const face of FACES) {
             const nx = wx + face.dir[0], ny = y + face.dir[1], nz = wz + face.dir[2];
-            if (this.getBlock(nx, ny, nz)) continue;
+            const neighbor = this.getBlock(nx, ny, nz);
+            // Ladder cells are thin plates now, so they must not hide the wall
+            // behind them.
+            if (neighbor && neighbor !== LADDER) continue;
             const shade = face.shade * jitter;
             for (let k = 0; k < 4; k++) {
               const corner = face.corners[k];
