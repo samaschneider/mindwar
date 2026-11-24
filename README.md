@@ -295,8 +295,8 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   50 BPM chromatic Dm–B♭–A♭–A theme** with a low register and dark cutoff. The normal battle
   track is a tense 118 BPM variation of the battle
   harmony, rotating through four lead/answer phrases with a driving left-hand ostinato. The last
-  two checkpoints — **Voss's Gate** and **The Director** — use a separate **132 BPM epic final
-  battle theme**: a rising A♭/A lead with octave doubling, high bells, a harder ostinato and low
+  two checkpoints — **Voss's Gate** and **The Director** — use a separate **126 BPM epic final
+  battle theme**: a broad D–F–G–A lead with octave doubling, high bells, a heavy ostinato and low
   tolling octaves, built from Vex's material. No drums or synth pads are used.
   The title theme starts as soon as the page loads where the browser allows autoplay, and falls
   back to the first click/key press when it does not. It plays on the title and menu screens; the
@@ -428,7 +428,7 @@ The game was driven in Chromium at 1600 x 900 during development:
   theme text, and title/battle rotations still update live with each variant;
 - regional score verified: deploying in Harrow County set the 60 BPM farm theme, teleporting to
   Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's darker 50 BPM city theme,
-  a normal checkpoint activated the 118 BPM battle theme, and zone 31 activated the 132 BPM final
+  a normal checkpoint activated the 118 BPM battle theme, and zone 31 activated the 126 BPM final
   battle theme; all switches ran without console errors;
 - ally separation verified: two allies placed in the same position pushed apart on their next
   update;

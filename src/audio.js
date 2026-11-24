@@ -5,6 +5,7 @@
 const MUSIC_TITLE_GAIN = 1.7;
 const MUSIC_BATTLE_GAIN = 1.5;
 const MUSIC_FINAL_GAIN = 1.6;
+const MUSIC_CITY_GAIN = 2.4;
 const MUSIC_DUCKED_GAIN = 0.5;
 
 // Title-theme material. The harmony stays A minor / Fmaj7 / D minor / E minor,
@@ -105,18 +106,19 @@ const EXPLORE_THEMES = {
 };
 
 const FINAL_THEME = {
-  bpm: 132,
-  chords: [[50, 53, 57, 62], [46, 50, 53, 58], [44, 48, 51, 56], [45, 49, 52, 57]],
-  roots: [38, 34, 44, 45],
-  lead: [74, 77, 80, 81],
-  answer: [81, 77, 74, 73],
+  bpm: 126,
+  chords: [[50, 53, 57, 62], [46, 50, 53, 58], [43, 46, 50, 55], [45, 49, 52, 57]],
+  roots: [38, 34, 43, 33],
+  lead: [74, 77, 79, 81],
+  answer: [81, 77, 74, 69],
   arp: [0, 2, 1, 3, 2, 1, 0, 2, 1, 3, 2, 0, 1, 2, 3, 1],
   ostinato: [0, 0, 12, 7, 0, 12, 7, 12]
 };
 
-const MUSIC_BPM = { title: 66, battle: 118, farm: 60, suburb: 72, city: 50, final: 132 };
+const MUSIC_BPM = { title: 66, battle: 118, farm: 60, suburb: 72, city: 50, final: 126 };
 
 function musicGainFor(mode) {
+  if (mode === "city") return MUSIC_CITY_GAIN;
   if (mode === "final") return MUSIC_FINAL_GAIN;
   if (mode === "battle") return MUSIC_BATTLE_GAIN;
   return MUSIC_TITLE_GAIN;
