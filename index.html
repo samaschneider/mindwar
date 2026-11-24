@@ -157,6 +157,7 @@
         <div class="start-actions">
           <button id="btn-deploy" class="btn primary" disabled>DEPLOY ECHO COMPANY <span>›</span></button>
           <button id="btn-continue" class="btn hidden" disabled>CONTINUE OPERATION <small id="continue-info"></small></button>
+          <button id="btn-campaigns" class="btn">LOAD CAMPAIGN <small>5 WORLDS // SAVES</small></button>
           <button id="btn-multiplayer" class="btn coop-btn">PLAY WITH OTHERS <small>ONLINE CO-OP // 1–8 PLAYERS</small></button>
         </div>
 
@@ -212,6 +213,23 @@
           </div>
         </div>
         <button id="btn-intro-skip" class="btn intro-skip">SKIP INTRO <span>›</span></button>
+      </div>
+    </div>
+
+    <!-- ================= CAMPAIGN ARCHIVE ================= -->
+    <div id="campaign-screen" class="screen hidden">
+      <div class="modal campaign-modal">
+        <div class="eyebrow green">ECHO COMPANY // CAMPAIGN ARCHIVE</div>
+        <h2>FIVE WORLDS</h2>
+        <p class="brief">
+          Each world keeps its own checkpoints, kills, squad and position. Up to five can be
+          stored at once.
+        </p>
+        <div id="campaign-slots" class="campaign-slots"></div>
+        <div id="campaign-status" class="campaign-status"></div>
+        <div class="modal-actions">
+          <button id="btn-campaign-close" class="btn">BACK</button>
+        </div>
       </div>
     </div>
 

@@ -542,6 +542,44 @@ h1 span { color: transparent; -webkit-text-stroke: 2px var(--amber); text-shadow
 .modal-stats strong { display: block; font-size: 24px; color: #fff2d6; margin-bottom: 2px; }
 .modal-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
+/* campaign archive */
+.campaign-modal { width: min(760px, 94vw); }
+.campaign-slots { display: flex; flex-direction: column; gap: 9px; margin: 16px 0 4px; }
+.campaign-slot {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 13px 15px; border: 1px solid rgba(255, 255, 255, 0.13);
+  background: rgba(6, 12, 9, 0.65);
+}
+.campaign-slot.active {
+  border-color: rgba(255, 181, 69, 0.6);
+  background: rgba(255, 181, 69, 0.055);
+  box-shadow: inset 2px 0 0 var(--amber);
+}
+.campaign-slot.empty { opacity: 0.72; }
+.campaign-info { min-width: 0; }
+.campaign-world {
+  font-family: var(--font); font-weight: 800; font-size: 16px;
+  letter-spacing: 0.06em; color: var(--paper);
+}
+.campaign-world span {
+  margin-left: 8px; font-family: var(--mono); font-size: 8px;
+  letter-spacing: 0.16em; color: var(--amber);
+}
+.campaign-meta {
+  margin-top: 4px; font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.08em; color: #c3d2c9;
+}
+.campaign-date {
+  margin-top: 3px; font-family: var(--mono); font-size: 8px;
+  letter-spacing: 0.08em; color: #5d6f64;
+}
+.campaign-actions { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.campaign-actions .btn { padding: 8px 12px; font-size: 10px; }
+.campaign-status {
+  min-height: 14px; margin: 4px 0 10px; font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.1em; color: var(--amber);
+}
+
 /* co-op lobby */
 .coop-btn { border-color: rgba(94, 225, 173, 0.45); }
 .coop-btn:hover { border-color: rgba(94, 225, 173, 0.8); background: rgba(94, 225, 173, 0.1); box-shadow: 0 0 24px rgba(94, 225, 173, 0.16); }

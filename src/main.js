@@ -11,7 +11,10 @@ import { coop } from "./coop.js";
 import { maraLine } from "./mara.js";
 
 const $ = id => document.getElementById(id);
-const SAVE_KEY = "mindwar_operation_v1";
+const LEGACY_SAVE_KEY = "mindwar_operation_v1";
+const SAVE_PREFIX = "mindwar_world_v1_";
+const ACTIVE_SLOT_KEY = "mindwar_active_world_v1";
+const WORLD_COUNT = 5;
 const START_X = 0;
 const START_Z = 95;
 
@@ -469,6 +472,7 @@ let sessionStart = Date.now();
 let saveTimer = 0;
 let lastSaveAt = 0;
 let regionMusicTimer = 0;
+let autoBattleTimer = 0;
 let gameStarted = false;
 let victorySeen = false;
 let lowHealthWarned = false;
@@ -487,7 +491,7 @@ const enemies = new EnemyManager({
         coop.grantUpgrade(zone);
         saveGame();
       } else {
-        try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ }
+        clearSave();
       }
     },
     onVictory: () => { if (state === "playing") showVictory(); },
@@ -697,15 +701,61 @@ function requestLock() {
   }, 550);
 }
 
-function readSave() {
+function slotKey(slot) { return `${SAVE_PREFIX}${slot}`; }
+
+function readActiveSlot() {
+  const n = Number(localStorage.getItem(ACTIVE_SLOT_KEY));
+  return Number.isInteger(n) && n >= 0 && n < WORLD_COUNT ? n : 0;
+}
+
+let activeSlot = readActiveSlot();
+let existingSave = null;
+
+function setActiveSlot(slot) {
+  activeSlot = Math.max(0, Math.min(WORLD_COUNT - 1, slot | 0));
+  localStorage.setItem(ACTIVE_SLOT_KEY, String(activeSlot));
+  refreshContinueButton();
+}
+
+function readSave(slot = activeSlot) {
   try {
-    const raw = localStorage.getItem(SAVE_KEY);
+    const raw = localStorage.getItem(slotKey(slot));
     if (!raw) return null;
     const data = JSON.parse(raw);
     if (!data || data.v !== 1 || !Array.isArray(data.cleared)) return null;
     return data;
   } catch (e) {
     return null;
+  }
+}
+
+function clearSave(slot = activeSlot) {
+  try { localStorage.removeItem(slotKey(slot)); } catch (e) { /* ignore */ }
+}
+
+function migrateLegacySave() {
+  try {
+    if (localStorage.getItem(slotKey(0))) return;
+    const raw = localStorage.getItem(LEGACY_SAVE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (data && data.v === 1 && Array.isArray(data.cleared)) {
+      localStorage.setItem(slotKey(0), raw);
+    }
+    localStorage.removeItem(LEGACY_SAVE_KEY);
+  } catch (e) { /* ignore */ }
+}
+
+function refreshContinueButton() {
+  existingSave = readSave(activeSlot);
+  const btn = $("btn-continue");
+  if (!btn) return;
+  btn.classList.toggle("hidden", !existingSave);
+  if (existingSave) {
+    const info = $("continue-info");
+    if (info) {
+      info.textContent = `WORLD ${String(activeSlot + 1).padStart(2, "0")} · ${existingSave.cleared.length} / 33 SECURED · ${existingSave.kills || 0} KILLS`;
+    }
   }
 }
 
@@ -722,16 +772,14 @@ function saveGame() {
       kills: enemies.kills,
       elapsed: Date.now() - sessionStart
     };
-    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    localStorage.setItem(slotKey(activeSlot), JSON.stringify(data));
+    localStorage.setItem(ACTIVE_SLOT_KEY, String(activeSlot));
     lastSaveAt = Date.now();
   } catch (e) { /* storage can fail */ }
 }
 
-const existingSave = readSave();
-if (existingSave) {
-  $("btn-continue").classList.remove("hidden");
-  $("continue-info").textContent = `${existingSave.cleared.length} / 33 SECURED · ${existingSave.kills || 0} KILLS`;
-}
+migrateLegacySave();
+refreshContinueButton();
 
 hud.drawStartMap();
 
@@ -984,7 +1032,7 @@ function updateEnding(dt) {
 
 /* ------------------------------- new / load ------------------------------- */
 function newOperation() {
-  localStorage.removeItem(SAVE_KEY);
+  clearSave();
   $("downed-screen")?.classList.add("hidden");
   player.weapons.clearProjectiles();
   player.weapons.root.visible = true;
@@ -1041,18 +1089,143 @@ function continueOperation(save) {
   saveGame();
 }
 
-function deploy(useSave) {
+function deploy(useSave, save = readSave(activeSlot)) {
   audio.ensure();
   audio.startAmbience();
   $("start-screen").classList.add("hidden");
-  if (useSave && existingSave) continueOperation(existingSave);
+  if (useSave && save) continueOperation(save);
   else newOperation();
   state = "playing";
   audio.startMusic(currentMusicMode());
   audio.setMusicDucked(false);
-  sessionStart = Date.now() - (useSave && existingSave ? existingSave.elapsed || 0 : 0);
+  sessionStart = Date.now() - (useSave && save ? save.elapsed || 0 : 0);
   requestLock();
   saveGame();
+}
+
+/* ------------------------------ world archive ----------------------------- */
+function firstEmptyWorld() {
+  if (!readSave(activeSlot)) return activeSlot;
+  for (let i = 0; i < WORLD_COUNT; i++) {
+    if (!readSave(i)) return i;
+  }
+  return -1;
+}
+
+function deployNewWorld() {
+  const slot = firstEmptyWorld();
+  if (slot < 0) {
+    openCampaignScreen("ALL FIVE WORLDS ARE FULL // LOAD ONE OR DELETE A WORLD.");
+    return;
+  }
+  setActiveSlot(slot);
+  clearSave(slot);
+  $("campaign-screen")?.classList.add("hidden");
+  deploy(false);
+}
+
+function startFromMenu() {
+  if (readSave(activeSlot)) deploy(true);
+  else deployNewWorld();
+}
+
+function openCampaignScreen(message = "") {
+  if (state !== "menu") return;
+  state = "campaigns";
+  renderCampaignSlots();
+  const status = $("campaign-status");
+  if (status) status.textContent = message;
+  $("campaign-screen")?.classList.remove("hidden");
+  audio.ui();
+}
+
+function closeCampaignScreen() {
+  if (state !== "campaigns") return;
+  $("campaign-screen")?.classList.add("hidden");
+  state = "menu";
+  refreshContinueButton();
+  audio.ui();
+}
+
+function renderCampaignSlots() {
+  const wrap = $("campaign-slots");
+  if (!wrap) return;
+  wrap.innerHTML = "";
+  for (let i = 0; i < WORLD_COUNT; i++) {
+    const save = readSave(i);
+    const row = document.createElement("div");
+    row.className = "campaign-slot" + (save ? "" : " empty") +
+      (save && i === activeSlot ? " active" : "");
+
+    const info = document.createElement("div");
+    info.className = "campaign-info";
+    const world = document.createElement("div");
+    world.className = "campaign-world";
+    world.textContent = `WORLD ${String(i + 1).padStart(2, "0")}`;
+    if (save && i === activeSlot) {
+      const tag = document.createElement("span");
+      tag.textContent = "ACTIVE";
+      world.appendChild(tag);
+    }
+    const meta = document.createElement("div");
+    meta.className = "campaign-meta";
+    if (save) {
+      const lastIdx = save.cleared.length ? Math.max(...save.cleared) : -1;
+      const where = lastIdx >= 0 ? ZONES[lastIdx].name.toUpperCase() : "HARROW FIELDS";
+      meta.textContent = `${save.cleared.length} / 33 SECURED · ${save.kills || 0} KILLS · ${where}`;
+    } else {
+      meta.textContent = "EMPTY WORLD // READY FOR DEPLOYMENT";
+    }
+    info.append(world, meta);
+    if (save) {
+      const date = document.createElement("div");
+      date.className = "campaign-date";
+      date.textContent = `LAST PLAYED ${new Date(save.ts || Date.now()).toLocaleDateString("en-US")}`;
+      info.appendChild(date);
+    }
+
+    const actions = document.createElement("div");
+    actions.className = "campaign-actions";
+    if (save) {
+      const load = document.createElement("button");
+      load.className = "btn primary";
+      load.textContent = "LOAD";
+      load.addEventListener("click", () => {
+        audio.ui();
+        setActiveSlot(i);
+        closeCampaignScreen();
+        deploy(true, readSave(i));
+      });
+      const del = document.createElement("button");
+      del.className = "btn danger";
+      del.textContent = "DELETE";
+      del.addEventListener("click", () => {
+        if (!window.confirm(`Delete WORLD ${String(i + 1).padStart(2, "0")}? This cannot be undone.`)) return;
+        clearSave(i);
+        if (i === activeSlot) refreshContinueButton();
+        renderCampaignSlots();
+        const status = $("campaign-status");
+        if (status) status.textContent = `WORLD ${String(i + 1).padStart(2, "0")} DELETED.`;
+        audio.ui();
+      });
+      actions.append(load, del);
+    } else {
+      const start = document.createElement("button");
+      start.className = "btn primary";
+      start.textContent = "START";
+      start.addEventListener("click", () => {
+        audio.ui();
+        setActiveSlot(i);
+        clearSave(i);
+        closeCampaignScreen();
+        deploy(false);
+      });
+      actions.appendChild(start);
+    }
+
+    row.append(info, actions);
+    wrap.appendChild(row);
+  }
 }
 
 /* --------------------------------- pause ---------------------------------- */
@@ -1330,7 +1503,7 @@ function showVictory() {
     [formatTime(Date.now() - sessionStart), "OPERATION TIME"]
   ]);
   $("victory-screen").classList.remove("hidden");
-  try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ }
+  clearSave();
 }
 
 /* --------------------------------- input ---------------------------------- */
@@ -1481,7 +1654,7 @@ function updateGamepad(dt) {
     if (state === "menu" && (just(0) || just(9))) {
       setInputMode("pad");
       if (!padSetupSaved) startPadSetup();
-      else deploy(!!existingSave);
+      else startFromMenu();
       padPrev = gp.buttons.map(b => !!b.pressed);
       padPrevActions = {};
       return;
@@ -1574,7 +1747,7 @@ function updateGamepad(dt) {
   if (state === "menu") {
     if (menuConfirm) {
       if (!padSetupSaved) startPadSetup();
-      else deploy(!!existingSave);
+      else startFromMenu();
     }
   } else if (state === "paused") {
     if (menuConfirm) resumeGame();
@@ -1681,6 +1854,7 @@ window.addEventListener("keydown", (e) => {
       else if (state === "map") closeMap();
       else if (state === "paused") resumeGame();
       else if (state === "confirm") cancelBattleConfirm();
+      else if (state === "campaigns") closeCampaignScreen();
       break;
     default:
       break;
@@ -1860,8 +2034,10 @@ $("btn-input-setup").addEventListener("click", () => {
 $("btn-pad-setup-cancel").addEventListener("click", () => { audio.ui(); finishPadSetup(false, false); });
 $("btn-pad-setup-default").addEventListener("click", () => { audio.ui(); finishPadSetup(true, true); });
 $("btn-pad-setup-skip").addEventListener("click", () => { audio.ui(); skipPadSetupStep(); });
-$("btn-deploy").addEventListener("click", () => { audio.ui(); deploy(false); });
+$("btn-deploy").addEventListener("click", () => { audio.ui(); deployNewWorld(); });
 $("btn-continue").addEventListener("click", () => { audio.ui(); deploy(true); });
+$("btn-campaigns").addEventListener("click", () => { audio.ui(); openCampaignScreen(); });
+$("btn-campaign-close").addEventListener("click", () => { closeCampaignScreen(); });
 $("btn-resume").addEventListener("click", () => { audio.ui(); resumeGame(); });
 $("btn-map").addEventListener("click", () => { audio.ui(); openMap(); });
 $("btn-abandon").addEventListener("click", () => {
@@ -1886,7 +2062,7 @@ $("btn-battle-cancel").addEventListener("click", () => { audio.ui(); cancelBattl
 $("btn-redeploy").addEventListener("click", () => { audio.ui(); redeploy(); });
 $("btn-death-restart").addEventListener("click", () => {
   audio.ui();
-  try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ }
+  clearSave();
   location.reload();
 });
 $("btn-explore").addEventListener("click", () => {
@@ -1902,7 +2078,7 @@ $("btn-explore").addEventListener("click", () => {
 });
 $("btn-new-game").addEventListener("click", () => {
   audio.ui();
-  try { localStorage.removeItem(SAVE_KEY); } catch (e) { /* ignore */ }
+  clearSave();
   location.reload();
 });
 
@@ -1978,6 +2154,15 @@ function animate(now = performance.now()) {
       if (audio.musicMode !== musicMode) {
         audio.setMusicMode(musicMode);
         audio.setMusicDucked(false);
+      }
+    }
+    autoBattleTimer -= dt;
+    if (!battleActive() && enemies.netRole !== "client" && autoBattleTimer <= 0) {
+      autoBattleTimer = 0.25;
+      const next = enemies.states[enemies.nextIndex];
+      if (next && !next.cleared) {
+        const d = Math.hypot(player.pos.x - next.zone.x, player.pos.z - next.zone.z);
+        if (d < 10) enemies.activateZone(next);
       }
     }
     player.update(dt, input);

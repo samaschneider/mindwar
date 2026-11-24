@@ -176,10 +176,11 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   sealed behind red containment fields, their beacons are dimmed and the tactical map marks
   them with padlocks and dashes the route beyond the next objective. Clearing a checkpoint
   moves the containment field forward to the following sector.
-- **Player-started battles**: battles no longer start just by walking near a beacon. Stand at the
-  next checkpoint and press **E** to open a confirmation, or open the tactical map and click the
-  amber next-checkpoint marker. Both routes show the checkpoint name, region and hostile count
-  with **START BATTLE** and **CANCEL**; cancelling returns you to the game or the map.
+- **Battles start manually or automatically**: stand at the next checkpoint and press **E** to
+  open a confirmation, or open the tactical map and click the amber next-checkpoint marker. Both
+  routes show the checkpoint name, region and hostile count with **START BATTLE** and **CANCEL**.
+  Walking within **10 m** of an unbeaten gate also starts the battle automatically, so a fresh
+  gate cannot be walked past or ignored.
 - **33 strongholds**, each with a live battle: 18 hostiles at Harrow Fields, rising to 38 at
   Voss's Gate and 44 at the Director's tower. The Army of the Chorus totals about 1,380 soldiers,
   spawned in waves.
@@ -263,8 +264,11 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   visor patterns for every soldier model plus emissive visor, chest, shoulder, backpack and limb
   strips; and stencilled health/ammo crates. The first-person guns and knife use clean, untextured
   flat colours. No external image assets are used.
-- **Auto-saving** after zone clears and every few seconds; continue from the start screen after
-  closing the tab.
+- **Five-world campaign archive**: **DEPLOY ECHO COMPANY** starts a new world in the first empty
+  slot. **LOAD CAMPAIGN** lists all five worlds with their secured count, kills and last area;
+  each saved world has **LOAD** and **DELETE**, and empty worlds have **START**. **CONTINUE
+  OPERATION** resumes the active world, and autosaves are written only to that world.
+- **Auto-saving** after zone clears and every few seconds, per world.
 
 ![Farm battle](shots/mindwar/03_battle.png)
 
@@ -363,8 +367,12 @@ The game was driven in Chromium at 1600 x 900 during development:
 - manual checkpoint start verified both ways: pressing E at the next beacon opened the
   confirmation and START BATTLE spawned the wave; clicking the next checkpoint on the map opened
   the same confirmation, and cancelling restored the map or gameplay without starting;
+- automatic gate start verified: walking within 10 m of the next unbeaten gate activated the
+  battle without pressing E, while the E prompt still appeared at 16 m for an early start;
+- five-world archive verified: starting WORLD 02 made it the active world and saved there, loading
+  it restored that world, and clearing it left WORLD 01 untouched;
 - all 32 future checkpoints are marked LOCKED on the map at the start of a new operation;
-- save/continue restores cleared zones, allies, health and ammo;
+- per-world save/continue restores cleared zones, allies, health and ammo;
 - death/redeploy, pause, tactical map, Captain Voss, Director Vex and the full light/mountain
   finale all exercised;
 - ADS accuracy tightened across all guns; the DMR and Longshot scopes verified at 30 / 22 FOV
