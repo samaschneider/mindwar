@@ -70,6 +70,9 @@ Co-op notes:
   host starts the **briefing**. Each player reads four Mara transmissions with **NEXT**, clicks
   **READY** on the last one, and deployment waits until everyone has done so. If the squad drops
   below two during the briefing, it cancels back to the lobby.
+- The briefing has a clearly labelled **EXIT** button in the top-right and **LEAVE CO-OP ROOM**
+  at the bottom. Either one leaves the room and returns to the title screen; the operation will
+  not start.
 - The lobby **NICKNAME** is shown in the roster and above your soldier. Duplicate nicknames get a
   `-2`, `-3` suffix so players stay distinguishable.
 - Co-op progress is per-session and is never written to the single-player save.

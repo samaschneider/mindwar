@@ -271,6 +271,7 @@
     <!-- ================= CO-OP BRIEFING ================= -->
     <div id="brief-screen" class="screen hidden">
       <div class="modal brief-modal">
+        <button id="btn-brief-exit" class="brief-exit" title="Leave the co-op room and return to the title screen">✕ EXIT</button>
         <div class="eyebrow green">MARA // PRE-OP BRIEFING</div>
         <h2>OPERATION BREAKWATER</h2>
         <div class="brief-signal">
@@ -286,7 +287,10 @@
         </div>
         <div id="brief-status"></div>
         <div class="modal-actions brief-actions">
-          <button id="btn-brief-leave" class="btn danger">LEAVE BRIEFING</button>
+          <button id="btn-brief-leave" class="btn danger" title="Leave the co-op room and return to the title screen">
+            LEAVE CO-OP ROOM
+            <small>RETURNS TO TITLE // THE OPERATION WILL NOT START</small>
+          </button>
         </div>
       </div>
     </div>

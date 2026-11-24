@@ -162,6 +162,7 @@ class CoopClient {
     $("btn-brief-next")?.addEventListener("click", () => this.briefNext());
     $("btn-brief-ready")?.addEventListener("click", () => this.sendBriefReady());
     $("btn-brief-leave")?.addEventListener("click", () => this.leaveRoom());
+    $("btn-brief-exit")?.addEventListener("click", () => this.leaveRoom());
     $("btn-downed-giveup")?.addEventListener("click", () => this.bleedOut());
     $("mp-code")?.addEventListener("keydown", e => { if (e.key === "Enter") this.joinRoom(); });
     $("mp-name")?.addEventListener("keydown", e => { if (e.key === "Enter") this.joinRoom(); });
