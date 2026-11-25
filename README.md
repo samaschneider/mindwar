@@ -200,9 +200,14 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   radio lines without pausing the fight.
 - **Four threat levels**: **Recruit**, **Soldier**, **Veteran** and **Nightmare**, selectable before
   deployment and from the pause menu. Each changes enemy count, the simultaneous alive cap,
-  enemy damage, enemy health and enemy drop rate; harder levels give hostiles more health so they
-  take less damage, drop less health and ammo, and Nightmare removes soldier health drops
-  entirely. The choice is saved with that world. Co-op difficulty remains host-controlled.
+  enemy damage, enemy health, enemy drop rate and field regeneration; harder levels give hostiles
+  more health so they take less damage, drop less health and ammo, and Nightmare removes soldier
+  health drops entirely. The choice is saved with that world. Co-op difficulty remains
+  host-controlled.
+- **Field regeneration**: below 1,000 integrity, avoiding damage for a few seconds restores
+  health at a difficulty-specific rate and ceiling: **Recruit** 60 HP/s to 1,000 after 3.5 s,
+  **Soldier** 40 HP/s to 900 after 5 s, **Veteran** 28 HP/s to 750 after 6.5 s, and
+  **Nightmare** 18 HP/s to 600 after 8 s. Taking any damage resets the delay.
 - **Winter war**: the whole nation is snowbound. Cold fog and pale sunlight, snow-capped surfaces,
   frost-rimed roofs and fields, and constant wind-driven snowfall that follows the camera.
 - **Two-stage command chain**: **Captain Voss** holds the 32nd stronghold with 3,400 HP and a
@@ -467,6 +472,9 @@ The game was driven in Chromium at 1600 x 900 during development:
 - enemy toughness verified: a Soldier conscript spawned with 58 max health; switching to
   Nightmare raised it to 87 (1.5x) and Recruit lowered it to 49.3 (0.85x), with the existing
   damage fraction (60%) preserved across both changes;
+- regeneration verified: Soldier ignored the first 4.9 s, healed 40 HP in the next second, capped
+  at 900, and took damage resetting the timer to zero; switching to Nightmare set 18 HP/s to 600
+  after 8 s and Recruit set 60 HP/s to 1,000 after 3.5 s;
 - enemy drops verified: base health/ammo chances fell from 17%/24% to 9%/17%, then scaled to
   11.25%/21.25% on Recruit, 9%/17% on Soldier, 5.85%/11.05% on Veteran and 0%/6.8% on Nightmare;
 - regional score verified: The Beginning set the title theme, Harrow County set the 60 BPM farm

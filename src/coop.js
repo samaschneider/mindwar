@@ -816,6 +816,10 @@ class CoopClient {
   onEvent(msg) {
     if (!this.active) return;
     const data = msg.data || {};
+    if (msg.name === "mode") {
+      this.deps.onHostMode?.(data.mode);
+      return;
+    }
     const enemies = this.deps.enemies;
     if (msg.name === "battleStart") {
       const state = enemies.states[data.index];
@@ -900,6 +904,11 @@ class CoopClient {
     }
     this.active = false;
     this.deps.onClosed?.(reason || "The co-op session ended.");
+  }
+
+  sendMode(mode) {
+    if (!this.active || !this.isHost) return;
+    net.sendEvent("mode", { mode });
   }
 
   sendFinale(zoneIndex, bossPos) {

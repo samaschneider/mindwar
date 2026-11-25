@@ -39,6 +39,8 @@ export class Player {
     this.spawnPoint = new THREE.Vector3(0, 20, 0);
     this.spawnYaw = 0;
     this.totalDamageTaken = 0;
+    this.regen = { delay: 5, rate: 40, cap: 900 };
+    this.timeSinceDamage = 0;
 
     camera.rotation.order = "YXZ";
     this.weapons = new WeaponSystem({
@@ -60,6 +62,7 @@ export class Player {
     this.grounded = this.supported();
     this.recoil = 0;
     this.shake = 0;
+    this.timeSinceDamage = 0;
     this.weapons.refillMags();
     this.weapons.switchTo(0);
     this.updateCamera(0);
@@ -86,8 +89,27 @@ export class Player {
     this.hud.setHealth(this.health);
   }
 
+  setRegenConfig(regen) {
+    if (!regen) return;
+    this.regen = {
+      delay: Math.max(0, Number(regen.delay) || 0),
+      rate: Math.max(0, Number(regen.rate) || 0),
+      cap: THREE.MathUtils.clamp(Number(regen.cap) || 1000, 0, 1000)
+    };
+  }
+
+  applyRegen(dt) {
+    const regen = this.regen;
+    if (!regen || regen.rate <= 0) return;
+    if (this.health >= 1000 || this.health >= regen.cap) return;
+    if (this.timeSinceDamage < regen.delay) return;
+    this.health = Math.min(1000, regen.cap, this.health + regen.rate * dt);
+    this.hud.setHealth(this.health);
+  }
+
   damage(amount, source) {
     if (this.dead) return;
+    if (amount > 0) this.timeSinceDamage = 0;
     this.health -= amount;
     this.totalDamageTaken += amount;
     this.shake = Math.min(0.32, this.shake + amount * 0.006);
@@ -109,6 +131,8 @@ export class Player {
       return;
     }
     this.time += dt;
+    this.timeSinceDamage += dt;
+    this.applyRegen(dt);
     this.stepped = false;
     this.ads = !!input.ads;
 
@@ -312,6 +336,7 @@ export class Player {
     this.health = data.health || 1000;
     this.dead = false;
     this.vel.set(0, 0, 0);
+    this.timeSinceDamage = 0;
     this.grounded = this.supported();
     this.weapons.restore(data.ammo);
     if (typeof data.grenades === "number") this.weapons.setGrenades(data.grenades);
@@ -324,6 +349,7 @@ export class Player {
     this.health = 1000;
     this.dead = false;
     this.vel.set(0, 0, 0);
+    this.timeSinceDamage = 0;
     this.pitch = 0;
     this.weapons.refillMags();
     this.hud.setHealth(this.health);

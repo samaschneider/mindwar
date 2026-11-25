@@ -21,18 +21,22 @@ const THREAT_ORDER = ["recruit", "soldier", "veteran", "nightmare"];
 const GAME_MODES = {
   recruit: {
     name: "RECRUIT", count: 0.65, damage: 0.65, alive: 0.7, drops: 1.25, toughness: 0.85,
+    regen: { delay: 3.5, rate: 60, cap: 1000 },
     desc: "Fewer hostiles. Their fire is forgiving and their armour is thin."
   },
   soldier: {
     name: "SOLDIER", count: 1, damage: 1, alive: 1, drops: 1, toughness: 1,
+    regen: { delay: 5, rate: 40, cap: 900 },
     desc: "The intended operation. Standard enemy count and damage."
   },
   veteran: {
     name: "VETERAN", count: 1.45, damage: 1.3, alive: 1.35, drops: 0.65, toughness: 1.25,
+    regen: { delay: 6.5, rate: 28, cap: 750 },
     desc: "More hostiles. Every burst hits harder and their armour holds."
   },
   nightmare: {
     name: "NIGHTMARE", count: 2.0, damage: 1.7, alive: 1.7, drops: 0.4, healthDrops: 0, toughness: 1.5,
+    regen: { delay: 8, rate: 18, cap: 600 },
     desc: "Maximum waves. Every shot is meant to kill. Tough armour, scarce supplies, no health drops."
   }
 };
@@ -1141,7 +1145,7 @@ function updateThreatUI() {
   const info = $("start-threat-info");
   if (info) {
     info.textContent =
-      `${cfg.desc} // ${cfg.count.toFixed(2)}x hostiles // ${cfg.damage.toFixed(2)}x damage // ${cfg.toughness.toFixed(2)}x AI health // ${cfg.drops.toFixed(2)}x drops`;
+      `${cfg.desc} // ${cfg.count.toFixed(2)}x hostiles // ${cfg.damage.toFixed(2)}x damage // ${cfg.toughness.toFixed(2)}x AI health // ${cfg.drops.toFixed(2)}x drops // regen ${cfg.regen.rate}/s to ${cfg.regen.cap}`;
     if (cfg.healthDrops === 0) info.textContent += " // NO HEALTH DROPS";
   }
   const note = $("pause-threat-note");
@@ -1158,6 +1162,7 @@ function applyGameMode(mode, { save = true, announce = false } = {}) {
   const cfg = GAME_MODES[mode] || GAME_MODES.soldier;
   gameMode = GAME_MODES[mode] ? mode : "soldier";
   localStorage.setItem(THREAT_KEY, gameMode);
+  player.setRegenConfig(cfg.regen);
   const mults = modeMultipliers(cfg);
   const oldDamage = enemies.enemyDamageMultiplier || 1;
   const ratio = mults.damage / oldDamage;
@@ -1182,6 +1187,7 @@ function applyGameMode(mode, { save = true, announce = false } = {}) {
     s.maxAlive = Math.min(120, Math.max(1, Math.round(s.maxAliveBase * mults.alive)));
   }
   updateThreatUI();
+  if (coop.active && coop.isHost) coop.sendMode?.(gameMode);
   if (announce) {
     hud.toast("THREAT LEVEL", `${cfg.name} // ${cfg.desc}`, "amber");
   }
@@ -1203,6 +1209,13 @@ function chooseGameMode(mode) {
     return;
   }
   applyGameMode(mode, { announce: true });
+}
+
+function applyHostGameMode(mode) {
+  if (!GAME_MODES[mode] || gameMode === mode) return;
+  gameMode = mode;
+  player.setRegenConfig(GAME_MODES[mode].regen);
+  updateThreatUI();
 }
 
 function newOperation() {
@@ -2380,6 +2393,7 @@ $("btn-new-game").addEventListener("click", () => {
 coop.init({
   scene, player, enemies, hud, audio, input, requestLock,
   modeMultipliers,
+  onHostMode: applyHostGameMode,
   onStart: startCoopOperation,
   onPlayerDowned: playerDowned,
   onPlayerRevived: playerRevived,
