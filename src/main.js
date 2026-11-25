@@ -20,20 +20,20 @@ const THREAT_KEY = "mindwar_threat_v1";
 const THREAT_ORDER = ["recruit", "soldier", "veteran", "nightmare"];
 const GAME_MODES = {
   recruit: {
-    name: "RECRUIT", count: 0.65, damage: 0.65, alive: 0.7, drops: 1.25,
-    desc: "Fewer hostiles. Their fire is forgiving. More supplies."
+    name: "RECRUIT", count: 0.65, damage: 0.65, alive: 0.7, drops: 1.25, toughness: 0.85,
+    desc: "Fewer hostiles. Their fire is forgiving and their armour is thin."
   },
   soldier: {
-    name: "SOLDIER", count: 1, damage: 1, alive: 1, drops: 1,
+    name: "SOLDIER", count: 1, damage: 1, alive: 1, drops: 1, toughness: 1,
     desc: "The intended operation. Standard enemy count and damage."
   },
   veteran: {
-    name: "VETERAN", count: 1.45, damage: 1.3, alive: 1.35, drops: 0.65,
-    desc: "More hostiles. Every burst hits harder. Fewer supplies."
+    name: "VETERAN", count: 1.45, damage: 1.3, alive: 1.35, drops: 0.65, toughness: 1.25,
+    desc: "More hostiles. Every burst hits harder and their armour holds."
   },
   nightmare: {
-    name: "NIGHTMARE", count: 2.0, damage: 1.7, alive: 1.7, drops: 0.4, healthDrops: 0,
-    desc: "Maximum waves. Every shot is meant to kill. Scarce supplies and no health drops."
+    name: "NIGHTMARE", count: 2.0, damage: 1.7, alive: 1.7, drops: 0.4, healthDrops: 0, toughness: 1.5,
+    desc: "Maximum waves. Every shot is meant to kill. Tough armour, scarce supplies, no health drops."
   }
 };
 let gameMode = GAME_MODES[localStorage.getItem(THREAT_KEY)] ? localStorage.getItem(THREAT_KEY) : "soldier";
@@ -1092,11 +1092,15 @@ function modeConfig(mode = gameMode) {
 // level scales on top of that instead of replacing it.
 const COOP_WAVE_PER_PLAYER = 0.2;
 const COOP_BASE_DAMAGE = 1.4;
+const COOP_BASE_HEALTH = 1.75;
 
 function modeMultipliers(cfg = modeConfig()) {
   const healthDrops = cfg.healthDrops ?? 1;
   if (!coop.active) {
-    return { count: cfg.count, damage: cfg.damage, alive: cfg.alive, drops: cfg.drops, healthDrops };
+    return {
+      count: cfg.count, damage: cfg.damage, alive: cfg.alive,
+      drops: cfg.drops, healthDrops, toughness: cfg.toughness
+    };
   }
   const players = Math.max(2, coop.roomPlayers?.length || 2);
   const wave = 1 + COOP_WAVE_PER_PLAYER * (players - 1);
@@ -1105,7 +1109,8 @@ function modeMultipliers(cfg = modeConfig()) {
     damage: COOP_BASE_DAMAGE * cfg.damage,
     alive: wave * cfg.alive,
     drops: cfg.drops,
-    healthDrops
+    healthDrops,
+    toughness: COOP_BASE_HEALTH * cfg.toughness
   };
 }
 
@@ -1136,7 +1141,7 @@ function updateThreatUI() {
   const info = $("start-threat-info");
   if (info) {
     info.textContent =
-      `${cfg.desc} // ${cfg.count.toFixed(2)}x hostiles // ${cfg.damage.toFixed(2)}x damage // ${cfg.drops.toFixed(2)}x drops`;
+      `${cfg.desc} // ${cfg.count.toFixed(2)}x hostiles // ${cfg.damage.toFixed(2)}x damage // ${cfg.toughness.toFixed(2)}x AI health // ${cfg.drops.toFixed(2)}x drops`;
     if (cfg.healthDrops === 0) info.textContent += " // NO HEALTH DROPS";
   }
   const note = $("pause-threat-note");
@@ -1159,8 +1164,18 @@ function applyGameMode(mode, { save = true, announce = false } = {}) {
   for (const e of enemies.enemies) {
     if (Number.isFinite(e.damage)) e.damage = Math.max(0.1, e.damage * ratio);
   }
+  const oldHealth = enemies.enemyHealthMultiplier || 1;
+  const toughness = mults.toughness / oldHealth;
+  if (toughness !== 1) {
+    for (const e of enemies.enemies) {
+      if (!Number.isFinite(e.maxHealth) || !Number.isFinite(e.health)) continue;
+      e.maxHealth *= toughness;
+      e.health *= toughness;
+    }
+  }
   enemies.enemyCountMultiplier = mults.count;
   enemies.enemyDamageMultiplier = mults.damage;
+  enemies.enemyHealthMultiplier = mults.toughness;
   enemies.dropMultiplier = mults.drops;
   enemies.healthDropMultiplier = mults.healthDrops;
   for (const s of enemies.states) {

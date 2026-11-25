@@ -660,11 +660,11 @@ class CoopClient {
     // damage floor; the host's threat level scales on top of both.
     const threat = this.deps.modeMultipliers
       ? this.deps.modeMultipliers()
-      : { count: waveMultiplier, damage: 1.4, alive: waveMultiplier, drops: 1, healthDrops: 1 };
+      : { count: waveMultiplier, damage: 1.4, alive: waveMultiplier, drops: 1, healthDrops: 1, toughness: 1.75 };
     enemies.squadLimit = 0;
     enemies.removeAllies?.();
     enemies.enemyCountMultiplier = threat.count;
-    enemies.enemyHealthMultiplier = 1.75;
+    enemies.enemyHealthMultiplier = threat.toughness ?? 1.75;
     enemies.enemyDamageMultiplier = threat.damage;
     enemies.dropMultiplier = threat.drops ?? 1;
     enemies.healthDropMultiplier = threat.healthDrops ?? 1;
