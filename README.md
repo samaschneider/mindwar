@@ -155,8 +155,7 @@ Node or its dependencies.
 | `1` - `7` / mouse wheel | Switch weapon |
 | `G` | Throw a frag grenade |
 | `E` | Engage the next checkpoint / revive a downed squadmate; hold for 2.5 s to revive a downed co-op player |
-| `Enter` / `Space` | Advance a story transmission |
-| `Esc` | Skip the current story card / close a confirmation / pause |
+| `Esc` | Close a confirmation / pause |
 | `F` | Share health and ammo with a nearby co-op teammate |
 | `M` | Tactical map |
 | `N` | Mute / unmute audio |
@@ -198,10 +197,9 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   Voss's Gate and 47 at the Director's tower. The Army of the Chorus totals about 1,423 soldiers,
   spawned in waves.
 - **Radio story in three acts**: Mara, Vex and Voss carry a serialised story through the 35
-  checkpoints. Act I–III chapter cards and key transmissions play after major gates in an
-  animated letterboxed card with typed text, NEXT/SKIP and Escape; ordinary clears stay in the
-  HUD radio. The battle confirmation includes a Mara briefing, and co-op receives the story as
-  radio lines without pausing the fight.
+  checkpoints. Key transmissions play as sequential HUD radio calls after major gates, under a
+  short Act banner, without pausing or asking for input; ordinary clears stay in the HUD radio.
+  The battle confirmation includes a Mara briefing, and co-op receives the same beats as radio.
 - **Four threat levels**: **Recruit**, **Soldier**, **Veteran** and **Nightmare**, selectable before
   deployment and from the pause menu. Each changes enemy count, the simultaneous alive cap,
   enemy damage, enemy health, enemy drop rate and field regeneration; harder levels give hostiles
@@ -476,9 +474,11 @@ The game was driven in Chromium at 1600 x 900 during development:
 - score-player verified: Title, Harrow County, Cedar's Vill, Vex, Battle, Battle II and Final Battle
   buttons switched modes and levels (2.0/2.0/2.0/2.4/1.7/1.7/1.85), the NOW PLAYING panel showed
   the matching theme text, and title/battle/battle2 rotations update live with each variant;
-- story layer verified: the Act I card appeared after the tutorial with chapter/title, typed
-  text and NEXT/SKIP, paused the game and resumed on close; a pre-battle confirmation showed the
-  Mara briefing for Mill Creek; co-op routes the same beats through HUD radio;
+- story layer verified: after The Beginning II the ACT I / HARROW COUNTY banner appeared and the
+  Mara and Vex lines played in sequence through the HUD radio without pausing; Harrow Fields
+  played its two lines about eight seconds apart, the game stayed in `playing`, and no story
+  popup or NEXT button existed; a pre-battle confirmation still showed the Mara briefing for
+  Mill Creek, and co-op routes the same beats through HUD radio;
 - threat levels verified: Nightmare applied 2x enemy count, 1.7x damage and a 24-alive cap;
   switching to Recruit from the pause menu applied 0.65x count/damage and a 10-alive cap, and the
   chosen level persisted in the world save;

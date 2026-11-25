@@ -9,7 +9,7 @@ import { AudioEngine } from "./audio.js";
 import { ZONES, ZONE_COUNT, nearestZone } from "./zones.js";
 import { coop } from "./coop.js";
 import { maraLine } from "./mara.js";
-import { briefingFor, debriefFor, coopStoryLine } from "./story.js";
+import { briefingFor, debriefFor } from "./story.js";
 
 const $ = id => document.getElementById(id);
 const LEGACY_SAVE_KEY = "mindwar_operation_v1";
@@ -481,11 +481,7 @@ function updatePadSetup(gp, dt) {
 let mapReturn = "playing";
 let battleConfirmIndex = -1;
 let battleConfirmReturn = "playing";
-let storyLines = [];
-let storyIndex = 0;
-let storyTyping = false;
-let storyTypeTimer = null;
-let storyFullText = "";
+let storyRadioTimers = [];
 let locked = false;
 let fallbackLook = false;
 let draggingLook = false;
@@ -524,12 +520,7 @@ const enemies = new EnemyManager({
       } else {
         clearSave();
       }
-      if (coop.active) {
-        const story = coopStoryLine(zone);
-        if (story) hud.comms(story.speaker, story.text, 7000);
-      } else if (!stats.final && zone.index !== 0) {
-        setTimeout(() => showStoryCard(zone), 900);
-      }
+      if (!stats.final) playStoryRadio(zone);
     },
     onVictory: () => { if (state === "playing") showVictory(); },
     onFinale: (zone, bossPos) => {
@@ -1244,6 +1235,7 @@ function applyHostGameMode(mode, mult) {
 
 function newOperation() {
   clearSave();
+  clearStoryRadio();
   $("downed-screen")?.classList.add("hidden");
   player.weapons.clearProjectiles();
   player.weapons.root.visible = true;
@@ -1270,6 +1262,7 @@ function newOperation() {
 }
 
 function continueOperation(save) {
+  clearStoryRadio();
   player.weapons.root.visible = true;
   player.restore(save.player);
   if (player.collidesAt(player.pos.x, player.pos.y, player.pos.z)) {
@@ -1619,99 +1612,39 @@ function startConfirmedBattle() {
   requestLock();
 }
 
-/* ------------------------------- story cards ------------------------------ */
-function finishStoryTyping() {
-  if (storyTypeTimer) {
-    clearInterval(storyTypeTimer);
-    storyTypeTimer = null;
-  }
-  storyTyping = false;
-  const text = $("story-text");
-  if (text) {
-    text.textContent = storyFullText;
-    text.classList.remove("typing");
-  }
+/* ----------------------------- story radio ------------------------------- */
+function clearStoryRadio() {
+  for (const id of storyRadioTimers) clearTimeout(id);
+  storyRadioTimers = [];
 }
 
-function renderStoryLine() {
-  const line = storyLines[storyIndex];
-  if (!line) return;
-  storyFullText = line.text;
-  storyTyping = true;
-  const speaker = $("story-speaker");
-  if (speaker) speaker.textContent = line.speaker;
-  const text = $("story-text");
-  if (text) {
-    text.textContent = "";
-    text.classList.add("typing");
-  }
-  const last = storyIndex >= storyLines.length - 1;
-  const next = $("btn-story-next");
-  if (next) next.innerHTML = last ? 'CLOSE <span>›</span>' : 'NEXT <span>›</span>';
-  const progress = $("story-progress");
-  if (progress) {
-    progress.textContent = `TRANSMISSION ${storyIndex + 1} / ${storyLines.length}`;
-  }
-  if (storyTypeTimer) clearInterval(storyTypeTimer);
-  let i = 0;
-  storyTypeTimer = setInterval(() => {
-    i += 1;
-    if (text) text.textContent = storyFullText.slice(0, i);
-    if (i >= storyFullText.length) finishStoryTyping();
-  }, 18);
+function storyLineDuration(text) {
+  return Math.max(5400, Math.min(12000, 3000 + String(text).length * 45));
 }
 
-function storyAdvance() {
-  if (state !== "story") return;
-  if (storyTyping) {
-    finishStoryTyping();
-    return;
-  }
-  if (storyIndex < storyLines.length - 1) {
-    storyIndex += 1;
-    renderStoryLine();
-    return;
-  }
-  closeStory();
-}
-
-function closeStory() {
-  if (state !== "story") return;
-  if (storyTypeTimer) clearInterval(storyTypeTimer);
-  storyTypeTimer = null;
-  storyTyping = false;
-  $("story-screen")?.classList.add("hidden");
-  hud.show(true);
-  state = "playing";
-  audio.setMusicDucked(false);
-  requestLock();
-}
-
-function showStoryCard(zone) {
-  if (coop.active || state !== "playing" || battleActive()) return;
+function playStoryRadio(zone) {
   const beat = debriefFor(zone);
   if (!beat || !beat.lines.length) return;
-  storyLines = beat.lines;
-  storyIndex = 0;
-  state = "story";
-  document.exitPointerLock?.();
-  hud.setPrompt(null);
-  hud.show(false);
-  $("zone-banner")?.classList.add("hidden");
-  audio.setMusicDucked(true);
-  const chapter = $("story-chapter");
-  const title = $("story-title");
-  if (beat.chapter) {
-    chapter.textContent = beat.chapter;
-    chapter.classList.remove("hidden");
-  } else chapter.classList.add("hidden");
-  if (beat.title) {
-    title.textContent = beat.title;
-    title.classList.remove("hidden");
-  } else title.classList.add("hidden");
-  $("story-screen")?.classList.remove("hidden");
-  audio.ui();
-  renderStoryLine();
+  clearStoryRadio();
+  let delay = 700;
+  if (beat.chapter || beat.title) {
+    storyRadioTimers.push(setTimeout(() => {
+      hud.banner(
+        beat.chapter || "SECURE CHANNEL",
+        beat.title || zone.name.toUpperCase(),
+        "ECHO COMPANY // RADIO TRANSMISSION",
+        false
+      );
+    }, delay));
+    delay += 2400;
+  }
+  for (const line of beat.lines) {
+    const duration = storyLineDuration(line.text);
+    storyRadioTimers.push(setTimeout(() => {
+      hud.comms(line.speaker, line.text, duration);
+    }, delay));
+    delay += duration + 800;
+  }
 }
 
 function drawMap() {
@@ -2108,18 +2041,6 @@ window.addEventListener("keydown", (e) => {
     cancelBattleConfirm();
     return;
   }
-  if (state === "story") {
-    if (e.code === "Enter" || e.code === "Space") {
-      e.preventDefault();
-      storyAdvance();
-      return;
-    }
-    if (e.code === "Escape") {
-      e.preventDefault();
-      closeStory();
-      return;
-    }
-  }
   // Let the lobby nickname, room-code and other form controls receive normal
   // typing; otherwise the game's WASD handler swallows the letters.
   if (isUiTarget(e.target)) return;
@@ -2388,8 +2309,6 @@ $("campaign-map").addEventListener("click", (e) => {
 });
 $("btn-battle-start").addEventListener("click", () => { audio.ui(); startConfirmedBattle(); });
 $("btn-battle-cancel").addEventListener("click", () => { audio.ui(); cancelBattleConfirm(); });
-$("btn-story-next").addEventListener("click", () => { audio.ui(); storyAdvance(); });
-$("btn-story-skip").addEventListener("click", () => { audio.ui(); closeStory(); });
 $("btn-redeploy").addEventListener("click", () => { audio.ui(); redeploy(); });
 $("btn-death-restart").addEventListener("click", () => {
   audio.ui();
@@ -2428,6 +2347,10 @@ coop.init({
     if (!zone) return;
     const spot = safeSpawn(zone.x, zone.z + 18);
     lastBeacon = { x: spot.x, z: spot.z, yaw: 0 };
+  },
+  onZoneStory: index => {
+    const zone = ZONES[index];
+    if (zone) playStoryRadio(zone);
   },
   onCoopFinale: (zoneIndex, boss) => {
     const zone = ZONES[zoneIndex];

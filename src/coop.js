@@ -9,7 +9,6 @@ import { net } from "./net.js";
 import { maraLine } from "./mara.js";
 import { vexLine } from "./vex.js";
 import { ZONE_COUNT } from "./zones.js";
-import { coopStoryLine } from "./story.js";
 
 const $ = id => document.getElementById(id);
 
@@ -861,8 +860,7 @@ class CoopClient {
         "green"
       );
       this.deps.onCoopZoneClear?.(data.index);
-      const story = coopStoryLine(zone);
-      if (story) this.deps.hud.comms(story.speaker, story.text, 7000);
+      this.deps.onZoneStory?.(data.index);
       return;
     }
     if (msg.name === "finale") {

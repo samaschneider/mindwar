@@ -1,7 +1,7 @@
-// Radio story beats. Key checkpoints get a short animated transmission after
-// the battle; ordinary clears stay in the HUD radio. Vex betrayed the nation
-// with permanent chip implants: no signal, no broadcast, just a leash inside
-// every citizen. The player and Mara refused the implant and must fight
+// Radio story beats. Key checkpoints get a short burst of radio transmissions
+// after the battle; ordinary clears stay in the HUD radio. Vex betrayed the
+// nation with permanent chip implants: no signal, no broadcast, just a leash
+// inside every citizen. The player and Mara refused the implant and must fight
 // through the Chorus to reach Vex.
 
 const REGION_BRIEFS = {
@@ -142,11 +142,4 @@ const BEATS = {
 export function debriefFor(zone) {
   if (!zone || zone.index >= 34) return null;
   return BEATS[zone.index] || null;
-}
-
-export function coopStoryLine(zone) {
-  const beat = debriefFor(zone);
-  if (!beat || !beat.lines.length) return null;
-  const line = beat.lines[0];
-  return { speaker: line.speaker, text: line.text };
 }
