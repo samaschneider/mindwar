@@ -94,16 +94,16 @@ export class Player {
     this.regen = {
       delay: Math.max(0, Number(regen.delay) || 0),
       rate: Math.max(0, Number(regen.rate) || 0),
-      cap: THREE.MathUtils.clamp(Number(regen.cap) || 1000, 0, 1000)
+      cap: THREE.MathUtils.clamp(Number(regen.cap) || 1000, 0, 2000)
     };
   }
 
   applyRegen(dt) {
     const regen = this.regen;
     if (!regen || regen.rate <= 0) return;
-    if (this.health >= 1000 || this.health >= regen.cap) return;
+    if (this.health >= regen.cap) return;
     if (this.timeSinceDamage < regen.delay) return;
-    this.health = Math.min(1000, regen.cap, this.health + regen.rate * dt);
+    this.health = Math.min(regen.cap, this.health + regen.rate * dt);
     this.hud.setHealth(this.health);
   }
 

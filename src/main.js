@@ -21,22 +21,22 @@ const THREAT_ORDER = ["recruit", "soldier", "veteran", "nightmare"];
 const GAME_MODES = {
   recruit: {
     name: "RECRUIT", count: 0.65, damage: 0.65, alive: 0.7, drops: 1.25, toughness: 0.85,
-    regen: { delay: 3.5, rate: 60, cap: 1000 },
+    regen: { delay: 3.5, rate: 60, cap: 1200 },
     desc: "Fewer hostiles. Their fire is forgiving and their armour is thin."
   },
   soldier: {
     name: "SOLDIER", count: 1, damage: 1, alive: 1, drops: 1, toughness: 1,
-    regen: { delay: 5, rate: 40, cap: 900 },
+    regen: { delay: 5, rate: 40, cap: 1000 },
     desc: "The intended operation. Standard enemy count and damage."
   },
   veteran: {
     name: "VETERAN", count: 1.45, damage: 1.3, alive: 1.35, drops: 0.65, toughness: 1.25,
-    regen: { delay: 6.5, rate: 28, cap: 750 },
+    regen: { delay: 6.5, rate: 28, cap: 650 },
     desc: "More hostiles. Every burst hits harder and their armour holds."
   },
   nightmare: {
     name: "NIGHTMARE", count: 2.0, damage: 1.7, alive: 1.7, drops: 0.4, healthDrops: 0, toughness: 1.5,
-    regen: { delay: 8, rate: 18, cap: 600 },
+    regen: { delay: 8, rate: 18, cap: 300 },
     desc: "Maximum waves. Every shot is meant to kill. Tough armour, scarce supplies, no health drops."
   }
 };
