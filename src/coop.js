@@ -820,7 +820,7 @@ class CoopClient {
     if (!this.active) return;
     const data = msg.data || {};
     if (msg.name === "mode") {
-      this.deps.onHostMode?.(data.mode);
+      this.deps.onHostMode?.(data.mode, data.mult);
       return;
     }
     const enemies = this.deps.enemies;
@@ -911,7 +911,8 @@ class CoopClient {
 
   sendMode(mode) {
     if (!this.active || !this.isHost) return;
-    net.sendEvent("mode", { mode });
+    const mult = this.deps.modeMultipliers ? this.deps.modeMultipliers() : null;
+    net.sendEvent("mode", { mode, mult });
   }
 
   sendFinale(zoneIndex, bossPos) {

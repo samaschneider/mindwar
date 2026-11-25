@@ -100,8 +100,9 @@ Co-op notes:
 - Enemies are simulated by the host. Clients send hit requests and receive enemy snapshots, so
   every player fights the same soldiers and the same boss.
 - **Only the host controls the threat level.** Guests see every difficulty button disabled in
-  both the lobby and the pause menu. When the host changes it, the chosen mode and its
-  regeneration profile are broadcast to the whole squad.
+  both the lobby and the pause menu. When the host changes it, the chosen mode, enemy
+  multipliers and totals, and its regeneration profile are broadcast to the whole squad, so a
+  mid-battle increase immediately raises everyone's hostile counter.
 - Co-op uses Mouse + Keyboard; controller support remains under development.
 - Friendly fire is on. Bullets can hit the other players; teammate damage reduces their health
   just like enemy fire.
@@ -547,6 +548,9 @@ The game was driven in Chromium at 1600 x 900 during development:
   disabled in both the lobby and the pause menu, a guest click left the mode unchanged, the
   host's buttons stayed enabled, and a host switch to Nightmare propagated the 18 HP/s / 300
   regeneration profile to the guest;
+- co-op difficulty totals verified: after a host switch from Recruit to Nightmare, the guest's
+  hostile total rose from 3 to 8 and its objective line read `HOSTILES REMAINING 4 OF 8` at four
+  kills, with the host's exact multipliers carried in the mode event;
 - Mara verified as an expert ally: 2,600 HP, expert flag active, 0.012 spread, 36 m engagement
   range, 20 base rifle damage, a 20-round magazine with a 2.0 s reload, a 0.75-1.0 s fire interval,
   a 1.0-1.5 s reaction delay before opening fire, and the ally line-of-sight gate now lets her

@@ -1218,10 +1218,27 @@ function chooseGameMode(mode) {
   applyGameMode(mode, { announce: true });
 }
 
-function applyHostGameMode(mode) {
-  if (!GAME_MODES[mode] || gameMode === mode) return;
+function applyHostGameMode(mode, mult) {
+  const cfg = GAME_MODES[mode];
+  if (!cfg) return;
   gameMode = mode;
-  player.setRegenConfig(GAME_MODES[mode].regen);
+  player.setRegenConfig(cfg.regen);
+  const fallback = modeMultipliers(cfg);
+  const pick = (key, def) => (mult && Number.isFinite(mult[key]) ? mult[key] : def);
+  const count = pick("count", fallback.count);
+  const damage = pick("damage", fallback.damage);
+  const alive = pick("alive", fallback.alive);
+  const drops = pick("drops", fallback.drops);
+  const healthDrops = pick("healthDrops", fallback.healthDrops);
+  const toughness = pick("toughness", fallback.toughness);
+  enemies.enemyCountMultiplier = count;
+  enemies.enemyDamageMultiplier = damage;
+  enemies.enemyHealthMultiplier = toughness;
+  enemies.dropMultiplier = drops;
+  enemies.healthDropMultiplier = healthDrops;
+  for (const s of enemies.states) {
+    s.maxAlive = Math.min(120, Math.max(1, Math.round(s.maxAliveBase * alive)));
+  }
   updateThreatUI();
 }
 
