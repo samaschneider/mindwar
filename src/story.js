@@ -55,7 +55,7 @@ const BEATS = {
   2: {
     lines: [
       { speaker: "MARA", text: "Harrow Fields is ours. They are still wearing his orders. They will never thank us for this." },
-      { speaker: "DIRECTOR VEX", text: "A field. You have taken a field. I have taken a nation." }
+      { speaker: "DIRECTOR VEX", text: "A field. You have taken a field. I have taken a nation!" }
     ]
   },
   5: {
