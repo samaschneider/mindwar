@@ -37,7 +37,7 @@ const GAME_MODES = {
   nightmare: {
     name: "NIGHTMARE", count: 2.0, damage: 1.7, alive: 1.7, drops: 0.4, healthDrops: 0, toughness: 1.5,
     regen: { delay: 8, rate: 18, cap: 300 },
-    desc: "Maximum waves. Every shot is meant to kill. Tough armour, scarce supplies, no health drops."
+    desc: "Maximum waves. Every shot is meant to kill. One wrong step, and you're pumped full of lead. Tough armour, scarce supplies, no health drops."
   }
 };
 let gameMode = GAME_MODES[localStorage.getItem(THREAT_KEY)] ? localStorage.getItem(THREAT_KEY) : "soldier";
