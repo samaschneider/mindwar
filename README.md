@@ -1,7 +1,7 @@
 # MINDWAR // 35
 
 A complete 3D voxel open-world FPS campaign built with Three.js. One continuous, streamed
-voxel nation locked in winter. Two training stages and thirty-three strongholds. Roughly 1,380 **permanently**
+voxel nation locked in winter. Two training stages and thirty-three strongholds. Roughly 1,420 **permanently**
 mind-controlled soldiers. Seven holdable weapons, a quick knife punch, frag grenades and a rocket
 launcher. Mara at your side, and no cap on health or ammunition.
 
@@ -190,8 +190,8 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   conscripts/riflemen and teaches grenades, the knife and using cover. The tutorial uses the title
   theme for exploration and the **first battle theme** for its fights, then hands off to Harrow
   County. Mara follows but holds fire during both stages, so the player clears them. The
-  campaign then runs 33 live battles: 18 hostiles at Harrow Fields, rising to 38 at
-  Voss's Gate and 44 at the Director's tower. The Army of the Chorus totals about 1,380 soldiers,
+  campaign then runs 33 live battles: 20 hostiles at Harrow Fields, rising to 41 at
+  Voss's Gate and 47 at the Director's tower. The Army of the Chorus totals about 1,423 soldiers,
   spawned in waves.
 - **Radio story in three acts**: Mara, Vex and Voss carry a serialised story through the 35
   checkpoints. Act I–III chapter cards and key transmissions play after major gates in an
@@ -227,12 +227,14 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   it sharply raises local alertness, nearly doubles their noticing distance, widens their vision
   arc and sends the whole nearby force to investigate. Explosions and nearby deaths do the same.
   Enemies also steer around trees instead of walking through them.
-- **Rooftop and ground snipers**: each stronghold fields more marksmen than before — two in
-  farmland, three in the suburbs and four in Meridian. Some climb to flat roofs and clamp
-  themselves to the roof bounds, never jumping or falling off; others instead hold ground-level
-  firing lanes at long range. Roof snipers reposition for a line; ground snipers hold their post.
-  Both flash a scope glint before firing and hit hard, and all other enemy roles stay at ground
-  level.
+- **Rooftop and ground snipers**: each stronghold fields more marksmen than before — up to four
+  in farmland (two on the ground), five in the suburbs (two on the ground) and seven in Meridian
+  (three on the ground). Every stronghold also adds its sniper allotment to its hostile total, so
+  the spawn counter rises with them: +2 in farmland and the suburbs, +3 in the city. Some climb
+  to flat roofs and clamp themselves to the roof bounds, never jumping or falling off; others
+  hold ground-level firing lanes at long range. Roof snipers reposition for a line; ground snipers
+  hold their post. Both flash a scope glint before firing and hit hard, and all other enemy roles
+  stay at ground level.
 - **7 holdable weapons, knife punch and grenades**:
   VK-9 sidearm, Hornet SMG, Warden AR, Breaker 12 shotgun, M-14 Ranger DMR,
   Longshot railgun and M-90 bazooka. Every gun's magazine capacity is doubled. The semi-automatic
@@ -395,9 +397,9 @@ The game was driven in Chromium at 1600 x 900 during development:
   supply drops, zone clear, beacon colour change and squad revive prompt;
 - seven enemy roles observed in the live spawn mix; every rooftop occupant was a sniper and
   every non-sniper stayed at ground height, while ground-level snipers held long lanes;
-- sniper mix verified live: Harrow Fields fielded 2 snipers (1 roof, 1 ground) and Meridian
-  fielded 3 by 27 spawns (1 roof, 2 ground), with ground marksmen standing at surface height and
-  running their aim/fire loop without errors;
+- sniper mix verified live: Harrow Fields fielded 4 snipers (2 roof, 2 ground) out of its 20
+  hostiles, and Meridian fielded 7 by 27 spawns (4 roof, 3 ground) out of its 56, with ground
+  marksmen standing at surface height and running their aim/fire loop without errors;
 - sniper roof-clamp and repositioning verified over an 8-second observation: fixed roof height,
   aim/glint wind-up, firing and damage to the player;
 - 0 buildings intersect any road cell across all 35 zones;

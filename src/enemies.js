@@ -1472,16 +1472,20 @@ export class EnemyManager {
     this.clearedCount = 0;
     this.battleTheme = "battle";
     this.lastBattleTheme = null;
-    this.totalFor = state => Math.max(1, Math.round(state.zone.total * this.enemyCountMultiplier));
+    this.totalFor = state =>
+      Math.max(1, Math.round(state.zone.total * this.enemyCountMultiplier) + (state.bonusSnipers || 0));
     this.states = ZONES.map(zone => {
       const maxAliveBase = Math.min(30, 14 + Math.floor(zone.index * 0.55));
+      const bonusSnipers = zone.region === "city" ? 3 : zone.region === "suburb" ? 2 : zone.region === "beginning" ? 0 : 2;
+      const baseMaxSnipers = zone.region === "city" ? 4 : zone.region === "suburb" ? 3 : zone.region === "beginning" ? 0 : 2;
       return {
         zone, active: false, cleared: false, spawned: 0, killed: 0, alive: 0,
         spawnTimer: 0, maxAliveBase, maxAlive: maxAliveBase,
         roofClaims: new Set(), snipersSpawned: 0,
-        maxSnipers: zone.region === "city" ? 4 : zone.region === "suburb" ? 3 : zone.region === "beginning" ? 0 : 2,
+        bonusSnipers, bonusSnipersLeft: bonusSnipers,
+        maxSnipers: baseMaxSnipers + bonusSnipers,
         groundSnipersSpawned: 0,
-        maxGroundSnipers: zone.region === "city" ? 2 : zone.region === "suburb" ? 2 : zone.region === "beginning" ? 0 : 1
+        maxGroundSnipers: zone.region === "city" ? 3 : zone.region === "suburb" ? 2 : zone.region === "beginning" ? 0 : 2
       };
     });
     this.triggerTimer = 0;
@@ -1897,11 +1901,14 @@ export class EnemyManager {
 
   spawnEnemy(state) {
     const zone = state.zone;
+    const bonusSniper = state.bonusSnipersLeft > 0 && state.snipersSpawned < state.maxSnipers;
     let typeKey = zone.index < 2
       ? (zone.index === 0 ? "conscript" : (Math.random() < 0.5 ? "conscript" : "rifleman"))
       : chooseRole(zone.region);
     const earlySnipers = zone.region === "farm" ? 1 : 2;
-    if (zone.index >= 2 && typeKey !== "sniper" && state.spawned < 6 && state.snipersSpawned < earlySnipers && state.snipersSpawned < state.maxSnipers) {
+    if (zone.index >= 2 && bonusSniper) {
+      typeKey = "sniper";
+    } else if (zone.index >= 2 && typeKey !== "sniper" && state.spawned < 6 && state.snipersSpawned < earlySnipers && state.snipersSpawned < state.maxSnipers) {
       typeKey = "sniper";
     }
     if (typeKey === "sniper" && (state.snipersSpawned >= state.maxSnipers || this.player === null)) {
@@ -1913,7 +1920,7 @@ export class EnemyManager {
     if (typeKey === "sniper") {
       const canGround = state.groundSnipersSpawned < state.maxGroundSnipers;
       const wantGround = canGround &&
-        (state.snipersSpawned >= state.maxSnipers - state.maxGroundSnipers || Math.random() < 0.45);
+        (state.snipersSpawned % 2 === 0 || Math.random() < 0.35);
       if (wantGround) {
         pos = this.findGroundSniperSpawn(zone);
         if (pos) state.groundSnipersSpawned++;
@@ -1928,6 +1935,7 @@ export class EnemyManager {
       }
       if (pos) {
         state.snipersSpawned++;
+        if (bonusSniper) state.bonusSnipersLeft--;
       } else {
         typeKey = zone.region === "city" ? "rifleman" : "conscript";
       }
@@ -2371,6 +2379,7 @@ export class EnemyManager {
         s.roofClaims.clear();
         s.snipersSpawned = 0;
         s.groundSnipersSpawned = 0;
+        s.bonusSnipersLeft = s.bonusSnipers;
       }
     }
     this.reviveAll(0.6);
