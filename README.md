@@ -213,7 +213,8 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   deployment and from the pause menu. Each changes enemy count, the simultaneous alive cap,
   enemy damage, enemy health, enemy drop rate and field regeneration; harder levels give hostiles
   more health so they take less damage, drop less health and ammo, and Nightmare removes soldier
-  health drops entirely. The choice is saved with that world. Co-op difficulty remains
+  health drops entirely. Veteran and Nightmare run 25% harsher across enemy count, damage, health
+  and the simultaneous cap. The choice is saved with that world. Co-op difficulty remains
   host-controlled.
 - **Field regeneration**: avoiding damage for a few seconds restores health at a
   difficulty-specific rate and ceiling: **Recruit** 60 HP/s up to 1,200 after 3.5 s (carrying
@@ -500,9 +501,10 @@ The game was driven in Chromium at 1600 x 900 during development:
 - post-credits signal verified: clicking WALK THE PEACE played the EPILOGUE / THE NEXT SIGNAL
   banner and the Mara / Colonel Wren radio sequence, naming the free camps and the north relay
   rebuild without console errors;
-- threat levels verified: Nightmare applied 2x enemy count, 1.7x damage and a 24-alive cap;
-  switching to Recruit from the pause menu applied 0.65x count/damage and a 10-alive cap, and the
-  chosen level persisted in the world save;
+- threat levels verified: Nightmare applied 2.5x enemy count, 2.13x damage, 1.88x AI health and a
+  30-alive cap in the tutorial zone; Veteran applied 1.81x count, 1.63x damage, 1.56x AI health
+  and a 24-alive cap; switching to Recruit from the pause menu applied 0.65x count/damage and a
+  10-alive cap, and the chosen level persisted in the world save;
 - enemy toughness verified: a Soldier conscript spawned with 58 max health; switching to
   Nightmare raised it to 87 (1.5x) and Recruit lowered it to 49.3 (0.85x), with the existing
   damage fraction (60%) preserved across both changes;
