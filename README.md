@@ -199,8 +199,9 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   HUD radio. The battle confirmation includes a Mara briefing, and co-op receives the story as
   radio lines without pausing the fight.
 - **Four threat levels**: **Recruit**, **Soldier**, **Veteran** and **Nightmare**, selectable before
-  deployment and from the pause menu. Each changes enemy count, the simultaneous alive cap and
-  enemy damage; the choice is saved with that world. Co-op difficulty remains host-controlled.
+  deployment and from the pause menu. Each changes enemy count, the simultaneous alive cap,
+  enemy damage and enemy drop rate; higher difficulties drop less health and ammo. The choice is
+  saved with that world. Co-op difficulty remains host-controlled.
 - **Winter war**: the whole nation is snowbound. Cold fog and pale sunlight, snow-capped surfaces,
   frost-rimed roofs and fields, and constant wind-driven snowfall that follows the camera.
 - **Two-stage command chain**: **Captain Voss** holds the 32nd stronghold with 3,400 HP and a
@@ -458,6 +459,9 @@ The game was driven in Chromium at 1600 x 900 during development:
 - threat levels verified: Nightmare applied 2x enemy count, 1.7x damage and a 24-alive cap;
   switching to Recruit from the pause menu applied 0.65x count/damage and a 10-alive cap, and the
   chosen level persisted in the world save;
+- enemy drops verified: base health/ammo chances fell from 17%/24% to 9%/17%, then scaled to
+  11.25%/21.25% on Recruit, 9%/17% on Soldier, 5.85%/11.05% on Veteran and 3.6%/6.8% on
+  Nightmare;
 - regional score verified: The Beginning set the title theme, Harrow County set the 60 BPM farm
   theme, Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's darker 50 BPM
   city theme, a normal checkpoint activated the 118 BPM battle theme, Battle II ran at 124 BPM,

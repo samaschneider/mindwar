@@ -20,20 +20,20 @@ const THREAT_KEY = "mindwar_threat_v1";
 const THREAT_ORDER = ["recruit", "soldier", "veteran", "nightmare"];
 const GAME_MODES = {
   recruit: {
-    name: "RECRUIT", count: 0.65, damage: 0.65, alive: 0.7,
-    desc: "Fewer hostiles. Their fire is forgiving."
+    name: "RECRUIT", count: 0.65, damage: 0.65, alive: 0.7, drops: 1.25,
+    desc: "Fewer hostiles. Their fire is forgiving. More supplies."
   },
   soldier: {
-    name: "SOLDIER", count: 1, damage: 1, alive: 1,
+    name: "SOLDIER", count: 1, damage: 1, alive: 1, drops: 1,
     desc: "The intended operation. Standard enemy count and damage."
   },
   veteran: {
-    name: "VETERAN", count: 1.45, damage: 1.3, alive: 1.35,
-    desc: "More hostiles. Every burst hits harder."
+    name: "VETERAN", count: 1.45, damage: 1.3, alive: 1.35, drops: 0.65,
+    desc: "More hostiles. Every burst hits harder. Fewer supplies."
   },
   nightmare: {
-    name: "NIGHTMARE", count: 2.0, damage: 1.7, alive: 1.7,
-    desc: "Maximum waves. Every shot is meant to kill."
+    name: "NIGHTMARE", count: 2.0, damage: 1.7, alive: 1.7, drops: 0.4,
+    desc: "Maximum waves. Every shot is meant to kill. Scarce supplies."
   }
 };
 let gameMode = GAME_MODES[localStorage.getItem(THREAT_KEY)] ? localStorage.getItem(THREAT_KEY) : "soldier";
@@ -1095,14 +1095,15 @@ const COOP_BASE_DAMAGE = 1.4;
 
 function modeMultipliers(cfg = modeConfig()) {
   if (!coop.active) {
-    return { count: cfg.count, damage: cfg.damage, alive: cfg.alive };
+    return { count: cfg.count, damage: cfg.damage, alive: cfg.alive, drops: cfg.drops };
   }
   const players = Math.max(2, coop.roomPlayers?.length || 2);
   const wave = 1 + COOP_WAVE_PER_PLAYER * (players - 1);
   return {
     count: wave * cfg.count,
     damage: COOP_BASE_DAMAGE * cfg.damage,
-    alive: wave * cfg.alive
+    alive: wave * cfg.alive,
+    drops: cfg.drops
   };
 }
 
@@ -1133,7 +1134,7 @@ function updateThreatUI() {
   const info = $("start-threat-info");
   if (info) {
     info.textContent =
-      `${cfg.desc} // ${cfg.count.toFixed(2)}x hostiles // ${cfg.damage.toFixed(2)}x damage`;
+      `${cfg.desc} // ${cfg.count.toFixed(2)}x hostiles // ${cfg.damage.toFixed(2)}x damage // ${cfg.drops.toFixed(2)}x drops`;
   }
   const note = $("pause-threat-note");
   if (note) {
@@ -1157,6 +1158,7 @@ function applyGameMode(mode, { save = true, announce = false } = {}) {
   }
   enemies.enemyCountMultiplier = mults.count;
   enemies.enemyDamageMultiplier = mults.damage;
+  enemies.dropMultiplier = mults.drops;
   for (const s of enemies.states) {
     s.maxAlive = Math.min(120, Math.max(1, Math.round(s.maxAliveBase * mults.alive)));
   }
