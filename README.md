@@ -200,11 +200,15 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   checkpoints. Key transmissions play as sequential HUD radio calls after major gates, under a
   short Act banner, without pausing or asking for input; ordinary clears stay in the HUD radio.
   The battle confirmation includes a Mara briefing, and co-op receives the same beats as radio.
-- **15 achievements**: a global service record that persists across all five worlds. First Blood,
-  Headhunter, Close Quarters, Frag Out, Rocket Science, Long Shot, Sniper Hunter, Checkpoint
-  Runner, Untouchable, Nightmare Survivor, The Inner Gate, The Director Is Dead, Field Medic,
-  Squad Goals and Master of Arms. Unlocks toast in-game, and the full list opens from the title
-  screen or the pause menu with locked/unlocked states.
+- **Post-credits signal**: after the mountain settles, choosing **WALK THE PEACE** opens a new
+  unsecured channel. **Colonel Wren** reveals other groups who refused the Protocol and is
+  gathering the free camps at the north relay to rebuild, with a clear sequel hook.
+- **15 achievements**: a global service record that persists across all five worlds, shown as a
+  **3 × 5 grid of medal badges**. Unlocked medals are gold with a star; locked medals are gunmetal.
+  First Blood, Headhunter, Close Quarters, Frag Out, Rocket Science, Long Shot, Sniper Hunter,
+  Checkpoint Runner, Untouchable, Nightmare Survivor, The Inner Gate, The Director Is Dead,
+  Field Medic, Squad Goals and Master of Arms. Unlocks toast in-game, and the full grid opens
+  from the title screen or the pause menu.
 - **Four threat levels**: **Recruit**, **Soldier**, **Veteran** and **Nightmare**, selectable before
   deployment and from the pause menu. Each changes enemy count, the simultaneous alive cap,
   enemy damage, enemy health, enemy drop rate and field regeneration; harder levels give hostiles
@@ -488,10 +492,14 @@ The game was driven in Chromium at 1600 x 900 during development:
   theme through the Protocol and his orders instead of repeating implant exposition, with explicit
   implant references left to the title brief and the victory screen;
 - achievements verified: the service record listed all 15 entries from both the title screen and
-  pause menu; a pistol headshot unlocked First Blood with a toast; a simulated Nightmare co-op
-  clear unlocked Untouchable, Nightmare Survivor, The Inner Gate and Squad Goals together; and a
-  full milestone run (25 headshots, 10 knife/grenade/sniper kills, 5 bazooka kills, a 150 m kill,
-  11 checkpoints, Vex and a revive) unlocked 15/15, which survived a reload;
+  pause menu as a 3 x 5 medal grid (3 columns, 5 rows, 75 px circular medals with ribbons); a
+  pistol headshot unlocked First Blood with a toast and a gold star medal; a simulated Nightmare
+  co-op clear unlocked Untouchable, Nightmare Survivor, The Inner Gate and Squad Goals together;
+  and a full milestone run (25 headshots, 10 knife/grenade/sniper kills, 5 bazooka kills, a 150 m
+  kill, 11 checkpoints, Vex and a revive) unlocked 15/15, which survived a reload;
+- post-credits signal verified: clicking WALK THE PEACE played the EPILOGUE / THE NEXT SIGNAL
+  banner and the Mara / Colonel Wren radio sequence, naming the free camps and the north relay
+  rebuild without console errors;
 - threat levels verified: Nightmare applied 2x enemy count, 1.7x damage and a 24-alive cap;
   switching to Recruit from the pause menu applied 0.65x count/damage and a 10-alive cap, and the
   chosen level persisted in the world save;

@@ -143,3 +143,11 @@ export function debriefFor(zone) {
   if (!zone || zone.index >= 34) return null;
   return BEATS[zone.index] || null;
 }
+
+// Post-credits hook: the war ends, but the free camps have found each other.
+export const EPILOGUE_LINES = [
+  { speaker: "MARA", text: "Captain. New signal. Clean channel. No Chorus handshake." },
+  { speaker: "COLONEL WREN", text: "Echo Company, this is Colonel Wren. The tower is dark. The orders have stopped. If you are still free, answer." },
+  { speaker: "MARA", text: "There are others who refused. Free camps in the hills, the coast, the old mines. More than we thought." },
+  { speaker: "COLONEL WREN", text: "We are gathering at the north relay. Bring everyone you can. We are going to rebuild — and the next war will not find us divided." }
+];

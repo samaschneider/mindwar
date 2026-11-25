@@ -9,7 +9,7 @@ import { AudioEngine } from "./audio.js";
 import { ZONES, ZONE_COUNT, nearestZone } from "./zones.js";
 import { coop } from "./coop.js";
 import { maraLine } from "./mara.js";
-import { briefingFor, debriefFor } from "./story.js";
+import { briefingFor, debriefFor, EPILOGUE_LINES } from "./story.js";
 import { AchievementTracker } from "./achievements.js";
 
 const $ = id => document.getElementById(id);
@@ -484,6 +484,8 @@ let mapReturn = "playing";
 let battleConfirmIndex = -1;
 let battleConfirmReturn = "playing";
 let storyRadioTimers = [];
+let epilogueTimers = [];
+let epiloguePlayed = false;
 let battleDamageStart = 0;
 let locked = false;
 let fallbackLook = false;
@@ -1258,6 +1260,9 @@ function applyHostGameMode(mode, mult) {
 function newOperation() {
   clearSave();
   clearStoryRadio();
+  for (const id of epilogueTimers) clearTimeout(id);
+  epilogueTimers = [];
+  epiloguePlayed = false;
   $("downed-screen")?.classList.add("hidden");
   player.weapons.clearProjectiles();
   player.weapons.root.visible = true;
@@ -1669,6 +1674,22 @@ function playStoryRadio(zone) {
   }
 }
 
+function playEpilogueRadio() {
+  if (epiloguePlayed) return;
+  epiloguePlayed = true;
+  for (const id of epilogueTimers) clearTimeout(id);
+  epilogueTimers = [];
+  hud.banner("EPILOGUE", "THE NEXT SIGNAL", "UNSECURED CHANNEL // NORTH", false);
+  let delay = 1000;
+  for (const line of EPILOGUE_LINES) {
+    const duration = storyLineDuration(line.text);
+    epilogueTimers.push(setTimeout(() => {
+      hud.comms(line.speaker, line.text, duration);
+    }, delay));
+    delay += duration + 800;
+  }
+}
+
 function killWeaponKey(opts = {}) {
   if (opts.melee) return "knife";
   if (opts.explosion) {
@@ -1686,18 +1707,20 @@ function renderAchievementList() {
   for (const a of achievements.list()) {
     const row = document.createElement("div");
     row.className = "achievement" + (a.unlocked ? " unlocked" : "");
+    row.title = `${a.name} — ${a.desc}${a.unlocked ? " (Unlocked)" : " (Locked)"}`;
+    const medal = document.createElement("div");
+    medal.className = "achievement-medal";
     const mark = document.createElement("div");
     mark.className = "achievement-mark";
-    mark.textContent = a.unlocked ? "✓" : "•";
-    const body = document.createElement("div");
+    mark.textContent = a.unlocked ? "★" : "•";
+    medal.appendChild(mark);
     const name = document.createElement("div");
     name.className = "achievement-name";
     name.textContent = a.name;
     const desc = document.createElement("div");
     desc.className = "achievement-desc";
     desc.textContent = a.desc;
-    body.append(name, desc);
-    row.append(mark, body);
+    row.append(medal, name, desc);
     list.appendChild(row);
   }
   const p = achievements.progress();
@@ -2411,6 +2434,7 @@ $("btn-explore").addEventListener("click", () => {
   hud.show(true);
   state = "playing";
   requestLock();
+  setTimeout(playEpilogueRadio, 1600);
 });
 $("btn-new-game").addEventListener("click", () => {
   audio.ui();
