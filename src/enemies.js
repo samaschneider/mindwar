@@ -1419,15 +1419,15 @@ const VILLAIN_LINES = [
   "There is no cure, Captain. The Chorus does not let go.",
   "My army does not fear death. I removed that feature.",
   "Thirty-three gates. Thirty-three chances to kneel.",
-  "Your twenty soldiers are cattle with rifles. They will die like the rest.",
+  "Your little squad are cattle with rifles. They will die like the rest.",
   "The sprawl is a nervous system. I am its mind.",
   "You are a loose thread in a very old tapestry.",
   "When you reach me, you will already be mine."
 ];
 const CLEAR_LINES = [
-  "Beacon down. Chorus is deaf in this sector.",
-  "Signal's flat. I can hear myself think again.",
-  "They're not waking up. They never will. But the signal is weaker here.",
+  "Garrison down. The Chorus is blind in this sector.",
+  "The street's quiet. I can hear myself think again.",
+  "They're not waking up. They never will. But the chip stays in.",
   "Stronghold's ours. Vex is going to feel that.",
   "Another hole in the net. Keep moving, Captain.",
   "The conscripts are down. No cure, no rescue. Just the next gate."
@@ -1661,7 +1661,7 @@ export class EnemyManager {
     const next = this.states[this.nextIndex];
     const cleared = this.states.filter(s => s.cleared).length;
     if (cleared >= ZONE_COUNT) {
-      this.hud.setObjective("OPERATION COMPLETE", "THE NATION", "DIRECTOR VEX IS DEAD // CHORUS OFFLINE", 1, "SECURED");
+      this.hud.setObjective("OPERATION COMPLETE", "THE NATION", "DIRECTOR VEX IS DEAD // CHORUS COMMAND DEAD", 1, "SECURED");
     } else if (active) {
       const total = this.totalFor(active);
       const remaining = Math.max(0, total - active.killed);
@@ -2120,8 +2120,8 @@ export class EnemyManager {
       return;
     }
 
-    this.hud.banner("CHORUS PRIME", "THE DIRECTOR IS DEAD", "SIGNAL COLLAPSE // THE SKY IS OPENING", true);
-    this.hud.toast("SIGNAL TERMINATED", "DIRECTOR VEX ELIMINATED", "green");
+    this.hud.banner("CHORUS PRIME", "THE DIRECTOR IS DEAD", "COMMAND COLLAPSE // THE SKY IS OPENING", true);
+    this.hud.toast("COMMAND TERMINATED", "DIRECTOR VEX ELIMINATED", "green");
     this.audio.victory();
     this.callbacks.onBattleEnd?.(state.zone);
     this.callbacks.onZoneClear?.(state.zone, { final: true, kills: this.kills });

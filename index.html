@@ -132,12 +132,13 @@
         <h1>MIND<span>WAR</span></h1>
         <div class="tagline">35 CHECKPOINTS. ONE WORLD. ONE CHECKPOINT AT A TIME.</div>
         <p class="brief">
-          Director Vex has weaponised the Chorus signal — a broadcast that <b>permanently</b>
-          overwrites the mind of everyone it touches. There is no cure and no rescue. You are
-          Captain of <b>Echo Company</b>, twenty soldiers the signal cannot reach. Fight north
-          through a frozen nation, clear two training stages and break all <b>33 strongholds</b>, destroy Captain Voss and put
-          Vex in the ground. The Chorus has sealed the nation checkpoint by checkpoint: clear each
-          stronghold to unlock the next sector, and end the war before the winter does.
+          Director Vex betrayed the nation. Under the <b>Chorus Protocol</b>, every citizen was
+          given a chip implant — a permanent, self-contained leash that needs no signal and cannot
+          be removed. There is no cure and no rescue. You are Captain of <b>Echo Company</b>, the
+          soldiers who refused the implant. Fight north through a frozen nation, clear two training
+          stages and break all <b>33 strongholds</b>, destroy Captain Voss and put Vex in the ground.
+          The Chorus has sealed the nation checkpoint by checkpoint: clear each stronghold to unlock
+          the next sector, and end the war before the winter does.
         </p>
 
         <div class="stat-strip">
@@ -152,6 +153,12 @@
           <button id="btn-input-kb" class="mode-btn active">MOUSE + KEYBOARD</button>
           <button id="btn-input-pad" class="mode-btn" disabled title="Controller support is under development">CONTROLLER — UNDER DEVELOPMENT</button>
           <button id="btn-input-setup" class="mode-btn hidden" disabled>SETUP CONTROLLER</button>
+        </div>
+
+        <div class="threat-panel">
+          <span class="label">THREAT LEVEL</span>
+          <div id="start-threat-buttons" class="threat-options"></div>
+          <div id="start-threat-info" class="threat-info"></div>
         </div>
 
         <div class="start-actions">
@@ -370,6 +377,10 @@
         <h2>HOLD THE LINE</h2>
         <div class="modal-stats" id="pause-stats"></div>
         <div id="pause-coop" class="pause-coop hidden"></div>
+        <div class="threat-panel pause-threat">
+          <span class="label">THREAT LEVEL <span id="pause-threat-note"></span></span>
+          <div id="pause-threat-buttons" class="threat-options"></div>
+        </div>
         <div class="modal-actions">
           <button id="btn-resume" class="btn primary">RESUME <span>›</span></button>
           <button id="btn-map" class="btn">TACTICAL MAP <kbd>M</kbd></button>
@@ -432,7 +443,7 @@
     <!-- ================= DOWNED ================= -->
     <div id="downed-screen" class="screen hidden">
       <div class="modal danger-modal">
-        <div class="eyebrow red">SIGNAL LOST</div>
+        <div class="eyebrow red">LINK LOST</div>
         <h2>YOU ARE DOWN</h2>
         <p class="brief" id="downed-line">
           A teammate can hold <b>E</b> near you to pull you back. Stay with us.
@@ -451,9 +462,9 @@
     <!-- ================= DEATH ================= -->
     <div id="death-screen" class="screen hidden">
       <div class="modal danger-modal">
-        <div class="eyebrow red">SIGNAL LOST</div>
+        <div class="eyebrow red">LINK LOST</div>
         <h2>ECHO COMPANY IS DOWN</h2>
-        <p class="brief">The Chorus drags your mind toward the light. The remains of your company pull you back.</p>
+        <p class="brief">The Chorus closes in. The remains of your company pull you back.</p>
         <div class="modal-stats" id="death-stats"></div>
         <div class="modal-actions">
           <button id="btn-redeploy" class="btn primary">REDEPLOY AT LAST BEACON <span>›</span></button>
@@ -468,9 +479,10 @@
         <div class="eyebrow green">THE SKY TURNS BLUE</div>
         <h2>PEACE AT LAST</h2>
         <p class="brief">
-          The red sky breaks and the Director is gone. Vex is ash. The Chorus dies with him, the sky
-          opens into free blue, and a colossal mountain comes gently down to rest on the earth. No
-          one else will ever hear the signal again. The world is quiet.
+          The red sky breaks and the Director is gone. Vex is ash. The chips remain in the nation,
+          but the man who put them there is finished; the Chorus has no architect. The sky opens
+          into free blue, and a colossal mountain comes gently down to rest on the earth. No one
+          else will ever answer to Vex again. The world is quiet.
         </p>
         <div class="modal-stats" id="victory-stats"></div>
         <div class="modal-actions">

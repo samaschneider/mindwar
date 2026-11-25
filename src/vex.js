@@ -1,4 +1,4 @@
-// Director Vex's co-op taunts. The host picks the line and broadcasts it so
+// Director Vex's co-op taunts. The host picks the line and sends it so
 // every player hears the same transmission.
 
 const LINES = {
@@ -10,11 +10,11 @@ const LINES = {
     "More minds for the choir. How generous of you to volunteer."
   ],
   downed: [
-    "One of you is kneeling. I can hear the signal looking for a way in.",
+    "One of you is kneeling. I can feel the panic looking for a way in.",
     "{name} is down. Leave them, Captain. It will be easier for both of you.",
     "A wounded mind is such a noisy thing. I can almost taste it.",
     "Drag {name} back if you like. The Chorus remembers every hand that touches the dead.",
-    "Do you hear that? The static behind {name}'s eyes. That is me."
+    "Do you feel that? The fear behind {name}'s eyes. That is me."
   ],
   revived: [
     "You pulled them back. How stubborn. How temporary.",

@@ -16,6 +16,27 @@ const LEGACY_SAVE_KEY = "mindwar_operation_v1";
 const SAVE_PREFIX = "mindwar_world_v1_";
 const ACTIVE_SLOT_KEY = "mindwar_active_world_v1";
 const WORLD_COUNT = 5;
+const THREAT_KEY = "mindwar_threat_v1";
+const THREAT_ORDER = ["recruit", "soldier", "veteran", "nightmare"];
+const GAME_MODES = {
+  recruit: {
+    name: "RECRUIT", count: 0.65, damage: 0.65, alive: 0.7,
+    desc: "Fewer hostiles. Their fire is forgiving."
+  },
+  soldier: {
+    name: "SOLDIER", count: 1, damage: 1, alive: 1,
+    desc: "The intended operation. Standard enemy count and damage."
+  },
+  veteran: {
+    name: "VETERAN", count: 1.45, damage: 1.3, alive: 1.35,
+    desc: "More hostiles. Every burst hits harder."
+  },
+  nightmare: {
+    name: "NIGHTMARE", count: 2.0, damage: 1.7, alive: 1.7,
+    desc: "Maximum waves. Every shot is meant to kill."
+  }
+};
+let gameMode = GAME_MODES[localStorage.getItem(THREAT_KEY)] ? localStorage.getItem(THREAT_KEY) : "soldier";
 const START_X = 0;
 const START_Z = 95;
 
@@ -777,7 +798,8 @@ function refreshContinueButton() {
   if (existingSave) {
     const info = $("continue-info");
     if (info) {
-      info.textContent = `WORLD ${String(activeSlot + 1).padStart(2, "0")} · ${existingSave.cleared.length} / 35 SECURED · ${existingSave.kills || 0} KILLS`;
+      const modeName = GAME_MODES[existingSave.mode]?.name || "SOLDIER";
+      info.textContent = `WORLD ${String(activeSlot + 1).padStart(2, "0")} · ${modeName} · ${existingSave.cleared.length} / 35 SECURED · ${existingSave.kills || 0} KILLS`;
     }
   }
 }
@@ -793,7 +815,8 @@ function saveGame() {
       cleared: enemies.states.filter(s => s.cleared).map(s => s.zone.index),
       allies: enemies.allies.map(a => a.name),
       kills: enemies.kills,
-      elapsed: Date.now() - sessionStart
+      elapsed: Date.now() - sessionStart,
+      mode: gameMode
     };
     localStorage.setItem(slotKey(activeSlot), JSON.stringify(data));
     localStorage.setItem(ACTIVE_SLOT_KEY, String(activeSlot));
@@ -803,6 +826,8 @@ function saveGame() {
 
 migrateLegacySave();
 refreshContinueButton();
+renderThreatButtons();
+updateThreatUI();
 
 hud.drawStartMap();
 
@@ -1059,6 +1084,106 @@ function beginningSpawn() {
   return safeSpawn(intro.x, intro.z + 22);
 }
 
+function modeConfig(mode = gameMode) {
+  return GAME_MODES[mode] || GAME_MODES.soldier;
+}
+
+// Co-op keeps its per-player wave growth and toughness; the host's threat
+// level scales on top of that instead of replacing it.
+const COOP_WAVE_PER_PLAYER = 0.2;
+const COOP_BASE_DAMAGE = 1.4;
+
+function modeMultipliers(cfg = modeConfig()) {
+  if (!coop.active) {
+    return { count: cfg.count, damage: cfg.damage, alive: cfg.alive };
+  }
+  const players = Math.max(2, coop.roomPlayers?.length || 2);
+  const wave = 1 + COOP_WAVE_PER_PLAYER * (players - 1);
+  return {
+    count: wave * cfg.count,
+    damage: COOP_BASE_DAMAGE * cfg.damage,
+    alive: wave * cfg.alive
+  };
+}
+
+function renderThreatButtons() {
+  for (const id of ["start-threat-buttons", "pause-threat-buttons"]) {
+    const wrap = $(id);
+    if (!wrap) continue;
+    wrap.innerHTML = "";
+    for (const key of THREAT_ORDER) {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "mode-btn threat-btn";
+      btn.dataset.mode = key;
+      btn.textContent = GAME_MODES[key].name;
+      btn.title = GAME_MODES[key].desc;
+      btn.addEventListener("click", () => chooseGameMode(key));
+      wrap.appendChild(btn);
+    }
+  }
+}
+
+function updateThreatUI() {
+  const cfg = modeConfig();
+  document.querySelectorAll(".threat-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.mode === gameMode);
+    btn.disabled = coop.active && !coop.isHost;
+  });
+  const info = $("start-threat-info");
+  if (info) {
+    info.textContent =
+      `${cfg.desc} // ${cfg.count.toFixed(2)}x hostiles // ${cfg.damage.toFixed(2)}x damage`;
+  }
+  const note = $("pause-threat-note");
+  if (note) {
+    note.textContent = !coop.active
+      ? `${cfg.name} // ${cfg.desc}`
+      : coop.isHost
+        ? `${cfg.name} // YOU CONTROL THIS`
+        : "CO-OP // HOST-CONTROLLED";
+  }
+}
+
+function applyGameMode(mode, { save = true, announce = false } = {}) {
+  const cfg = GAME_MODES[mode] || GAME_MODES.soldier;
+  gameMode = GAME_MODES[mode] ? mode : "soldier";
+  localStorage.setItem(THREAT_KEY, gameMode);
+  const mults = modeMultipliers(cfg);
+  const oldDamage = enemies.enemyDamageMultiplier || 1;
+  const ratio = mults.damage / oldDamage;
+  for (const e of enemies.enemies) {
+    if (Number.isFinite(e.damage)) e.damage = Math.max(0.1, e.damage * ratio);
+  }
+  enemies.enemyCountMultiplier = mults.count;
+  enemies.enemyDamageMultiplier = mults.damage;
+  for (const s of enemies.states) {
+    s.maxAlive = Math.min(120, Math.max(1, Math.round(s.maxAliveBase * mults.alive)));
+  }
+  updateThreatUI();
+  if (announce) {
+    hud.toast("THREAT LEVEL", `${cfg.name} // ${cfg.desc}`, "amber");
+  }
+  if (save && gameStarted && state !== "dead" && state !== "victory") saveGame();
+}
+
+function chooseGameMode(mode) {
+  if (!GAME_MODES[mode]) return;
+  audio.ui();
+  if (state === "menu") {
+    gameMode = mode;
+    localStorage.setItem(THREAT_KEY, mode);
+    updateThreatUI();
+    return;
+  }
+  if (coop.active && !coop.isHost) {
+    hud.toast("THREAT LEVEL LOCKED", "CO-OP DIFFICULTY IS SET BY THE HOST", "amber");
+    updateThreatUI();
+    return;
+  }
+  applyGameMode(mode, { announce: true });
+}
+
 function newOperation() {
   clearSave();
   $("downed-screen")?.classList.add("hidden");
@@ -1070,6 +1195,7 @@ function newOperation() {
   enemies.updateNext();
   enemies.updateHud();
   player.weapons.switchTo(0);
+  applyGameMode(gameMode, { save: false });
   lastBeacon = { x: start.x, z: start.z, yaw: 0 };
   sessionStart = Date.now();
   gameStarted = true;
@@ -1080,7 +1206,7 @@ function newOperation() {
   hud.banner("OPERATION BREAKWATER", "ECHO COMPANY", "2-MAN SQUAD // ONE CONTINUOUS SPRAWL", false);
   hud.comms("MARA", maraLine("intro"), 7600);
   setTimeout(() => {
-    if (state === "playing") hud.comms("DIRECTOR VEX", "Echo Company. Twenty minds in the sprawl I cannot hear. How delightfully temporary.", 7600);
+    if (state === "playing") hud.comms("DIRECTOR VEX", "Echo Company. A handful of unchipped minds in my nation. How delightfully temporary.", 7600);
   }, 7600);
   saveGame();
 }
@@ -1098,6 +1224,7 @@ function continueOperation(save) {
   enemies.kills = save.kills || 0;
   enemies.updateNext();
   enemies.updateHud();
+  applyGameMode(save.mode || "soldier", { save: false });
   const lastIdx = save.cleared.length ? Math.max(...save.cleared) : -1;
   if (lastIdx >= 0) {
     const z = ZONES[lastIdx];
@@ -1200,7 +1327,8 @@ function renderCampaignSlots() {
     if (save) {
       const lastIdx = save.cleared.length ? Math.max(...save.cleared) : -1;
       const where = lastIdx >= 0 ? ZONES[lastIdx].name.toUpperCase() : "HARROW FIELDS";
-      meta.textContent = `${save.cleared.length} / 35 SECURED · ${save.kills || 0} KILLS · ${where}`;
+      const modeName = GAME_MODES[save.mode]?.name || "SOLDIER";
+      meta.textContent = `${modeName} · ${save.cleared.length} / 35 SECURED · ${save.kills || 0} KILLS · ${where}`;
     } else {
       meta.textContent = "EMPTY WORLD // READY FOR DEPLOYMENT";
     }
@@ -1270,6 +1398,7 @@ function pauseGame() {
   document.exitPointerLock?.();
   audio.setMusicMode("title");
   audio.setMusicDucked(true);
+  updateThreatUI();
   $("pause-screen").classList.remove("hidden");
   hud.setPrompt(null);
   fillStats($("pause-stats"), [
@@ -1610,7 +1739,7 @@ function redeploy() {
   audio.setMusicDucked(false);
   gameStarted = true;
   hud.setHealth(player.health);
-  hud.comms("MARA", "We pulled you back. Beacon's still hot, Captain. Finish it.", 5200);
+  hud.comms("MARA", "We pulled you back. The checkpoint's still hot, Captain. Finish it.", 5200);
   requestLock();
   saveGame();
 }
@@ -2229,6 +2358,7 @@ $("btn-new-game").addEventListener("click", () => {
 /* --------------------------------- loop ----------------------------------- */
 coop.init({
   scene, player, enemies, hud, audio, input, requestLock,
+  modeMultipliers,
   onStart: startCoopOperation,
   onPlayerDowned: playerDowned,
   onPlayerRevived: playerRevived,

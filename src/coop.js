@@ -656,16 +656,21 @@ class CoopClient {
     // harder, and checkpoint bonuses stack on top of that.
     const playerCount = Math.max(2, this.roomPlayers.length || 2);
     const waveMultiplier = 1 + COOP_ENEMY_GROWTH_PER_PLAYER * (playerCount - 1);
+    // modeMultipliers() already folds in co-op wave growth and the co-op
+    // damage floor; the host's threat level scales on top of both.
+    const threat = this.deps.modeMultipliers
+      ? this.deps.modeMultipliers()
+      : { count: waveMultiplier, damage: 1.4, alive: waveMultiplier };
     enemies.squadLimit = 0;
     enemies.removeAllies?.();
-    enemies.enemyCountMultiplier = waveMultiplier;
+    enemies.enemyCountMultiplier = threat.count;
     enemies.enemyHealthMultiplier = 1.75;
-    enemies.enemyDamageMultiplier = 1.4;
+    enemies.enemyDamageMultiplier = threat.damage;
     enemies.playerDamageMultiplier = 1;
     for (const s of enemies.states) {
       s.maxAlive = Math.min(
         COOP_MAX_ALIVE_CAP,
-        Math.round(s.maxAliveBase * waveMultiplier)
+        Math.round(s.maxAliveBase * threat.alive)
       );
     }
     this.dealBonus = 0;

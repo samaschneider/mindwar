@@ -1,6 +1,8 @@
 // Radio story beats. Key checkpoints get a short animated transmission after
-// the battle; ordinary clears stay in the HUD radio. The arc runs through the
-// two training stages, Harrow County, Cedar's Vill and Meridian.
+// the battle; ordinary clears stay in the HUD radio. Vex betrayed the nation
+// with permanent chip implants: no signal, no broadcast, just a leash inside
+// every citizen. The player and Mara refused the implant and must fight
+// through the Chorus to reach Vex.
 
 const REGION_BRIEFS = {
   beginning: [
@@ -8,18 +10,18 @@ const REGION_BRIEFS = {
     "Second drill. Grenades, the knife and cover. Six hostiles."
   ],
   farm: [
-    "Another Harrow County stronghold. Clear the gate and open the road.",
-    "The Chorus has a relay here. Cut it before it calls the next sector.",
-    "Farm country, one gun at a time. Keep moving north."
+    "The chip does not need a tower, Captain. It lives in their skulls. Clear the garrison.",
+    "Every one of them was implanted at a clinic. They cannot stop. We still have to put them down.",
+    "Farm country, one gun at a time. Every chipped citizen between us and Vex."
   ],
   suburb: [
-    "Cedar's Vill. Every basement has a speaker and every speaker has a rifle.",
-    "The Chorus is thinner here. That means Vex is listening harder.",
-    "Clear the street. Do not let them circle behind you."
+    "Cedar's Vill. Every basement clinic is a Chorus implant node.",
+    "These people were neighbours before Vex put a chip in them. They will not thank us for this.",
+    "Clear the street. The implants do not surrender."
   ],
   city: [
-    "Meridian. Vex's tower is on the skyline. Every checkpoint is a step closer.",
-    "The city is a maze with teeth. Keep your rifle up.",
+    "Meridian. Vex's tower is on the skyline. The implant network is thickest here.",
+    "The city is a maze with teeth. Every mind in it belongs to Vex.",
     "Vex knows we are close. He will make this personal."
   ]
 };
@@ -28,7 +30,7 @@ const ZONE_BRIEFS = {
   0: "Training ground. Four hostiles. Learn the rifle, Captain.",
   1: "Second drill. Six hostiles. Grenades, knife, cover.",
   2: "Harrow Fields. Eighteen hostiles. First real gate, Captain.",
-  10: "The Fence. Last farm before the suburbs. Vex is massing behind it.",
+  10: "The Fence. Last farm before the suburbs. Vex's garrisons are massing behind it.",
   22: "Ashmarket. The road into Meridian runs through this square.",
   33: "Voss's Gate. Voss is inside. There is no way around him.",
   34: "The Director's tower. Vex is waiting at the top."
@@ -46,24 +48,24 @@ const BEATS = {
     chapter: "ACT I",
     title: "HARROW COUNTY",
     lines: [
-      { speaker: "MARA", text: "Training is over. Harrow County is the first link in Vex's chain. From here on, every gate is real." },
-      { speaker: "DIRECTOR VEX", text: "You have learned to shoot, Captain. That was the easy part. Ask Mara what the Chorus does with the willing." }
+      { speaker: "MARA", text: "Vex put a chip in every citizen. The Chorus Protocol. No signal, no broadcast — the leash is inside their skulls, and it never switches off." },
+      { speaker: "DIRECTOR VEX", text: "I gave them certainty. A nation that cannot disagree. You should have taken the implant, Captain." }
     ]
   },
   2: {
     lines: [
-      { speaker: "MARA", text: "Harrow Fields is ours. By morning the Chorus will know a field went quiet." },
+      { speaker: "MARA", text: "Harrow Fields is ours. The chips are still in them. They will never thank us for this." },
       { speaker: "DIRECTOR VEX", text: "A field. You have taken a field. I have taken a nation." }
     ]
   },
   5: {
     lines: [
-      { speaker: "MARA", text: "The relay here was screaming. I cut it. For a second I heard my old squad in the static." }
+      { speaker: "MARA", text: "The clinic here was a Chorus implant centre. They put chips in my old squad while I watched. There was no signal to cut. There was nothing to save." }
     ]
   },
   8: {
     lines: [
-      { speaker: "DIRECTOR VEX", text: "You keep climbing, Captain. Do you even remember why?" },
+      { speaker: "DIRECTOR VEX", text: "You keep climbing, Captain. Do you even remember refusing the implant?" },
       { speaker: "MARA", text: "Do not answer him. He is fishing for a way in." }
     ]
   },
@@ -71,29 +73,29 @@ const BEATS = {
     chapter: "ACT II",
     title: "CEDAR'S VILL",
     lines: [
-      { speaker: "MARA", text: "The farms are behind us. Cedar's Vill is a suburb with a Chorus relay in every basement." },
-      { speaker: "DIRECTOR VEX", text: "You burn my fields, I take your streets. That is how a war stays polite." }
+      { speaker: "MARA", text: "The farms are behind us. Cedar's Vill is a suburb with a Chorus clinic in every basement. The implants are permanent." },
+      { speaker: "DIRECTOR VEX", text: "You cannot remove them. You can only bury them. That is what you are doing, isn't it?" }
     ]
   },
   12: {
     lines: [
-      { speaker: "MARA", text: "The Chorus does not kill people. It keeps them. That is the difference, Captain." }
+      { speaker: "MARA", text: "The Chorus does not kill people. It keeps them. The chip does not switch off, and neither do they." }
     ]
   },
   15: {
     lines: [
-      { speaker: "CAPTAIN VOSS", text: "Captain Voss. You are approaching my district. Turn back and I will make it quick." },
+      { speaker: "CAPTAIN VOSS", text: "Captain Voss. You are approaching my district. The implant makes us certain. Turn back and I will make it quick." },
       { speaker: "MARA", text: "Voss. Vex's hand. He is not bluffing, but neither are we." }
     ]
   },
   18: {
     lines: [
-      { speaker: "MARA", text: "They poisoned the reservoir. Vex calls it sanitisation. The Chorus calls it a choir." }
+      { speaker: "MARA", text: "They poisoned the reservoir. The chip keeps the survivors compliant. Vex calls it sanitation." }
     ]
   },
   20: {
     lines: [
-      { speaker: "CAPTAIN VOSS", text: "You have a good squad, Captain. I had one too. Vex kept it." },
+      { speaker: "CAPTAIN VOSS", text: "You have a good squad, Captain. I had one too. Vex chipped them." },
       { speaker: "MARA", text: "He is trying to make you hesitate. Do not." }
     ]
   },
@@ -101,24 +103,24 @@ const BEATS = {
     chapter: "ACT III",
     title: "MERIDIAN",
     lines: [
-      { speaker: "MARA", text: "Meridian. Vex's tower is on the horizon. Voss holds the gate." },
-      { speaker: "CAPTAIN VOSS", text: "You are not the first Echo to come this far. You are just the loudest." }
+      { speaker: "MARA", text: "Meridian. Vex's tower is on the horizon. He is the architect; the chips are the nation now. Voss holds the gate." },
+      { speaker: "CAPTAIN VOSS", text: "You are not the first unchipped Echo to come this far. You are just the loudest." }
     ]
   },
   24: {
     lines: [
-      { speaker: "MARA", text: "They are casting new armour in the foundry. For what? There is no one left to fight but us." }
+      { speaker: "MARA", text: "They are casting new armour in the foundry. For the chipped, not for us. Vex is preparing for something." }
     ]
   },
   27: {
     lines: [
-      { speaker: "DIRECTOR VEX", text: "You were the first voice in the Chorus, Captain. The only one that did not stay." },
+      { speaker: "DIRECTOR VEX", text: "You were the first mind I offered the chip, Captain. You refused. That is why you are still loud." },
       { speaker: "MARA", text: "Whatever he is selling, do not buy it. He needs you to believe it." }
     ]
   },
   29: {
     lines: [
-      { speaker: "MARA", text: "Null Sector. Maps end here. Whatever Vex says in the tower, it is a weapon. Do not let it in." }
+      { speaker: "MARA", text: "Null Sector. No signal, no rescue. Just the chips and the people wearing them. Whatever Vex says in the tower, it is a weapon." }
     ]
   },
   31: {
@@ -131,8 +133,8 @@ const BEATS = {
     chapter: "THE INNER GATE",
     title: "VOSS'S GATE",
     lines: [
-      { speaker: "CAPTAIN VOSS", text: "Kill me if you must. But when you reach the tower, ask him what he made you from." },
-      { speaker: "MARA", text: "He is lying. Or he is not. Either way, Vex is next." }
+      { speaker: "CAPTAIN VOSS", text: "Kill me if you must. The chip will still be in me. Ask Vex what happens when the architect dies." },
+      { speaker: "MARA", text: "He is stalling. Do not let him inside your head. Vex is next." }
     ]
   }
 };

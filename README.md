@@ -5,10 +5,11 @@ voxel nation locked in winter. Two training stages and thirty-three strongholds.
 mind-controlled soldiers. Seven holdable weapons, a quick knife punch, frag grenades and a rocket
 launcher. Mara at your side, and no cap on health or ammunition.
 
-Director Vex has weaponised the Chorus signal - a broadcast that permanently overwrites the mind
-of everyone it touches. There is no cure and no rescue. You are the Captain of **Echo Company**,
-two soldiers the signal cannot reach. Fight north through snowbound farmland, suburbs and the
-capital; clear the two training stages, break all 33 strongholds, destroy Captain Voss and put Vex in the ground.
+Director Vex betrayed the nation. Under the Chorus Protocol, every citizen was given a chip
+implant - a permanent, self-contained leash that needs no signal and cannot be removed. There is
+no cure and no rescue. You are the Captain of **Echo Company**, the soldiers who refused the chip.
+Fight north through snowbound farmland, suburbs and the capital; clear the two training stages,
+break all 33 strongholds, destroy Captain Voss and put Vex in the ground.
 
 ![Title screen](shots/mindwar/01_title.png)
 
@@ -197,6 +198,9 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   animated letterboxed card with typed text, NEXT/SKIP and Escape; ordinary clears stay in the
   HUD radio. The battle confirmation includes a Mara briefing, and co-op receives the story as
   radio lines without pausing the fight.
+- **Four threat levels**: **Recruit**, **Soldier**, **Veteran** and **Nightmare**, selectable before
+  deployment and from the pause menu. Each changes enemy count, the simultaneous alive cap and
+  enemy damage; the choice is saved with that world. Co-op difficulty remains host-controlled.
 - **Winter war**: the whole nation is snowbound. Cold fog and pale sunlight, snow-capped surfaces,
   frost-rimed roofs and fields, and constant wind-driven snowfall that follows the camera.
 - **Two-stage command chain**: **Captain Voss** holds the 32nd stronghold with 3,400 HP and a
@@ -245,7 +249,7 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
 ![Longshot 4.0x optic](shots/mindwar/08_scope.png)
 
 - **Launch cinematic**: a short descending camera flyover with the MINDWAR title reveal and three
-  of Mara's intro radio lines, shown one at a time with a live signal animation. Each line waits for
+  of Mara's intro radio lines, shown one at a time with a live waveform animation. Each line waits for
   the **NEXT** button (the last one reads **ENTER**), so nothing advances on a timer; **SKIP INTRO**
   and invite links / `?nointro` bypass it.
 - **Player power fantasy**: 1,000 starting integrity versus 58-250 HP soldiers, and weapons
@@ -266,11 +270,12 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   so you can step straight off; flat-roof parapets are notched at the ladder. Squadmates and
   enemies use the same ladders to follow you onto rooftops, and enemies no longer snap to a roof
   when they brush against a wall.
-- **Permanent control**: the Chorus cannot be cured. There are no survivors to recruit and no
-  conscripts to free; every mind-controlled soldier stays hostile until put down.
-- **Finale**: when Vex dies, the red sky breaks and a column of light ends the Director. The sky
-  turns free blue and a colossal mountain descends gently to rest on the earth. The campaign ends
-  in peace, and the victory screen reflects the new ending.
+- **Permanent control**: Vex's chip cannot be removed. There are no survivors to recruit and no
+  conscripts to free; every implanted soldier stays hostile until put down, and killing Vex does
+  not undo the implants.
+- **Finale**: when Vex dies, the red sky breaks and a column of light ends the Director. The chips
+  remain, but the Chorus has no architect. The sky turns free blue, a colossal mountain descends
+  gently to rest on the earth, and the victory screen reflects the new ending.
 - **Runtime-generated textures**: a futuristic 256 x 256 block atlas with dark composite
   panels, luminous seams, circuit traces, solar roofs and illuminated glazing; cyan highway
   light-guide studs; a neon skyline; procedural carbon-weave, machined armour, skin, metal and
@@ -450,6 +455,9 @@ The game was driven in Chromium at 1600 x 900 during development:
 - story layer verified: the Act I card appeared after the tutorial with chapter/title, typed
   text and NEXT/SKIP, paused the game and resumed on close; a pre-battle confirmation showed the
   Mara briefing for Mill Creek; co-op routes the same beats through HUD radio;
+- threat levels verified: Nightmare applied 2x enemy count, 1.7x damage and a 24-alive cap;
+  switching to Recruit from the pause menu applied 0.65x count/damage and a 10-alive cap, and the
+  chosen level persisted in the world save;
 - regional score verified: The Beginning set the title theme, Harrow County set the 60 BPM farm
   theme, Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's darker 50 BPM
   city theme, a normal checkpoint activated the 118 BPM battle theme, Battle II ran at 124 BPM,
