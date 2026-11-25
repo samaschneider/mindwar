@@ -1136,11 +1136,18 @@ function renderThreatButtons() {
   }
 }
 
+function coopDifficultyLocked() {
+  if (coop.isHost) return false;
+  // Guests are locked both during an active operation and while sitting in a
+  // co-op room, so their local choice can never drift from the host's.
+  return coop.active || !!coop.code;
+}
+
 function updateThreatUI() {
   const cfg = modeConfig();
   document.querySelectorAll(".threat-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.mode === gameMode);
-    btn.disabled = coop.active && !coop.isHost;
+    btn.disabled = coopDifficultyLocked();
   });
   const info = $("start-threat-info");
   if (info) {
@@ -1150,7 +1157,7 @@ function updateThreatUI() {
   }
   const note = $("pause-threat-note");
   if (note) {
-    note.textContent = !coop.active
+    note.textContent = !coop.active && !coop.code
       ? `${cfg.name} // ${cfg.desc}`
       : coop.isHost
         ? `${cfg.name} // YOU CONTROL THIS`
@@ -1197,14 +1204,14 @@ function applyGameMode(mode, { save = true, announce = false } = {}) {
 function chooseGameMode(mode) {
   if (!GAME_MODES[mode]) return;
   audio.ui();
-  if (state === "menu") {
-    gameMode = mode;
-    localStorage.setItem(THREAT_KEY, mode);
+  if (coopDifficultyLocked()) {
+    hud.toast("THREAT LEVEL LOCKED", "CO-OP DIFFICULTY IS SET BY THE HOST", "amber");
     updateThreatUI();
     return;
   }
-  if (coop.active && !coop.isHost) {
-    hud.toast("THREAT LEVEL LOCKED", "CO-OP DIFFICULTY IS SET BY THE HOST", "amber");
+  if (state === "menu") {
+    gameMode = mode;
+    localStorage.setItem(THREAT_KEY, mode);
     updateThreatUI();
     return;
   }
@@ -2394,6 +2401,7 @@ coop.init({
   scene, player, enemies, hud, audio, input, requestLock,
   modeMultipliers,
   onHostMode: applyHostGameMode,
+  onRoomChanged: updateThreatUI,
   onStart: startCoopOperation,
   onPlayerDowned: playerDowned,
   onPlayerRevived: playerRevived,

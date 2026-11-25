@@ -205,6 +205,7 @@ class CoopClient {
     }
     $("mp-screen")?.classList.add("hidden");
     $("start-screen")?.classList.remove("hidden");
+    this.deps.onRoomChanged?.();
   }
 
   async ensureConnected() {
@@ -243,6 +244,7 @@ class CoopClient {
     $("start-screen")?.classList.remove("hidden");
     this.briefLocalReady = false;
     this.status("Left the room.");
+    this.deps.onRoomChanged?.();
   }
 
   copyInvite() {
@@ -555,6 +557,7 @@ class CoopClient {
     this.status(this.isHost
       ? "Room ready. Send the invite link, then start when your squad is in."
       : "Waiting for the host to start the operation.");
+    this.deps.onRoomChanged?.();
   }
 
   /* -------------------------------- net ----------------------------------- */
