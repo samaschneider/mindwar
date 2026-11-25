@@ -5,9 +5,9 @@ voxel nation locked in winter. Two training stages and thirty-three strongholds.
 mind-controlled soldiers. Seven holdable weapons, a quick knife punch, frag grenades and a rocket
 launcher. Mara at your side, and no cap on health or ammunition.
 
-Director Vex betrayed the nation. Under the Chorus Protocol, every citizen was given a chip
-implant - a permanent, self-contained leash that needs no signal and cannot be removed. There is
-no cure and no rescue. You are the Captain of **Echo Company**, the soldiers who refused the chip.
+Director Vex betrayed the nation. Under the Chorus Protocol, every citizen was given a permanent
+implant - a self-contained leash that needs no signal and cannot be removed. There is
+no cure and no rescue. You are the Captain of **Echo Company**, the soldiers who refused it.
 Fight north through snowbound farmland, suburbs and the capital; clear the two training stages,
 break all 33 strongholds, destroy Captain Voss and put Vex in the ground.
 
@@ -200,6 +200,11 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   checkpoints. Key transmissions play as sequential HUD radio calls after major gates, under a
   short Act banner, without pausing or asking for input; ordinary clears stay in the HUD radio.
   The battle confirmation includes a Mara briefing, and co-op receives the same beats as radio.
+- **15 achievements**: a global service record that persists across all five worlds. First Blood,
+  Headhunter, Close Quarters, Frag Out, Rocket Science, Long Shot, Sniper Hunter, Checkpoint
+  Runner, Untouchable, Nightmare Survivor, The Inner Gate, The Director Is Dead, Field Medic,
+  Squad Goals and Master of Arms. Unlocks toast in-game, and the full list opens from the title
+  screen or the pause menu with locked/unlocked states.
 - **Four threat levels**: **Recruit**, **Soldier**, **Veteran** and **Nightmare**, selectable before
   deployment and from the pause menu. Each changes enemy count, the simultaneous alive cap,
   enemy damage, enemy health, enemy drop rate and field regeneration; harder levels give hostiles
@@ -285,12 +290,12 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   so you can step straight off; flat-roof parapets are notched at the ladder. Squadmates and
   enemies use the same ladders to follow you onto rooftops, and enemies no longer snap to a roof
   when they brush against a wall.
-- **Permanent control**: Vex's chip cannot be removed. There are no survivors to recruit and no
-  conscripts to free; every implanted soldier stays hostile until put down, and killing Vex does
-  not undo the implants.
-- **Finale**: when Vex dies, the red sky breaks and a column of light ends the Director. The chips
-  remain, but the Chorus has no architect. The sky turns free blue, a colossal mountain descends
-  gently to rest on the earth, and the victory screen reflects the new ending.
+- **Permanent control**: Vex's Protocol cannot be removed. There are no survivors to recruit and no
+  conscripts to free; every converted soldier stays hostile until put down. Killing Vex stops the
+  orders, but it does not undo the implants.
+- **Finale**: when Vex dies, the red sky breaks and a column of light ends the Director. The implants
+  remain, but the man who gave the orders is gone. The sky turns free blue, a colossal mountain
+  descends gently to rest on the earth, and the victory screen reflects the new ending.
 - **Runtime-generated textures**: a futuristic 256 x 256 block atlas with dark composite
   panels, luminous seams, circuit traces, solar roofs and illuminated glazing; cyan highway
   light-guide studs; a neon skyline; procedural carbon-weave, machined armour, skin, metal and
@@ -370,6 +375,7 @@ descending mountain:
 | --- | --- |
 | `src/main.js` | Renderer, red/blue sky lighting, game states, input, campaign flow, save/continue, menus, light/mountain finale |
 | `src/story.js` | Region briefings and the three-act Mara/Vex/Voss radio story |
+| `src/achievements.js` | Global 15-entry achievement tracker, milestones and persistence |
 | `src/world.js` | Chunk generation, winter block atlas, textured meshing, regional terrain, roads, roofs, trees, beacons, snowfall, collision, voxel raycasts |
 | `src/zones.js` | National route, regional road network, 35 checkpoints, farms/suburbs/city props and spawn layout |
 | `src/player.js` | First-person movement, voxel collision, step-up, camera, health, interaction |
@@ -478,7 +484,14 @@ The game was driven in Chromium at 1600 x 900 during development:
   Mara and Vex lines played in sequence through the HUD radio without pausing; Harrow Fields
   played its two lines about eight seconds apart, the game stayed in `playing`, and no story
   popup or NEXT button existed; a pre-battle confirmation still showed the Mara briefing for
-  Mill Creek, and co-op routes the same beats through HUD radio;
+  Mill Creek, and co-op routes the same beats through HUD radio; dialogue now carries the control
+  theme through the Protocol and his orders instead of repeating implant exposition, with explicit
+  implant references left to the title brief and the victory screen;
+- achievements verified: the service record listed all 15 entries from both the title screen and
+  pause menu; a pistol headshot unlocked First Blood with a toast; a simulated Nightmare co-op
+  clear unlocked Untouchable, Nightmare Survivor, The Inner Gate and Squad Goals together; and a
+  full milestone run (25 headshots, 10 knife/grenade/sniper kills, 5 bazooka kills, a 150 m kill,
+  11 checkpoints, Vex and a revive) unlocked 15/15, which survived a reload;
 - threat levels verified: Nightmare applied 2x enemy count, 1.7x damage and a 24-alive cap;
   switching to Recruit from the pause menu applied 0.65x count/damage and a 10-alive cap, and the
   chosen level persisted in the world save;

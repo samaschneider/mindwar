@@ -1427,7 +1427,7 @@ const VILLAIN_LINES = [
 const CLEAR_LINES = [
   "Garrison down. The Chorus is blind in this sector.",
   "The street's quiet. I can hear myself think again.",
-  "They're not waking up. They never will. But the chip stays in.",
+  "They're not waking up. They never will. But the orders stay in.",
   "Stronghold's ours. Vex is going to feel that.",
   "Another hole in the net. Keep moving, Captain.",
   "The conscripts are down. No cure, no rescue. Just the next gate."
@@ -2111,6 +2111,7 @@ export class EnemyManager {
       else if (r < healthChance + ammoChance) this.pickups.spawn("ammo", enemy.pos, 65 + Math.round(Math.random() * 55));
     }
     this.callbacks.onKill?.(this.kills);
+    this.callbacks.onEnemyKilled?.(enemy, opts);
 
     if (state && state.active && !state.cleared && state.spawned >= this.totalFor(state) && state.alive <= 0 && !state.zone.isBoss) {
       this.completeZone(state);

@@ -829,6 +829,7 @@ class CoopClient {
         state.active = true;
         enemies.activeIndex = data.index;
       }
+      this.deps.onClientBattleStart?.(data.index);
       const mode = data.theme === "battle" || data.theme === "battle2" || data.theme === "final"
         ? data.theme
         : data.index >= ZONE_COUNT - 2 ? "final"
@@ -1234,6 +1235,7 @@ class CoopClient {
     player.externalPrompt = `HOLD E TO REVIVE ${mate.name} // ${shown.toFixed(1)}s`;
     if (this.reviveHold >= 2.5) {
       net.sendRevive(mate.id);
+      this.deps.onTeammateRevived?.(mate.id);
       this.reviveHold = 0;
       this.reviveSentUntil = now + 1200;
       player.externalPrompt = `REVIVE SENT // ${mate.name}`;

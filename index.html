@@ -133,9 +133,9 @@
         <div class="tagline">35 CHECKPOINTS. ONE WORLD. ONE CHECKPOINT AT A TIME.</div>
         <p class="brief">
           Director Vex betrayed the nation. Under the <b>Chorus Protocol</b>, every citizen was
-          given a chip implant — a permanent, self-contained leash that needs no signal and cannot
+          given a permanent implant — a self-contained leash that needs no signal and cannot
           be removed. There is no cure and no rescue. You are Captain of <b>Echo Company</b>, the
-          soldiers who refused the implant. Fight north through a frozen nation, clear two training
+          soldiers who refused it. Fight north through a frozen nation, clear two training
           stages and break all <b>33 strongholds</b>, destroy Captain Voss and put Vex in the ground.
           The Chorus has sealed the nation checkpoint by checkpoint: clear each stronghold to unlock
           the next sector, and end the war before the winter does.
@@ -165,6 +165,7 @@
           <button id="btn-deploy" class="btn primary" disabled>DEPLOY ECHO COMPANY <span>›</span></button>
           <button id="btn-continue" class="btn hidden" disabled>CONTINUE OPERATION <small id="continue-info"></small></button>
           <button id="btn-campaigns" class="btn">LOAD CAMPAIGN <small>5 WORLDS // SAVES</small></button>
+          <button id="btn-achievements" class="btn">ACHIEVEMENTS <small id="achievement-count">0 / 15</small></button>
           <button id="btn-multiplayer" class="btn coop-btn">PLAY WITH OTHERS <small>ONLINE CO-OP // 1–8 PLAYERS</small></button>
         </div>
 
@@ -220,6 +221,19 @@
           </div>
         </div>
         <button id="btn-intro-skip" class="btn intro-skip">SKIP INTRO <span>›</span></button>
+      </div>
+    </div>
+
+    <!-- ================= ACHIEVEMENTS ================= -->
+    <div id="achievements-screen" class="screen hidden">
+      <div class="modal achievements-modal">
+        <div class="eyebrow">ECHO COMPANY // SERVICE RECORD</div>
+        <h2>ACHIEVEMENTS</h2>
+        <p class="brief" id="achievements-summary">0 / 15 UNLOCKED</p>
+        <div id="achievements-list" class="achievement-list"></div>
+        <div class="modal-actions">
+          <button id="btn-achievements-close" class="btn primary">CLOSE</button>
+        </div>
       </div>
     </div>
 
@@ -360,6 +374,7 @@
         <div class="modal-actions">
           <button id="btn-resume" class="btn primary">RESUME <span>›</span></button>
           <button id="btn-map" class="btn">TACTICAL MAP <kbd>M</kbd></button>
+          <button id="btn-pause-achievements" class="btn">ACHIEVEMENTS <small id="pause-achievement-count">0 / 15</small></button>
           <button id="btn-abandon" class="btn danger">ABANDON OPERATION</button>
         </div>
         <div class="pause-help">
@@ -455,10 +470,10 @@
         <div class="eyebrow green">THE SKY TURNS BLUE</div>
         <h2>PEACE AT LAST</h2>
         <p class="brief">
-          The red sky breaks and the Director is gone. Vex is ash. The chips remain in the nation,
-          but the man who put them there is finished; the Chorus has no architect. The sky opens
-          into free blue, and a colossal mountain comes gently down to rest on the earth. No one
-          else will ever answer to Vex again. The world is quiet.
+          The red sky breaks and the Director is gone. Vex is ash. The implants remain, but the man
+          who gave the orders is dead; the Chorus has no one left to command it. The sky opens into
+          free blue, and a colossal mountain comes gently down to rest on the earth. No one else
+          will ever answer to Vex again. The world is quiet.
         </p>
         <div class="modal-stats" id="victory-stats"></div>
         <div class="modal-actions">

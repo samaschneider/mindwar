@@ -791,7 +791,7 @@ export class WeaponSystem {
     return true;
   }
 
-  damageArea(center, radius, maxDamage, weapon) {
+  damageArea(center, radius, maxDamage, weapon, source = "grenade") {
     let hits = 0, kills = 0;
     for (const e of this.enemies.enemies) {
       if (e.dead) continue;
@@ -799,7 +799,7 @@ export class WeaponSystem {
       const d = center.distanceTo(target);
       if (d > radius) continue;
       const falloff = Math.max(0.35, 1 - (d / radius) * 0.65);
-      const killed = this.enemies.damage(e, maxDamage * falloff * this.damageMultiplier, { weapon, explosion: true });
+      const killed = this.enemies.damage(e, maxDamage * falloff * this.damageMultiplier, { weapon, explosion: true, source });
       hits++;
       if (killed) kills++;
     }
@@ -816,7 +816,7 @@ export class WeaponSystem {
     this.effects.explosion(p.pos, scale);
     this.audio.explosion();
     this.enemies.alertNoise?.(p.pos.x, p.pos.y, p.pos.z, 130);
-    this.damageArea(p.pos, p.radius, p.damage, p.weapon);
+    this.damageArea(p.pos, p.radius, p.damage, p.weapon, p.type);
     const pd = this.player.pos.distanceTo(p.pos);
     if (pd < p.radius * 1.6) {
       this.player.shake = Math.max(this.player.shake, Math.min(0.18, 0.08 + (1 - pd / (p.radius * 1.6)) * 0.1));

@@ -10,6 +10,7 @@ import { ZONES, ZONE_COUNT, nearestZone } from "./zones.js";
 import { coop } from "./coop.js";
 import { maraLine } from "./mara.js";
 import { briefingFor, debriefFor } from "./story.js";
+import { AchievementTracker } from "./achievements.js";
 
 const $ = id => document.getElementById(id);
 const LEGACY_SAVE_KEY = "mindwar_operation_v1";
@@ -163,6 +164,7 @@ const world = new World(scene);
 const hud = new HUD();
 const audio = new AudioEngine();
 const effects = new Effects(scene);
+const achievements = new AchievementTracker({ hud, onChange: () => updateAchievementCount() });
 
 let state = "menu";
 let inputMode = null;
@@ -482,6 +484,7 @@ let mapReturn = "playing";
 let battleConfirmIndex = -1;
 let battleConfirmReturn = "playing";
 let storyRadioTimers = [];
+let battleDamageStart = 0;
 let locked = false;
 let fallbackLook = false;
 let draggingLook = false;
@@ -521,6 +524,13 @@ const enemies = new EnemyManager({
         clearSave();
       }
       if (!stats.final) playStoryRadio(zone);
+      achievements.recordCheckpoint({
+        zoneIndex: zone.index,
+        mode: gameMode,
+        untouched: player.totalDamageTaken <= battleDamageStart,
+        coop: coop.active,
+        players: coop.roomPlayers?.length || 1
+      });
     },
     onVictory: () => { if (state === "playing") showVictory(); },
     onFinale: (zone, bossPos) => {
@@ -528,6 +538,7 @@ const enemies = new EnemyManager({
       startEndingSequence(zone, bossPos);
     },
     onBattleStart: (zone) => {
+      battleDamageStart = player.totalDamageTaken;
       if (state === "playing") {
         audio.setMusicMode(battleMusicMode());
         audio.setMusicDucked(false);
@@ -540,6 +551,16 @@ const enemies = new EnemyManager({
       }
     },
     onKill: () => { },
+    onEnemyKilled: (enemy, opts = {}) => {
+      const weaponKey = killWeaponKey(opts);
+      if (!weaponKey) return;
+      achievements.recordKill({
+        weaponKey,
+        headshot: !!opts.headshot,
+        sniper: enemy.typeKey === "sniper",
+        distance: Math.hypot(enemy.pos.x - player.pos.x, enemy.pos.z - player.pos.z)
+      });
+    },
     onRecruit: () => saveGame(),
     onRequestBattle: index => openBattleConfirm(index)
   }
@@ -823,6 +844,7 @@ migrateLegacySave();
 refreshContinueButton();
 renderThreatButtons();
 updateThreatUI();
+updateAchievementCount();
 
 hud.drawStartMap();
 
@@ -1256,7 +1278,7 @@ function newOperation() {
   hud.banner("OPERATION BREAKWATER", "ECHO COMPANY", "2-MAN SQUAD // ONE CONTINUOUS SPRAWL", false);
   hud.comms("MARA", maraLine("intro"), 7600);
   setTimeout(() => {
-    if (state === "playing") hud.comms("DIRECTOR VEX", "Echo Company. A handful of unchipped minds in my nation. How delightfully temporary.", 7600);
+    if (state === "playing") hud.comms("DIRECTOR VEX", "Echo Company. A handful of free minds in my nation. How delightfully temporary.", 7600);
   }, 7600);
   saveGame();
 }
@@ -1647,6 +1669,62 @@ function playStoryRadio(zone) {
   }
 }
 
+function killWeaponKey(opts = {}) {
+  if (opts.melee) return "knife";
+  if (opts.explosion) {
+    if (opts.source === "rocket") return "bazooka";
+    if (opts.source === "grenade") return "grenade";
+    return opts.weapon?.id === "bazooka" ? "bazooka" : "grenade";
+  }
+  return opts.weapon?.id || null;
+}
+
+function renderAchievementList() {
+  const list = $("achievements-list");
+  if (!list) return;
+  list.innerHTML = "";
+  for (const a of achievements.list()) {
+    const row = document.createElement("div");
+    row.className = "achievement" + (a.unlocked ? " unlocked" : "");
+    const mark = document.createElement("div");
+    mark.className = "achievement-mark";
+    mark.textContent = a.unlocked ? "✓" : "•";
+    const body = document.createElement("div");
+    const name = document.createElement("div");
+    name.className = "achievement-name";
+    name.textContent = a.name;
+    const desc = document.createElement("div");
+    desc.className = "achievement-desc";
+    desc.textContent = a.desc;
+    body.append(name, desc);
+    row.append(mark, body);
+    list.appendChild(row);
+  }
+  const p = achievements.progress();
+  const summary = $("achievements-summary");
+  if (summary) summary.textContent = `${p.unlocked} / ${p.total} UNLOCKED`;
+}
+
+function updateAchievementCount() {
+  const p = achievements.progress();
+  for (const id of ["achievement-count", "pause-achievement-count"]) {
+    const el = $(id);
+    if (el) el.textContent = `${p.unlocked} / ${p.total}`;
+  }
+  if (!$("achievements-screen")?.classList.contains("hidden")) renderAchievementList();
+}
+
+function openAchievements() {
+  renderAchievementList();
+  $("achievements-screen")?.classList.remove("hidden");
+  audio.ui();
+}
+
+function closeAchievements() {
+  $("achievements-screen")?.classList.add("hidden");
+  audio.ui();
+}
+
 function drawMap() {
   hud.drawMap({
     player,
@@ -2035,6 +2113,11 @@ function isUiTarget(target) {
 }
 
 window.addEventListener("keydown", (e) => {
+  if (e.code === "Escape" && !$("achievements-screen")?.classList.contains("hidden")) {
+    e.preventDefault();
+    closeAchievements();
+    return;
+  }
   // Escape must close the battle confirmation even when its buttons own focus.
   if (e.code === "Escape" && state === "confirm") {
     e.preventDefault();
@@ -2309,6 +2392,9 @@ $("campaign-map").addEventListener("click", (e) => {
 });
 $("btn-battle-start").addEventListener("click", () => { audio.ui(); startConfirmedBattle(); });
 $("btn-battle-cancel").addEventListener("click", () => { audio.ui(); cancelBattleConfirm(); });
+$("btn-achievements")?.addEventListener("click", openAchievements);
+$("btn-pause-achievements")?.addEventListener("click", openAchievements);
+$("btn-achievements-close")?.addEventListener("click", closeAchievements);
 $("btn-redeploy").addEventListener("click", () => { audio.ui(); redeploy(); });
 $("btn-death-restart").addEventListener("click", () => {
   audio.ui();
@@ -2347,7 +2433,18 @@ coop.init({
     if (!zone) return;
     const spot = safeSpawn(zone.x, zone.z + 18);
     lastBeacon = { x: spot.x, z: spot.z, yaw: 0 };
+    achievements.recordCheckpoint({
+      zoneIndex: index,
+      mode: gameMode,
+      untouched: player.totalDamageTaken <= battleDamageStart,
+      coop: true,
+      players: coop.roomPlayers?.length || 1
+    });
   },
+  onClientBattleStart: () => {
+    battleDamageStart = player.totalDamageTaken;
+  },
+  onTeammateRevived: () => achievements.recordRevive(),
   onZoneStory: index => {
     const zone = ZONES[index];
     if (zone) playStoryRadio(zone);

@@ -50,7 +50,7 @@ export const ZONE_FLAVOUR = [
   "Second drill. Grenades, the knife and keeping your squad alive.",
   "Wheat fields all the way to the horizon. The Chorus pays well for grain.",
   "A mill town that never got its harvest in.",
-  "Cold water, colder people. Vex's implant crews came through here first.",
+  "Cold water, colder people. Vex's conversion crews came through here first.",
   "The old national route runs straight through the county.",
   "Silos full of feed, silos full of conscripts.",
   "A threshing floor turned muster ground.",

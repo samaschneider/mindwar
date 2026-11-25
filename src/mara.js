@@ -5,10 +5,10 @@ const LINES = {
   intro: [
     "Echo Company is on the ground, Captain. Thirty-three towers between us and Vex. No cure, no rescue, no retreat.",
     "Radio check. Mara here. I kept the channel open through the Chorus network. Point me at the next gate.",
-    "You made it out. What's left of Echo Company did. The rest are still wearing Vex's chip. Let's make it count.",
+    "You made it out. What's left of Echo Company did. The rest are still wearing his orders. Let's make it count.",
     "I've marked every stronghold on your map. Clear one, the next one opens. Simple. Brutal. Ours.",
     "The Captain is awake. Good. I was starting to think I would have to fight this war alone.",
-    "Listen to me. Vex put a chip in every citizen, but he did not put one in us. We take the garrisons one at a time.",
+    "Listen to me. Vex put the Protocol in every citizen, but he never got it into us. We take the garrisons one at a time.",
     "I've got your back and a rifle with your name on the stock. Let's move before the snow gets thicker.",
     "Echo Company, this is Mara. I run the guns, the radios and the bad ideas. Today we only need the guns."
   ],
@@ -25,7 +25,7 @@ const LINES = {
     "The Chorus owns the high ground here. Clear it or it will clear you.",
     "I'm seeing movement on the scanners. Nothing friendly unless it answers the echo call.",
     "Different ground, same war. Keep your spacing and check your corners.",
-    "The Chorus is thicker in this sector. More chipped minds, less time to think.",
+    "The Chorus is thicker in this sector. More of his minds, less time to think.",
     "Stay off the open road. The Chorus loves a clean firing lane.",
     "I've got the map up. The garrisons are live. Pick your approach before you pick a fight.",
     "This place used to have a name that wasn't a checkpoint. Let's take it back.",
@@ -35,7 +35,7 @@ const LINES = {
   engage: [
     "{n} hostiles on the scope. Make it loud.",
     "Contact. {n} of them, at least. I'll mark what I can see.",
-    "{n} conscripts on the street. Every one of them is chipped.",
+    "{n} conscripts on the street. Every one of them is his.",
     "The garrison is hot. {n} Chorus signatures converging on your position.",
     "They see us. {n} rifles in the open. Hit them before they settle.",
     "I count {n}. That is a lot of people Vex put in front of us.",
@@ -49,7 +49,7 @@ const LINES = {
   clear: [
     "Garrison down. The Chorus is blind in this sector. {count} of 35.",
     "The street's quiet. I can hear myself think again. {count} down.",
-    "They're not waking up. They never will. But the chip stays in. {count} of 35.",
+    "They're not waking up. They never will. But the orders stay in. {count} of 35.",
     "Stronghold's ours. Vex is going to feel that. {count} secured.",
     "Another hole in the net. Keep moving, Captain. {count} of 35.",
     "The conscripts are down. No cure, no rescue. Just the next gate. {count} secured.",
