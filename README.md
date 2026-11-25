@@ -227,9 +227,12 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   it sharply raises local alertness, nearly doubles their noticing distance, widens their vision
   arc and sends the whole nearby force to investigate. Explosions and nearby deaths do the same.
   Enemies also steer around trees instead of walking through them.
-- **Rooftop snipers only**: snipers spawn on flat roofs, clamp themselves to the roof bounds,
-  never jump or fall off, reposition for a firing line, flash a scope glint before firing and
-  hit hard. All other enemy roles are restricted to ground-level spawns.
+- **Rooftop and ground snipers**: each stronghold fields more marksmen than before — two in
+  farmland, three in the suburbs and four in Meridian. Some climb to flat roofs and clamp
+  themselves to the roof bounds, never jumping or falling off; others instead hold ground-level
+  firing lanes at long range. Roof snipers reposition for a line; ground snipers hold their post.
+  Both flash a scope glint before firing and hit hard, and all other enemy roles stay at ground
+  level.
 - **7 holdable weapons, knife punch and grenades**:
   VK-9 sidearm, Hornet SMG, Warden AR, Breaker 12 shotgun, M-14 Ranger DMR,
   Longshot railgun and M-90 bazooka. Every gun's magazine capacity is doubled. The semi-automatic
@@ -367,7 +370,7 @@ descending mountain:
 | `src/zones.js` | National route, regional road network, 35 checkpoints, farms/suburbs/city props and spawn layout |
 | `src/player.js` | First-person movement, voxel collision, step-up, camera, health, interaction |
 | `src/weapons.js` | Seven weapon definitions, knife punch, rocket/grenade projectiles, view models, recoil, reloads, optics |
-| `src/enemies.js` | Seven enemy roles, detailed voxel models, FOV/LOS spotting, hit reactions, tree avoidance, rooftop sniper AI, 20-ally squad AI, Captain Voss, the Director, 35 battle states |
+| `src/enemies.js` | Seven enemy roles, detailed voxel models, FOV/LOS spotting, hit reactions, tree avoidance, rooftop and ground sniper AI, 20-ally squad AI, Captain Voss, the Director, 35 battle states |
 | `src/pickups.js` | Unbounded health/ammo drops |
 | `src/effects.js` | Pooled tracers, muzzle flashes, impact particles and explosions |
 | `src/hud.js` | HUD, radar, regional campaign map |
@@ -391,7 +394,10 @@ The game was driven in Chromium at 1600 x 900 during development:
 - full battle loop verified - checkpoint confirmation, wave spawning, squad damage, enemy deaths,
   supply drops, zone clear, beacon colour change and squad revive prompt;
 - seven enemy roles observed in the live spawn mix; every rooftop occupant was a sniper and
-  every non-sniper stayed at ground height;
+  every non-sniper stayed at ground height, while ground-level snipers held long lanes;
+- sniper mix verified live: Harrow Fields fielded 2 snipers (1 roof, 1 ground) and Meridian
+  fielded 3 by 27 spawns (1 roof, 2 ground), with ground marksmen standing at surface height and
+  running their aim/fire loop without errors;
 - sniper roof-clamp and repositioning verified over an 8-second observation: fixed roof height,
   aim/glint wind-up, firing and damage to the player;
 - 0 buildings intersect any road cell across all 35 zones;

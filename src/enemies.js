@@ -530,9 +530,9 @@ const ENEMY_TYPES = {
 };
 
 const ROLE_WEIGHTS = {
-  farm: [["conscript", 42], ["rifleman", 23], ["scout", 16], ["breacher", 9], ["sniper", 10]],
-  suburb: [["conscript", 20], ["rifleman", 26], ["scout", 14], ["breacher", 15], ["heavy", 5], ["officer", 8], ["sniper", 12]],
-  city: [["conscript", 7], ["rifleman", 22], ["scout", 11], ["breacher", 16], ["heavy", 17], ["officer", 10], ["sniper", 17]]
+  farm: [["conscript", 42], ["rifleman", 23], ["scout", 16], ["breacher", 9], ["sniper", 16]],
+  suburb: [["conscript", 20], ["rifleman", 26], ["scout", 14], ["breacher", 15], ["heavy", 5], ["officer", 8], ["sniper", 18]],
+  city: [["conscript", 7], ["rifleman", 22], ["scout", 11], ["breacher", 16], ["heavy", 17], ["officer", 10], ["sniper", 24]]
 };
 
 function chooseRole(region) {
@@ -1479,7 +1479,9 @@ export class EnemyManager {
         zone, active: false, cleared: false, spawned: 0, killed: 0, alive: 0,
         spawnTimer: 0, maxAliveBase, maxAlive: maxAliveBase,
         roofClaims: new Set(), snipersSpawned: 0,
-        maxSnipers: zone.region === "city" ? 3 : zone.region === "suburb" ? 2 : 1
+        maxSnipers: zone.region === "city" ? 4 : zone.region === "suburb" ? 3 : zone.region === "beginning" ? 0 : 2,
+        groundSnipersSpawned: 0,
+        maxGroundSnipers: zone.region === "city" ? 2 : zone.region === "suburb" ? 2 : zone.region === "beginning" ? 0 : 1
       };
     });
     this.triggerTimer = 0;
@@ -1880,12 +1882,26 @@ export class EnemyManager {
     return null;
   }
 
+  findGroundSniperSpawn(zone) {
+    // Ground marksmen hold a long lane instead of climbing. Keep them out of
+    // the player's lap so they read as a distant threat, not a point-blank one.
+    for (let attempt = 0; attempt < 16; attempt++) {
+      const angle = Math.random() * Math.PI * 2;
+      const pos = this.world.spawnPointFor(zone, angle, Math.random() * 30, true);
+      if (!this.player) return pos;
+      const d = Math.hypot(pos.x - this.player.pos.x, pos.z - this.player.pos.z);
+      if (d >= 26) return pos;
+    }
+    return null;
+  }
+
   spawnEnemy(state) {
     const zone = state.zone;
     let typeKey = zone.index < 2
       ? (zone.index === 0 ? "conscript" : (Math.random() < 0.5 ? "conscript" : "rifleman"))
       : chooseRole(zone.region);
-    if (zone.index >= 2 && typeKey !== "sniper" && state.spawned < 3 && state.snipersSpawned === 0 && state.snipersSpawned < state.maxSnipers) {
+    const earlySnipers = zone.region === "farm" ? 1 : 2;
+    if (zone.index >= 2 && typeKey !== "sniper" && state.spawned < 6 && state.snipersSpawned < earlySnipers && state.snipersSpawned < state.maxSnipers) {
       typeKey = "sniper";
     }
     if (typeKey === "sniper" && (state.snipersSpawned >= state.maxSnipers || this.player === null)) {
@@ -1895,12 +1911,25 @@ export class EnemyManager {
     let roof = null;
     let pos = null;
     if (typeKey === "sniper") {
-      roof = this.findRoofSpawn(state);
-      if (!roof) {
-        typeKey = zone.region === "city" ? "rifleman" : "conscript";
-      } else {
-        pos = roof.pos;
+      const canGround = state.groundSnipersSpawned < state.maxGroundSnipers;
+      const wantGround = canGround &&
+        (state.snipersSpawned >= state.maxSnipers - state.maxGroundSnipers || Math.random() < 0.45);
+      if (wantGround) {
+        pos = this.findGroundSniperSpawn(zone);
+        if (pos) state.groundSnipersSpawned++;
+      }
+      if (!pos) {
+        roof = this.findRoofSpawn(state);
+        if (roof) pos = roof.pos;
+      }
+      if (!pos && canGround) {
+        pos = this.findGroundSniperSpawn(zone);
+        if (pos) state.groundSnipersSpawned++;
+      }
+      if (pos) {
         state.snipersSpawned++;
+      } else {
+        typeKey = zone.region === "city" ? "rifleman" : "conscript";
       }
     }
 
@@ -2341,6 +2370,7 @@ export class EnemyManager {
         s.spawnTimer = 0;
         s.roofClaims.clear();
         s.snipersSpawned = 0;
+        s.groundSnipersSpawned = 0;
       }
     }
     this.reviveAll(0.6);
