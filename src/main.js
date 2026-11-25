@@ -43,15 +43,15 @@ const GAME_MODES = {
 };
 let gameMode = GAME_MODES[localStorage.getItem(THREAT_KEY)] ? localStorage.getItem(THREAT_KEY) : "soldier";
 
-// Veteran and Nightmare are 25% harsher across enemy pressure: more hostiles,
-// harder-hitting and tougher soldiers, and a higher simultaneous cap.
-const HARD_MODE_SCALE = 1.25;
-for (const id of ["veteran", "nightmare"]) {
+// Recruit is 25% gentler and Veteran/Nightmare are 25% harsher across the same
+// enemy-pressure stats: hostiles, incoming damage, AI health and the live cap.
+const MODE_SCALES = { recruit: 0.75, veteran: 1.25, nightmare: 1.25 };
+for (const [id, scale] of Object.entries(MODE_SCALES)) {
   const mode = GAME_MODES[id];
-  mode.count *= HARD_MODE_SCALE;
-  mode.damage *= HARD_MODE_SCALE;
-  mode.alive *= HARD_MODE_SCALE;
-  mode.toughness *= HARD_MODE_SCALE;
+  mode.count *= scale;
+  mode.damage *= scale;
+  mode.alive *= scale;
+  mode.toughness *= scale;
 }
 const START_X = 0;
 const START_Z = 95;
