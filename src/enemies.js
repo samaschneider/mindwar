@@ -1453,6 +1453,7 @@ export class EnemyManager {
     this.enemyHealthMultiplier = 1;
     this.enemyDamageMultiplier = 1;
     this.dropMultiplier = 1;
+    this.healthDropMultiplier = 1;
     this.playerDamageMultiplier = 1;
     // Co-op roles: solo runs the full simulation, host owns enemies and
     // checkpoint progression, client renders host snapshots and sends damage.
@@ -2066,7 +2067,7 @@ export class EnemyManager {
       // Base 9% health and 17% ammo, scaled by the threat level so higher
       // difficulties starve the squad instead of feeding it.
       const scale = this.dropMultiplier ?? 1;
-      const healthChance = 0.09 * scale;
+      const healthChance = 0.09 * scale * (this.healthDropMultiplier ?? 1);
       const ammoChance = 0.17 * scale;
       const r = Math.random();
       if (r < healthChance) this.pickups.spawn("health", enemy.pos, 220 + Math.round(Math.random() * 120));
