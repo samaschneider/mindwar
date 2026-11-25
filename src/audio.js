@@ -123,6 +123,46 @@ const FINAL_THEME = {
 
 const MUSIC_BPM = { title: 66, battle: 118, battle2: 124, farm: 60, suburb: 72, city: 50, final: 126 };
 
+// Two different crossfades: area-to-area changes breathe slowly behind a
+// filtered air swell, while combat entries slam in and battle exits unwind.
+const BATTLE_MODES = new Set(["battle", "battle2", "final"]);
+const MUSIC_TRANSITIONS = {
+  region: {
+    newStart: 0.05, newFade: 2.7, oldFade: 2.3,
+    newFilter: 520, oldFilter: 480, delay: 0.22, cleanup: 3400
+  },
+  enterBattle: {
+    newStart: 0.22, newFade: 0.9, oldFade: 1.0,
+    newFilter: 1700, oldFilter: 520, delay: 0.05, cleanup: 2200
+  },
+  leaveBattle: {
+    newStart: 0.04, newFade: 2.9, oldFade: 1.2,
+    newFilter: 650, oldFilter: 360, delay: 0.15, cleanup: 3800
+  },
+  battle: {
+    newStart: 0.12, newFade: 1.1, oldFade: 0.9,
+    newFilter: 900, oldFilter: 600, delay: 0.06, cleanup: 2400
+  },
+  menu: {
+    newStart: 0.2, newFade: 0.5, oldFade: 0.45,
+    newFilter: 1100, oldFilter: 700, delay: 0.03, cleanup: 1300
+  },
+  default: {
+    newStart: 0.35, newFade: 0.55, oldFade: 1.0,
+    newFilter: 2100, oldFilter: 900, delay: 0.12, cleanup: 1600
+  }
+};
+
+function musicTransitionKind(from, to) {
+  if (to === "title") return "menu";
+  const fromBattle = BATTLE_MODES.has(from);
+  const toBattle = BATTLE_MODES.has(to);
+  if (fromBattle && toBattle) return "battle";
+  if (fromBattle) return "leaveBattle";
+  if (toBattle) return "enterBattle";
+  return "region";
+}
+
 function musicGainFor(mode) {
   if (mode === "city") return MUSIC_CITY_GAIN;
   if (mode === "final") return MUSIC_FINAL_GAIN;
@@ -439,6 +479,65 @@ export class AudioEngine {
     src.connect(filt).connect(g).connect(this.musicGain);
     src.start(t0, Math.random() * 0.3);
     src.stop(t0 + dur + 0.04);
+  }
+
+  // Airy sweep used by the music crossfades. It runs through the master mix
+  // rather than either music bus, so it keeps moving while both fades trade
+  // places instead of being cut with the old arrangement.
+  transitionNoise(t0, dur, fromFreq, toFreq, vol, type = "bandpass", q = 0.8) {
+    if (!this.master) return;
+    const src = this.ctx.createBufferSource();
+    src.buffer = this.noise;
+    src.loop = true;
+    const filt = this.ctx.createBiquadFilter();
+    filt.type = type;
+    filt.Q.value = q;
+    filt.frequency.setValueAtTime(Math.max(40, fromFreq), t0);
+    filt.frequency.exponentialRampToValueAtTime(Math.max(40, toFreq), t0 + dur);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol), t0 + Math.min(0.35, dur * 0.3));
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    src.connect(filt).connect(g).connect(this.master);
+    src.start(t0, Math.random() * 0.3);
+    src.stop(t0 + dur + 0.05);
+  }
+
+  transitionThud(t0, fromFreq, toFreq, dur, vol) {
+    if (!this.master) return;
+    const osc = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.setValueAtTime(fromFreq, t0);
+    osc.frequency.exponentialRampToValueAtTime(toFreq, t0 + dur);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0002, vol), t0 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g).connect(this.master);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.05);
+  }
+
+  regionMotif(mode) {
+    const theme = EXPLORE_THEMES[mode];
+    if (theme) return theme.melody[0];
+    if (mode === "title") return this.titleMelody?.lead?.[0] || 69;
+    return null;
+  }
+
+  musicTransitionFx(kind, mode, now) {
+    if (kind === "region") {
+      this.transitionNoise(now, 2.4, 280, 1500, 0.03);
+      const motif = this.regionMotif(mode);
+      // A quiet low preview of the incoming key bridges the two areas.
+      if (motif) this.pianoNote(this.mtof(motif - 12), now + 0.45, 2.6, 0.016, this.master, 0.5);
+    } else if (kind === "enterBattle") {
+      this.transitionNoise(now, 0.8, 240, 3200, 0.05, "bandpass", 1.1);
+      this.transitionThud(now + 0.03, 96, 32, 0.5, 0.12);
+    } else if (kind === "leaveBattle") {
+      this.transitionNoise(now, 1.9, 2400, 240, 0.035);
+      this.transitionThud(now, 62, 26, 0.9, 0.085);
+    }
   }
 
   musicKick(t0) {
@@ -764,9 +863,12 @@ export class AudioEngine {
     this.scheduleMusic();
   }
 
-  setMusicMode(mode) {
+  setMusicMode(mode, options = {}) {
     if (!["title", "battle", "battle2", "farm", "suburb", "city", "final"].includes(mode)) return;
     if (this.musicMode === mode) return;
+    const from = this.musicMode;
+    const kind = options.kind || musicTransitionKind(from, mode);
+    const cfg = MUSIC_TRANSITIONS[kind] || MUSIC_TRANSITIONS.default;
     this.musicMode = mode;
     if (!this.ctx || !this.musicStarted || !this.musicGain) return;
     const now = this.ctx.currentTime;
@@ -776,33 +878,45 @@ export class AudioEngine {
     this.musicGain = newBus.gain;
     this.arpBus = newBus.arp;
 
-    // Crossfade the old arrangement into a darker, quieter tail while the new
-    // one opens up; each bus keeps its own notes and echo so the transition
-    // overlaps instead of cutting to silence.
+    // Each transition kind gets its own timing. Area changes start almost
+    // silent and swell under the old theme; combat entries arrive fast, while
+    // battle exits let the old drums close and the next area breathe in.
     const target = this.musicDucked ? MUSIC_DUCKED_GAIN : musicGainFor(mode);
     const gain = newBus.gain.gain;
-    gain.setValueAtTime(Math.max(0.0001, target * 0.35), now);
-    gain.exponentialRampToValueAtTime(target, now + 0.55);
-    newBus.filter.frequency.setValueAtTime(2100, now);
-    newBus.filter.frequency.exponentialRampToValueAtTime(5200, now + 0.7);
+    gain.setValueAtTime(Math.max(0.0001, target * cfg.newStart), now);
+    // Linear gain ramps keep the summed level steady through the long area
+    // crossfades; the filter still sweeps exponentially for a natural opening.
+    gain.linearRampToValueAtTime(Math.max(0.0002, target), now + cfg.newFade);
+    newBus.filter.frequency.setValueAtTime(Math.max(120, cfg.newFilter), now);
+    newBus.filter.frequency.exponentialRampToValueAtTime(5200, now + cfg.newFade);
 
     if (oldBus) {
       const oldGain = oldBus.gain.gain;
-      oldGain.cancelScheduledValues(now);
-      oldGain.setValueAtTime(Math.max(0.0001, oldGain.value), now);
-      oldGain.exponentialRampToValueAtTime(0.0001, now + 1.0);
-      oldBus.filter.frequency.cancelScheduledValues(now);
-      oldBus.filter.frequency.setValueAtTime(Math.max(220, oldBus.filter.frequency.value), now);
-      oldBus.filter.frequency.exponentialRampToValueAtTime(900, now + 1.0);
+      const oldFilter = oldBus.filter.frequency;
+      // Hold whatever level the previous fade reached before releasing it, so
+      // back-to-back region changes never snap to a stale gain.
+      if (typeof oldGain.cancelAndHoldAtTime === "function") {
+        oldGain.cancelAndHoldAtTime(now);
+        oldFilter.cancelAndHoldAtTime(now);
+      } else {
+        oldGain.cancelScheduledValues(now);
+        oldGain.setValueAtTime(Math.max(0.0001, oldGain.value), now);
+        oldFilter.cancelScheduledValues(now);
+        oldFilter.setValueAtTime(Math.max(120, oldFilter.value), now);
+      }
+      oldGain.linearRampToValueAtTime(0.0001, now + cfg.oldFade);
+      oldFilter.exponentialRampToValueAtTime(Math.max(120, cfg.oldFilter), now + cfg.oldFade);
       setTimeout(() => {
         for (const node of [oldBus.gain, oldBus.filter, oldBus.arp, oldBus.delay, oldBus.feedback, oldBus.wet]) {
           try { node.disconnect(); } catch (e) { /* already gone */ }
         }
-      }, 1400);
+      }, cfg.cleanup);
     }
 
+    if (options.fx !== false) this.musicTransitionFx(kind, mode, now);
+
     this.musicStep = 0;
-    this.musicNext = now + 0.12;
+    this.musicNext = now + cfg.delay;
   }
 
   setMusicDucked(ducked) {

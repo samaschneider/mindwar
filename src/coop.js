@@ -844,7 +844,7 @@ class CoopClient {
       const exploreMode = region === "beginning" ? "title"
         : region === "suburb" ? "suburb"
           : region === "city" ? "city" : "farm";
-      this.deps.audio.setMusicMode(exploreMode);
+      this.deps.audio.setMusicMode(exploreMode, { kind: "leaveBattle" });
       this.deps.audio.setMusicDucked(false);
       const zone = enemies.states[data.index]?.zone;
       this.deps.hud.toast(

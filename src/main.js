@@ -540,7 +540,7 @@ const enemies = new EnemyManager({
     },
     onBattleEnd: () => {
       if (state === "playing") {
-        audio.setMusicMode(regionMusicMode());
+        audio.setMusicMode(regionMusicMode(), { kind: "leaveBattle" });
         audio.setMusicDucked(false);
       }
     },
@@ -1020,7 +1020,7 @@ function updateEnding(dt) {
     ending.mountain.position.copy(ending.mountainPos);
     ending.mountain.position.y = 280;
     scene.add(ending.mountain);
-    audio.setMusicMode("title");
+    audio.setMusicMode("title", { kind: "leaveBattle" });
     audio.setMusicDucked(false);
   }
 
@@ -1436,7 +1436,7 @@ function resumeGame() {
   if (state !== "paused" && state !== "map") return;
   $("pause-screen").classList.add("hidden");
   $("map-screen").classList.add("hidden");
-  audio.setMusicMode(currentMusicMode());
+  audio.setMusicMode(currentMusicMode(), { kind: "menu" });
   audio.setMusicDucked(false);
   state = "playing";
   requestLock();
@@ -1541,7 +1541,7 @@ function cancelBattleConfirm() {
     audio.setMusicDucked(true);
   } else {
     state = "playing";
-    audio.setMusicMode(currentMusicMode());
+    audio.setMusicMode(currentMusicMode(), { kind: "menu" });
     audio.setMusicDucked(false);
     requestLock();
   }
@@ -1737,7 +1737,7 @@ function redeploy() {
   player.spawn(s.x, s.z, lastBeacon.yaw || 0);
   player.weapons.refillMags();
   state = "playing";
-  audio.setMusicMode(currentMusicMode());
+  audio.setMusicMode(currentMusicMode(), { kind: "menu" });
   audio.setMusicDucked(false);
   gameStarted = true;
   hud.setHealth(player.health);
@@ -2345,7 +2345,7 @@ $("btn-explore").addEventListener("click", () => {
   $("victory-screen").classList.add("hidden");
   player.weapons.root.visible = true;
   world.markerGroup.visible = true;
-  audio.setMusicMode(regionMusicMode());
+  audio.setMusicMode(regionMusicMode(), { kind: "region" });
   audio.setMusicDucked(false);
   hud.show(true);
   state = "playing";
@@ -2428,7 +2428,7 @@ function animate(now = performance.now()) {
       regionMusicTimer = 1;
       const musicMode = regionMusicMode();
       if (audio.musicMode !== musicMode) {
-        audio.setMusicMode(musicMode);
+        audio.setMusicMode(musicMode, { kind: "region" });
         audio.setMusicDucked(false);
       }
     }
