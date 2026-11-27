@@ -187,10 +187,32 @@ const FINAL_THEME = {
   bpm: 126,
   chords: [[50, 53, 57, 62], [46, 50, 53, 58], [43, 46, 50, 55], [45, 49, 52, 57]],
   roots: [38, 34, 43, 33],
-  lead: [74, 77, 79, 81],
-  answer: [81, 77, 74, 69],
-  arp: [0, 2, 1, 3, 2, 1, 0, 2, 1, 3, 2, 0, 1, 2, 3, 1],
-  ostinato: [0, 0, 12, 7, 0, 12, 7, 12]
+  variations: [
+    {
+      id: "last", name: "Last Stand",
+      lead: [74, 77, 79, 81], answer: [81, 77, 74, 69],
+      arp: [0, 2, 1, 3, 2, 1, 0, 2, 1, 3, 2, 0, 1, 2, 3, 1],
+      ostinato: [0, 0, 12, 7, 0, 12, 7, 12]
+    },
+    {
+      id: "choir", name: "Vex's Choir",
+      lead: [74, 77, 81, 84], answer: [84, 81, 77, 74],
+      arp: [0, 1, 2, 3, 3, 2, 1, 0, 2, 3, 1, 2, 0, 1, 3, 2],
+      ostinato: [0, 7, 12, 7, 0, 12, 7, 12]
+    },
+    {
+      id: "sky", name: "Breaking Sky",
+      lead: [79, 81, 84, 86], answer: [86, 84, 81, 79],
+      arp: [1, 3, 2, 0, 3, 1, 2, 0, 3, 2, 1, 0, 2, 3, 1, 2],
+      ostinato: [0, 12, 7, 12, 0, 7, 12, 0]
+    },
+    {
+      id: "architect", name: "The Architect",
+      lead: [69, 72, 74, 77], answer: [77, 74, 72, 69],
+      arp: [3, 2, 1, 0, 2, 1, 3, 0, 2, 0, 1, 3, 0, 2, 1, 3],
+      ostinato: [0, 0, 5, 7, 0, 5, 7, 12]
+    }
+  ]
 };
 
 const MUSIC_BPM = { title: 66, battle: 118, battle2: 124, farm: 60, suburb: 72, city: 50, final: 126 };
@@ -273,6 +295,9 @@ export class AudioEngine {
     this.battle2MelodyIndex = -1;
     this.battle2VariationName = "";
     this.battle2Melody = BATTLE2_MELODIES[0];
+    this.finalVariation = -1;
+    this.finalVariationId = "";
+    this.finalVariationName = "";
     this.regionVariations = {};
     this.regionVariationName = "";
     this.regionVariationId = "";
@@ -672,16 +697,18 @@ export class AudioEngine {
   }
 
   scheduleFinalBattleStep(step, t0, stepDur) {
+    if (step === 0) this.pickFinalVariation();
+    const variation = FINAL_THEME.variations[this.finalVariation] || FINAL_THEME.variations[0];
     const bar = Math.floor(step / 16) % 4;
     const s = step % 16;
     const chord = FINAL_THEME.chords[bar];
     const root = FINAL_THEME.roots[bar];
 
     if (s % 2 === 0) {
-      const offsets = FINAL_THEME.ostinato;
+      const offsets = variation.ostinato;
       this.pianoNote(this.mtof(root + offsets[s / 2]), t0, stepDur * 1.5, 0.12, null, 0.55);
     }
-    const arp = FINAL_THEME.arp;
+    const arp = variation.arp;
     this.pianoNote(this.mtof(chord[arp[s]] + 12), t0, stepDur * 0.8, 0.05, this.arpBus, 0.4);
 
     if (s === 0) {
@@ -690,19 +717,30 @@ export class AudioEngine {
       }
       // High bell and octave-doubled lead give the finale its scale.
       this.pianoNote(this.mtof(chord[3] + 24), t0, stepDur * 3.6, 0.018, this.arpBus, 0.15);
-      this.pianoNote(this.mtof(FINAL_THEME.lead[bar]), t0, stepDur * 3.2, 0.06, this.arpBus, 0.2);
-      this.pianoNote(this.mtof(FINAL_THEME.lead[bar] - 12), t0, stepDur * 3.2, 0.032, this.arpBus, 0.35);
+      this.pianoNote(this.mtof(variation.lead[bar]), t0, stepDur * 3.2, 0.06, this.arpBus, 0.2);
+      this.pianoNote(this.mtof(variation.lead[bar] - 12), t0, stepDur * 3.2, 0.032, this.arpBus, 0.35);
     }
     if (s === 8) {
       for (const note of chord.slice(1, 4)) {
         this.pianoNote(this.mtof(note), t0, stepDur * 2.4, 0.038, null, 0.5);
       }
-      this.pianoNote(this.mtof(FINAL_THEME.answer[bar]), t0, stepDur * 2.6, 0.05, this.arpBus, 0.35);
-      this.pianoNote(this.mtof(FINAL_THEME.answer[bar] - 12), t0, stepDur * 2.6, 0.028, this.arpBus, 0.45);
+      this.pianoNote(this.mtof(variation.answer[bar]), t0, stepDur * 2.6, 0.05, this.arpBus, 0.35);
+      this.pianoNote(this.mtof(variation.answer[bar] - 12), t0, stepDur * 2.6, 0.028, this.arpBus, 0.45);
     }
     if ((bar === 1 || bar === 3) && s === 0) {
       this.pianoNote(this.mtof(root - 12), t0, stepDur * 8, 0.08, null, 0.6);
     }
+  }
+
+  pickFinalVariation() {
+    const list = FINAL_THEME.variations;
+    let index = Math.floor(Math.random() * list.length);
+    if (list.length > 1 && index === this.finalVariation) {
+      index = (index + 1 + Math.floor(Math.random() * (list.length - 1))) % list.length;
+    }
+    this.finalVariation = index;
+    this.finalVariationId = list[index].id;
+    this.finalVariationName = list[index].name;
   }
 
   pickTitleVariation() {

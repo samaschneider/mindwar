@@ -351,7 +351,9 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   next area theme swell in over 2.9 s. The last two checkpoints —
   **Voss's Gate** and **The Director** — use a separate **126 BPM epic final battle theme**: a
   broad D–F–G–A lead with octave doubling, high bells, a heavy ostinato and low tolling octaves,
-  built from Vex's material. No drums or synth pads are used.
+  built from Vex's material. The finale rotates four arrangements every four bars —
+  **Last Stand**, **Vex's Choir**, **Breaking Sky** and **The Architect** — changing the lead,
+  answer, arpeggio and ostinato while holding the same harmony. No drums or synth pads are used.
   The title theme starts as soon as the page loads where the browser allows autoplay, and falls
   back to the first click/key press when it does not. It plays on the title and menu screens; the
   regional theme plays while exploring that region and the correct battle or final-battle theme
@@ -360,7 +362,8 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   with buttons for **Title**, **Harrow County**, **Cedar's Vill**, **Vex's theme**, **Battle**,
   **Battle II**, **Final Battle** and **Stop**, plus a volume slider. Its **NOW PLAYING** panel updates live with
   the current movement or variant, showing a name, a short description and BPM/key/arrangement
-  details (e.g. `HARROW COUNTY // OPEN SKY`, `TITLE // ASCENT`, `BATTLE // HAMMER`).
+  details (e.g. `HARROW COUNTY // OPEN SKY`, `TITLE // ASCENT`, `BATTLE // HAMMER`,
+  `FINAL BATTLE // VEX'S CHOIR`).
 
 ![Tactical map](shots/mindwar/04_map.png)
 
@@ -534,6 +537,9 @@ The game was driven in Chromium at 1600 x 900 during development:
   Street/Colder/Static and Low Toll/Chromatic/Hollow without immediate repeats, and the score
   player's NOW PLAYING panel replaced the old area label with the active variation name; Vex's
   theme was raised from 2.4 to 3.2 gain with a stronger melody, echo and arpeggio mix;
+- final battle variations verified: the 126 BPM finale rotated Last Stand, Vex's Choir, Breaking
+  Sky and The Architect without immediate repeats, and the score player showed the active
+  arrangement in its NOW PLAYING panel;
 - 35-checkpoint tutorial verified: The Beginning deployed four conscripts in stage 1 and six in
   stage 2, showed the title theme between fights, used the first battle theme for both battles,
   made Mara hold fire so the player cleared them, taught
