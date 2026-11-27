@@ -528,7 +528,7 @@ The game was driven in Chromium at 1600 x 900 during development:
   1,200 ceiling; Nightmare set 18 HP/s to 300 after 8 s and Veteran set 28 HP/s to 650 after
   6.5 s;
 - enemy drops verified: base health/ammo chances fell from 17%/24% to 9%/17%, then scaled to
-  11.25%/21.25% on Recruit, 9%/17% on Soldier, 5.85%/11.05% on Veteran and 0%/6.8% on Nightmare;
+  11.25%/21.25% on Recruit, 9%/17% on Soldier, 4.05%/7.65% on Veteran and 0%/6.8% on Nightmare;
 - regional score verified: The Beginning set the title theme, Harrow County set the 60 BPM farm
   theme, Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's darker 50 BPM
   city theme, a normal checkpoint activated the 118 BPM battle theme, Battle II ran at 124 BPM,

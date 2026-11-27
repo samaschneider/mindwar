@@ -31,7 +31,7 @@ const GAME_MODES = {
     desc: "The intended operation. Standard enemy count and damage."
   },
   veteran: {
-    name: "VETERAN", count: 1.45, damage: 1.3, alive: 1.35, drops: 0.65, toughness: 1.25,
+    name: "VETERAN", count: 1.45, damage: 1.3, alive: 1.35, drops: 0.45, toughness: 1.25,
     regen: { delay: 6.5, rate: 28, cap: 650 },
     desc: "More hostiles. Every burst hits harder and their armour holds."
   },
