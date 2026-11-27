@@ -339,7 +339,9 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   three arrangements of its own material every four bars — Harrow County's **Open Sky**,
   **Hymnal** and **Frost**; Cedar's Vill's **Empty Street**, **Colder** and **Static**; Meridian's
   **Low Toll**, **Chromatic** and **Hollow** — so the area loop keeps changing without losing the
-  region's key or instrumentation. **The Beginning** uses the title theme during its two training
+  region's key or instrumentation. Vex's low Meridian material is mixed about a third louder than
+  the other exploration themes so its bass-heavy register stays audible under the wind and gunfire.
+  **The Beginning** uses the title theme during its two training
   stages. Each normal battle randomly selects one of two
   arrangements: the 118 BPM Am battle or a 124 BPM Dm–B♭–F–C **Battle II**, each with four
   lead/answer phrases and a driving left-hand ostinato; the tutorial fights use the first battle
@@ -493,7 +495,7 @@ The game was driven in Chromium at 1600 x 900 during development:
   bus fades and darkens; every transition builds a fresh bus and cleans the old one up afterwards,
   and the score player mirrors the same timings and effects;
 - score-player verified: Title, Harrow County, Cedar's Vill, Vex, Battle, Battle II and Final Battle
-  buttons switched modes and levels (2.0/2.0/2.0/2.4/1.7/1.7/1.85), the NOW PLAYING panel showed
+  buttons switched modes and levels (2.0/2.0/2.0/3.2/1.7/1.7/1.85), the NOW PLAYING panel showed
   the matching theme text, and title/battle/battle2 rotations update live with each variant;
 - story layer verified: after The Beginning II the ACT I / HARROW COUNTY banner appeared and the
   Mara and Vex lines played in sequence through the HUD radio without pausing; Harrow Fields
@@ -530,7 +532,8 @@ The game was driven in Chromium at 1600 x 900 during development:
   and zone 33 activated the 126 BPM final battle theme; all switches ran without console errors;
 - area variations verified: the region themes rotated Open Sky/Hymnal/Frost, Empty
   Street/Colder/Static and Low Toll/Chromatic/Hollow without immediate repeats, and the score
-  player's NOW PLAYING panel replaced the old area label with the active variation name;
+  player's NOW PLAYING panel replaced the old area label with the active variation name; Vex's
+  theme was raised from 2.4 to 3.2 gain with a stronger melody, echo and arpeggio mix;
 - 35-checkpoint tutorial verified: The Beginning deployed four conscripts in stage 1 and six in
   stage 2, showed the title theme between fights, used the first battle theme for both battles,
   made Mara hold fire so the player cleared them, taught

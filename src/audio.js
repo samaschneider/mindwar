@@ -5,7 +5,7 @@
 const MUSIC_TITLE_GAIN = 1.7;
 const MUSIC_BATTLE_GAIN = 1.5;
 const MUSIC_FINAL_GAIN = 1.6;
-const MUSIC_CITY_GAIN = 2.4;
+const MUSIC_CITY_GAIN = 3.2;
 const MUSIC_DUCKED_GAIN = 0.5;
 
 // Title-theme material. The harmony stays A minor / Fmaj7 / D minor / E minor,
@@ -147,12 +147,12 @@ const EXPLORE_THEMES = {
     bpm: 50,
     chords: [[50, 53, 57, 62], [46, 50, 53, 58], [44, 48, 51, 56], [45, 49, 52, 57]],
     roots: [38, 34, 44, 45],
-    arpLift: 0, arpVol: 0.04, melodyVol: 0.055, echoVol: 0.032,
+    arpLift: 0, arpVol: 0.044, melodyVol: 0.065, echoVol: 0.036,
     variations: [
       {
         id: "low", name: "Low Toll",
         melody: [62, 58, 56, 61], echo: [57, 53, 51, 52],
-        arp: [0, 2, 1, 3, 0, 2, 1, 2], arpVol: 0.04,
+        arp: [0, 2, 1, 3, 0, 2, 1, 2], arpVol: 0.044,
         bass: [
           { step: 0, note: 0, dur: 16, vol: 0.09, dark: 0.55 },
           { step: 8, note: -12, dur: 10, vol: 0.065, dark: 0.6 },
@@ -162,7 +162,7 @@ const EXPLORE_THEMES = {
       {
         id: "chromatic", name: "Chromatic",
         melody: [61, 60, 58, 57], echo: [56, 55, 53, 52],
-        arp: [1, 2, 0, 1, 3, 2, 1, 0], arpVol: 0.038,
+        arp: [1, 2, 0, 1, 3, 2, 1, 0], arpVol: 0.042,
         bass: [
           { step: 0, note: 0, dur: 14, vol: 0.085, dark: 0.6 },
           { step: 8, note: -1, dur: 9, vol: 0.06, dark: 0.65 },
@@ -172,7 +172,7 @@ const EXPLORE_THEMES = {
       {
         id: "hollow", name: "Hollow",
         melody: [50, 53, 56, 58], echo: [45, 48, 51, 53],
-        arp: [0, 1, 0, 2, 0, 1, 0, 2], arpVol: 0.036,
+        arp: [0, 1, 0, 2, 0, 1, 0, 2], arpVol: 0.04,
         bass: [
           { step: 0, note: 0, dur: 18, vol: 0.08, dark: 0.65 },
           { step: 8, note: -12, dur: 12, vol: 0.06, dark: 0.7 },
