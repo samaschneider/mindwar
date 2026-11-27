@@ -484,15 +484,15 @@ export class World {
                 const patch = hash2(Math.floor(wx / 2), Math.floor(wz / 2), 77);
                 c = patch < 0.38 ? 5 : patch < 0.68 ? 6 : patch < 0.94 ? 13 : patch < 0.97 ? 4 : 2;
               }
-            } else if (region === "farm" && nz.dist < 300) {
-              if (nz.dist < 145) {
+            } else if (region === "farm" && nz.dist < 330) {
+              if (nz.dist < 128) {
                 const patch = hash2(Math.floor(wx / 4), Math.floor(wz / 4), 173);
                 c = patch < 0.34 ? 2 : patch < 0.6 ? 30 : patch < 0.82 ? 12 : patch < 0.94 ? 5 : 31;
               } else {
                 const field = hash2(Math.floor(wx / 31), Math.floor(wz / 31), 51);
-                if (field < 0.64) {
+                if (field < 0.76) {
                   const row = Math.abs(Math.floor(wx / 4) + Math.floor(wz / 4)) % 8;
-                  c = row < 3 ? 28 : row < 6 ? 29 : 30;
+                  c = row < 4 ? 28 : row < 7 ? 29 : 30;
                 } else {
                   const patch = hash2(Math.floor(wx / 3), Math.floor(wz / 3), 91);
                   c = patch < 0.34 ? 12 : patch < 0.66 ? 1 : patch < 0.84 ? 10 : 2;

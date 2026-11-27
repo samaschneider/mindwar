@@ -226,9 +226,10 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
 - **Two-stage command chain**: **Captain Voss** holds the 32nd stronghold with 3,400 HP and a
   guard detail. Killing him opens the inner gate and drops his local command network. **Director
   Vex** waits in the 33rd with 7,800 HP and his praetorians.
-- **Regions**: Harrow County farmland with crop fields, barns, silos, fences and orchards;
-  Cedar's Vill with detached houses, yards, loop roads and flat-roof stores; Meridian
-  city with dense blocks, warehouses, street grids and rooftop strongpoints. Every highway is
+- **Regions**: Harrow County farmland with denser crop fields, barns, farmhouses, silos, fences
+  and orchards; Cedar's Vill with a fuller grid of detached houses, yards, loop roads and flat-roof
+  stores; Meridian city with more blocks, warehouses, street grids and rooftop strongpoints. Every
+  highway is
   cleared of structures, canopies and cover props, and the containment pylons skip road tiles.
 - **Seven enemy roles**: conscripts, riflemen, fast scouts, shotgun breachers, heavily armoured
   gunners, radio officers and dedicated snipers. Each role has its own detailed voxel model,
@@ -416,6 +417,11 @@ The game was driven in Chromium at 1600 x 900 during development:
 - sniper roof-clamp and repositioning verified over an 8-second observation: fixed roof height,
   aim/glint wind-up, firing and damage to the player;
 - 0 buildings intersect any road cell across all 35 zones;
+- denser regions verified across the 33 strongholds: 62 farm buildings (18 barns, 18
+  farmhouses, 9 silos, 8 sheds, 9 warehouses), 164 homes and 36 warehouses across the 12
+  suburbs, and 228 blocks and 39 stores across the 12 city zones; there were 0 building-building
+  overlaps, 0 road-cell intrusions and 0 centre-zone intrusions, and a 144-point farm ring sample
+  at 135/165/200 m found 39 wheat or crop cells;
 - checkpoint locking verified: entering a future sector was clamped at 101.2 m from its
   centre and the red containment field appeared; after clearing the previous checkpoint the
   next checkpoint could be confirmed and started normally;

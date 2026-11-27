@@ -429,7 +429,7 @@ export const ZONES = centers.map((c, i) => {
     return false;
   };
 
-  const addBuilding = (opts, minRad = 23, maxRad = 88, attempts = 34) => {
+  const addBuilding = (opts, minRad = 23, maxRad = 88, attempts = 48) => {
     for (let attempt = 0; attempt < attempts; attempt++) {
       const ang = r() * Math.PI * 2;
       const rad = minRad + r() * (maxRad - minRad);
@@ -494,12 +494,25 @@ export const ZONES = centers.map((c, i) => {
       ruin: r() * 0.12, doorWidth: 2
     }, 27, 75);
     addBuilding({
+      w: 8 + Math.floor(r() * 4), d: 8 + Math.floor(r() * 4),
+      h: 4 + Math.floor(r() * 3), wall: pick(r, pal.houseWalls),
+      accent: pal.trim, window: pal.window, roof: pick(r, pal.roofs), trim: pal.trim,
+      roofStyle: r() < 0.6 ? "gable" : "hip", buildingType: "farmhouse",
+      ruin: r() * 0.18, doorWidth: 2
+    }, 30, 86);
+    addBuilding({
       w: 4 + Math.floor(r() * 2), d: 4 + Math.floor(r() * 2),
       h: 12 + Math.floor(r() * 5), wall: pick(r, pal.siloWalls),
       accent: 8, window: 8, roof: 16, trim: 13,
       roofStyle: "flat", buildingType: "silo", ruin: 0.05, doorWidth: 1,
       windowDensity: "none"
     }, 28, 70);
+    addBuilding({
+      w: 11 + Math.floor(r() * 5), d: 9 + Math.floor(r() * 4),
+      h: 5 + Math.floor(r() * 3), wall: pick(r, pal.barnWalls),
+      accent: 34, window: pal.window, roof: pick(r, pal.roofs), trim: pal.trim,
+      roofStyle: "gable", buildingType: "barn", ruin: r() * 0.25, doorWidth: 4
+    }, 32, 86);
     if (r() > 0.35) {
       addBuilding({
         w: 6 + Math.floor(r() * 3), d: 6 + Math.floor(r() * 3),
@@ -507,6 +520,14 @@ export const ZONES = centers.map((c, i) => {
         accent: 34, window: pal.window, roof: pick(r, pal.roofs), trim: pal.trim,
         roofStyle: "hip", buildingType: "shed", ruin: r() * 0.3, doorWidth: 2
       }, 26, 78);
+    }
+    if (r() > 0.5) {
+      addBuilding({
+        w: 5 + Math.floor(r() * 3), d: 5 + Math.floor(r() * 3),
+        h: 3 + Math.floor(r() * 2), wall: pick(r, [7, 15, 5]),
+        accent: 34, window: pal.window, roof: pick(r, pal.roofs), trim: pal.trim,
+        roofStyle: "hip", buildingType: "shed", ruin: r() * 0.3, doorWidth: 2
+      }, 24, 82);
     }
     addBuilding({
       w: 13 + Math.floor(r() * 5), d: 9 + Math.floor(r() * 4),
@@ -542,7 +563,7 @@ export const ZONES = centers.map((c, i) => {
     shuffle(r, slots);
     let houses = 0;
     for (const slot of slots) {
-      if (houses >= 10) break;
+      if (houses >= 14) break;
       const w = 7 + Math.floor(r() * 4), d = 7 + Math.floor(r() * 4);
       const x0 = Math.round(slot.x - w / 2), z0 = Math.round(slot.z - d / 2);
       if (overlaps(x0, z0, w, d, 3)) continue;
@@ -558,7 +579,7 @@ export const ZONES = centers.map((c, i) => {
       });
       houses++;
     }
-    for (let k = 0; k < 2; k++) {
+    for (let k = 0; k < 3; k++) {
       addBuilding({
         w: 16 + Math.floor(r() * 6), d: 10 + Math.floor(r() * 4),
         h: 5 + Math.floor(r() * 3), wall: pick(r, pal.commercialWalls),
@@ -566,7 +587,7 @@ export const ZONES = centers.map((c, i) => {
         roofStyle: "flat", buildingType: "warehouse", ruin: r() * 0.25, doorWidth: 4
       }, 38, 82);
     }
-    for (let k = 0; k < 7; k++) addTree(24, 88);
+    for (let k = 0; k < 9; k++) addTree(24, 88);
     for (let k = 0; k < 5; k++) {
       const ang = r() * Math.PI * 2, rad = 22 + r() * 40;
       addBox(c.x + Math.cos(ang) * rad, c.z + Math.sin(ang) * rad, 6 + Math.floor(r() * 4), 1, 1, 33, 33);
@@ -588,7 +609,7 @@ export const ZONES = centers.map((c, i) => {
     shuffle(r, slots);
     let blocks = 0;
     for (const slot of slots) {
-      if (blocks >= 16) break;
+      if (blocks >= 20) break;
       const w = 10 + Math.floor(r() * 8), d = 10 + Math.floor(r() * 8);
       const x0 = Math.round(slot.x - w / 2), z0 = Math.round(slot.z - d / 2);
       if (overlaps(x0, z0, w, d, 3)) continue;
@@ -603,7 +624,7 @@ export const ZONES = centers.map((c, i) => {
       });
       blocks++;
     }
-    for (let k = 0; k < 3; k++) {
+    for (let k = 0; k < 4; k++) {
       addBuilding({
         w: 16 + Math.floor(r() * 6), d: 10 + Math.floor(r() * 5),
         h: 4 + Math.floor(r() * 3), wall: pick(r, [5, 7, 8, 13]),
@@ -612,7 +633,7 @@ export const ZONES = centers.map((c, i) => {
         doorWidth: 4, parapet: true, windowDensity: "city"
       }, 32, 80);
     }
-    for (let k = 0; k < 3; k++) addTree(28, 82);
+    for (let k = 0; k < 4; k++) addTree(28, 82);
     for (let k = 0; k < 5; k++) {
       const ang = r() * Math.PI * 2, rad = 18 + r() * 46;
       addBox(c.x + Math.cos(ang) * rad, c.z + Math.sin(ang) * rad, 3, 2, 2, pick(r, pal.crate), 15);
