@@ -68,45 +68,117 @@ const EXPLORE_THEMES = {
     bpm: 60,
     chords: [[52, 55, 59, 64], [48, 52, 55, 60], [43, 47, 50, 55], [50, 54, 57, 62]],
     roots: [40, 36, 43, 38],
-    melody: [71, 76, 74, 66],
-    echo: [67, 64, 62, 62],
-    arp: [2, 1, 0, 2, 1, 0, 2, 1],
-    arpVol: 0.038,
-    bass: [
-      { step: 0, note: 0, dur: 14, vol: 0.07, dark: 0.2 },
-      { step: 0, note: 7, dur: 11, vol: 0.03, dark: 0.25 },
-      { step: 8, note: -12, dur: 9, vol: 0.04, dark: 0.3 }
+    arpLift: 12, arpVol: 0.038, melodyVol: 0.04, echoVol: 0.026,
+    variations: [
+      {
+        id: "open", name: "Open Sky",
+        melody: [71, 76, 74, 66], echo: [67, 64, 62, 62],
+        arp: [2, 1, 0, 2, 1, 0, 2, 1], arpVol: 0.038,
+        bass: [
+          { step: 0, note: 0, dur: 14, vol: 0.07, dark: 0.2 },
+          { step: 0, note: 7, dur: 11, vol: 0.03, dark: 0.25 },
+          { step: 8, note: -12, dur: 9, vol: 0.04, dark: 0.3 }
+        ]
+      },
+      {
+        id: "hymnal", name: "Hymnal",
+        melody: [69, 71, 74, 76], echo: [64, 67, 71, 74],
+        arp: [0, 1, 2, 3, 2, 1, 0, 2], arpVol: 0.04,
+        bass: [
+          { step: 0, note: 0, dur: 14, vol: 0.065, dark: 0.22 },
+          { step: 4, note: 7, dur: 8, vol: 0.026, dark: 0.28 },
+          { step: 8, note: -12, dur: 10, vol: 0.042, dark: 0.32 },
+          { step: 12, note: 7, dur: 6, vol: 0.022, dark: 0.26 }
+        ]
+      },
+      {
+        id: "frost", name: "Frost",
+        melody: [64, 67, 71, 74], echo: [59, 62, 67, 71],
+        arp: [3, 2, 1, 0, 2, 0, 1, 3], arpVol: 0.034,
+        bass: [
+          { step: 0, note: 0, dur: 16, vol: 0.06, dark: 0.28 },
+          { step: 8, note: -12, dur: 11, vol: 0.045, dark: 0.34 },
+          { step: 12, note: 7, dur: 6, vol: 0.024, dark: 0.3 }
+        ]
+      }
     ]
   },
   suburb: {
     bpm: 72,
     chords: [[50, 53, 57, 62], [46, 50, 53, 58], [53, 57, 60, 65], [48, 52, 55, 60]],
     roots: [38, 34, 41, 36],
-    melody: [77, 74, 72, 67],
-    echo: [72, 69, 65, 64],
-    arp: [1, 2, 0, 1, 2, 0, 1, 2],
-    arpVol: 0.042,
-    bass: [
-      { step: 0, note: 0, dur: 12, vol: 0.065, dark: 0.25 },
-      { step: 4, note: 7, dur: 7, vol: 0.026, dark: 0.3 },
-      { step: 8, note: -12, dur: 9, vol: 0.04, dark: 0.35 }
+    arpLift: 12, arpVol: 0.042, melodyVol: 0.04, echoVol: 0.026,
+    variations: [
+      {
+        id: "empty", name: "Empty Street",
+        melody: [77, 74, 72, 67], echo: [72, 69, 65, 64],
+        arp: [1, 2, 0, 1, 2, 0, 1, 2], arpVol: 0.042,
+        bass: [
+          { step: 0, note: 0, dur: 12, vol: 0.065, dark: 0.25 },
+          { step: 4, note: 7, dur: 7, vol: 0.026, dark: 0.3 },
+          { step: 8, note: -12, dur: 9, vol: 0.04, dark: 0.35 }
+        ]
+      },
+      {
+        id: "colder", name: "Colder",
+        melody: [74, 72, 69, 65], echo: [69, 65, 62, 69],
+        arp: [2, 1, 0, 2, 0, 1, 2, 1], arpVol: 0.038,
+        bass: [
+          { step: 0, note: 0, dur: 14, vol: 0.06, dark: 0.3 },
+          { step: 4, note: 7, dur: 7, vol: 0.024, dark: 0.35 },
+          { step: 8, note: -12, dur: 10, vol: 0.042, dark: 0.4 },
+          { step: 12, note: 7, dur: 6, vol: 0.02, dark: 0.32 }
+        ]
+      },
+      {
+        id: "static", name: "Static",
+        melody: [77, 76, 74, 72], echo: [72, 69, 67, 65],
+        arp: [1, 2, 3, 1, 2, 3, 0, 1], arpVol: 0.045,
+        bass: [
+          { step: 0, note: 0, dur: 12, vol: 0.06, dark: 0.28 },
+          { step: 4, note: 12, dur: 6, vol: 0.022, dark: 0.33 },
+          { step: 8, note: -12, dur: 9, vol: 0.04, dark: 0.38 },
+          { step: 12, note: 7, dur: 6, vol: 0.022, dark: 0.32 }
+        ]
+      }
     ]
   },
   city: {
     bpm: 50,
     chords: [[50, 53, 57, 62], [46, 50, 53, 58], [44, 48, 51, 56], [45, 49, 52, 57]],
     roots: [38, 34, 44, 45],
-    melody: [62, 58, 56, 61],
-    echo: [57, 53, 51, 52],
-    arp: [0, 2, 1, 3, 0, 2, 1, 2],
-    arpVol: 0.04,
-    arpLift: 0,
-    melodyVol: 0.055,
-    echoVol: 0.032,
-    bass: [
-      { step: 0, note: 0, dur: 16, vol: 0.09, dark: 0.55 },
-      { step: 8, note: -12, dur: 10, vol: 0.065, dark: 0.6 },
-      { step: 12, note: 0, dur: 6, vol: 0.04, dark: 0.55 }
+    arpLift: 0, arpVol: 0.04, melodyVol: 0.055, echoVol: 0.032,
+    variations: [
+      {
+        id: "low", name: "Low Toll",
+        melody: [62, 58, 56, 61], echo: [57, 53, 51, 52],
+        arp: [0, 2, 1, 3, 0, 2, 1, 2], arpVol: 0.04,
+        bass: [
+          { step: 0, note: 0, dur: 16, vol: 0.09, dark: 0.55 },
+          { step: 8, note: -12, dur: 10, vol: 0.065, dark: 0.6 },
+          { step: 12, note: 0, dur: 6, vol: 0.04, dark: 0.55 }
+        ]
+      },
+      {
+        id: "chromatic", name: "Chromatic",
+        melody: [61, 60, 58, 57], echo: [56, 55, 53, 52],
+        arp: [1, 2, 0, 1, 3, 2, 1, 0], arpVol: 0.038,
+        bass: [
+          { step: 0, note: 0, dur: 14, vol: 0.085, dark: 0.6 },
+          { step: 8, note: -1, dur: 9, vol: 0.06, dark: 0.65 },
+          { step: 12, note: -12, dur: 7, vol: 0.045, dark: 0.6 }
+        ]
+      },
+      {
+        id: "hollow", name: "Hollow",
+        melody: [50, 53, 56, 58], echo: [45, 48, 51, 53],
+        arp: [0, 1, 0, 2, 0, 1, 0, 2], arpVol: 0.036,
+        bass: [
+          { step: 0, note: 0, dur: 18, vol: 0.08, dark: 0.65 },
+          { step: 8, note: -12, dur: 12, vol: 0.06, dark: 0.7 },
+          { step: 12, note: 7, dur: 5, vol: 0.028, dark: 0.62 }
+        ]
+      }
     ]
   }
 };
@@ -201,6 +273,9 @@ export class AudioEngine {
     this.battle2MelodyIndex = -1;
     this.battle2VariationName = "";
     this.battle2Melody = BATTLE2_MELODIES[0];
+    this.regionVariations = {};
+    this.regionVariationName = "";
+    this.regionVariationId = "";
   }
 
   ensure() {
@@ -520,7 +595,10 @@ export class AudioEngine {
 
   regionMotif(mode) {
     const theme = EXPLORE_THEMES[mode];
-    if (theme) return theme.melody[0];
+    if (theme?.variations?.length) {
+      const index = this.regionVariations?.[mode] ?? 0;
+      return (theme.variations[index] || theme.variations[0]).melody[0];
+    }
     if (mode === "title") return this.titleMelody?.lead?.[0] || 69;
     return null;
   }
@@ -565,25 +643,31 @@ export class AudioEngine {
 
   scheduleRegionStep(step, t0, stepDur, theme) {
     const config = EXPLORE_THEMES[theme] || EXPLORE_THEMES.farm;
+    if (step === 0) this.pickRegionVariation(theme);
+    const variation = config.variations?.[this.regionVariations[theme] ?? 0] || config.variations?.[0];
+    if (!variation) return;
     const bar = Math.floor(step / 16) % 4;
     const s = step % 16;
     const chord = config.chords[bar];
     const root = config.roots[bar];
 
-    for (const hit of config.bass) {
+    for (const hit of variation.bass) {
       if (s !== hit.step) continue;
       this.pianoNote(this.mtof(root + hit.note), t0, stepDur * hit.dur, hit.vol, null, hit.dark);
     }
     if (s % 2 === 0) {
-      const arp = config.arp;
-      const lift = config.arpLift ?? 12;
-      this.pianoNote(this.mtof(chord[arp[s / 2]] + lift), t0, stepDur * 3.4, config.arpVol, this.arpBus, 0.18);
+      const arp = variation.arp;
+      const lift = variation.arpLift ?? config.arpLift ?? 12;
+      const vol = variation.arpVol ?? config.arpVol ?? 0.04;
+      this.pianoNote(this.mtof(chord[arp[s / 2]] + lift), t0, stepDur * 3.4, vol, this.arpBus, 0.18);
     }
     if (s === 0) {
-      this.pianoNote(this.mtof(config.melody[bar]), t0, stepDur * 7.4, config.melodyVol ?? 0.04, this.arpBus, 0.16);
+      const vol = variation.melodyVol ?? config.melodyVol ?? 0.04;
+      this.pianoNote(this.mtof(variation.melody[bar]), t0, stepDur * 7.4, vol, this.arpBus, 0.16);
     }
     if (s === 12) {
-      this.pianoNote(this.mtof(config.echo[bar]), t0, stepDur * 4.6, config.echoVol ?? 0.026, this.arpBus, 0.24);
+      const vol = variation.echoVol ?? config.echoVol ?? 0.026;
+      this.pianoNote(this.mtof(variation.echo[bar]), t0, stepDur * 4.6, vol, this.arpBus, 0.24);
     }
   }
 
@@ -746,6 +830,18 @@ export class AudioEngine {
     this.battle2Variation = melody;
     this.battle2Melody = BATTLE2_MELODIES[melody];
     this.battle2VariationName = this.battle2Melody.name;
+  }
+
+  pickRegionVariation(theme) {
+    const list = EXPLORE_THEMES[theme]?.variations;
+    if (!list?.length) return;
+    let index = Math.floor(Math.random() * list.length);
+    if (list.length > 1 && index === this.regionVariations[theme]) {
+      index = (index + 1 + Math.floor(Math.random() * (list.length - 1))) % list.length;
+    }
+    this.regionVariations[theme] = index;
+    this.regionVariationName = list[index].name;
+    this.regionVariationId = list[index].id;
   }
 
   scheduleBattle2Step(step, t0, stepDur) {

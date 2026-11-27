@@ -335,8 +335,12 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   left-hand root/fifth patterns, so the loop keeps changing and the lead never repeats twice in
   a row. Exploration uses three regional themes: **Harrow County** at 60 BPM (open Em–C–G–D),
   **Cedar's Vill** at 72 BPM (colder Dm–B♭–F–C), and **Meridian**, which uses **Vex's darker,
-  50 BPM chromatic Dm–B♭–A♭–A theme** with a low register and dark cutoff. **The Beginning** uses
-  the title theme during its two training stages. Each normal battle randomly selects one of two
+  50 BPM chromatic Dm–B♭–A♭–A theme** with a low register and dark cutoff. Each region rotates
+  three arrangements of its own material every four bars — Harrow County's **Open Sky**,
+  **Hymnal** and **Frost**; Cedar's Vill's **Empty Street**, **Colder** and **Static**; Meridian's
+  **Low Toll**, **Chromatic** and **Hollow** — so the area loop keeps changing without losing the
+  region's key or instrumentation. **The Beginning** uses the title theme during its two training
+  stages. Each normal battle randomly selects one of two
   arrangements: the 118 BPM Am battle or a 124 BPM Dm–B♭–F–C **Battle II**, each with four
   lead/answer phrases and a driving left-hand ostinato; the tutorial fights use the first battle
   theme. Area-to-area changes breathe across a 2.7 s crossfade, with a filtered air swell and a
@@ -354,7 +358,7 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
   with buttons for **Title**, **Harrow County**, **Cedar's Vill**, **Vex's theme**, **Battle**,
   **Battle II**, **Final Battle** and **Stop**, plus a volume slider. Its **NOW PLAYING** panel updates live with
   the current movement or variant, showing a name, a short description and BPM/key/arrangement
-  details (e.g. `HARROW COUNTY // FARMLAND`, `TITLE // ASCENT`, `BATTLE // HAMMER`).
+  details (e.g. `HARROW COUNTY // OPEN SKY`, `TITLE // ASCENT`, `BATTLE // HAMMER`).
 
 ![Tactical map](shots/mindwar/04_map.png)
 
@@ -524,6 +528,9 @@ The game was driven in Chromium at 1600 x 900 during development:
   theme, Rustgate switched to the 72 BPM suburb theme, Neon Docks switched to Vex's darker 50 BPM
   city theme, a normal checkpoint activated the 118 BPM battle theme, Battle II ran at 124 BPM,
   and zone 33 activated the 126 BPM final battle theme; all switches ran without console errors;
+- area variations verified: the region themes rotated Open Sky/Hymnal/Frost, Empty
+  Street/Colder/Static and Low Toll/Chromatic/Hollow without immediate repeats, and the score
+  player's NOW PLAYING panel replaced the old area label with the active variation name;
 - 35-checkpoint tutorial verified: The Beginning deployed four conscripts in stage 1 and six in
   stage 2, showed the title theme between fights, used the first battle theme for both battles,
   made Mara hold fire so the player cleared them, taught
