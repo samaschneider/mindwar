@@ -32,6 +32,7 @@ const GAME_MODES = {
   },
   veteran: {
     name: "VETERAN", count: 1.45, damage: 1.3, alive: 1.35, drops: 0.45, toughness: 1.25,
+    healthChance: 0.005, ammoChance: 0.0405,
     regen: { delay: 6.5, rate: 28, cap: 650 },
     desc: "More hostiles. Every burst hits harder and their armour holds."
   },
@@ -1129,7 +1130,8 @@ function modeMultipliers(cfg = modeConfig()) {
   if (!coop.active) {
     return {
       count: cfg.count, damage: cfg.damage, alive: cfg.alive,
-      drops: cfg.drops, healthDrops, toughness: cfg.toughness
+      drops: cfg.drops, healthDrops, toughness: cfg.toughness,
+      healthChance: cfg.healthChance, ammoChance: cfg.ammoChance
     };
   }
   const players = Math.max(2, coop.roomPlayers?.length || 2);
@@ -1140,7 +1142,9 @@ function modeMultipliers(cfg = modeConfig()) {
     alive: wave * cfg.alive,
     drops: cfg.drops,
     healthDrops,
-    toughness: COOP_BASE_HEALTH * cfg.toughness
+    toughness: COOP_BASE_HEALTH * cfg.toughness,
+    healthChance: cfg.healthChance,
+    ammoChance: cfg.ammoChance
   };
 }
 
@@ -1169,6 +1173,16 @@ function coopDifficultyLocked() {
   return coop.active || !!coop.code;
 }
 
+function dropChances(cfg) {
+  const health = Number.isFinite(cfg.healthChance)
+    ? cfg.healthChance
+    : 0.09 * cfg.drops * (cfg.healthDrops ?? 1);
+  const ammo = Number.isFinite(cfg.ammoChance)
+    ? cfg.ammoChance
+    : 0.17 * cfg.drops;
+  return { health, ammo };
+}
+
 function updateThreatUI() {
   const cfg = modeConfig();
   document.querySelectorAll(".threat-btn").forEach(btn => {
@@ -1177,9 +1191,12 @@ function updateThreatUI() {
   });
   const info = $("start-threat-info");
   if (info) {
+    const drop = dropChances(cfg);
+    const healthText = drop.health > 0
+      ? `${(drop.health * 100).toFixed(2)}% health`
+      : "no health";
     info.textContent =
-      `${cfg.desc} // ${cfg.count.toFixed(2)}x hostiles // ${cfg.damage.toFixed(2)}x damage // ${cfg.toughness.toFixed(2)}x AI health // ${cfg.drops.toFixed(2)}x drops // regen ${cfg.regen.rate}/s to ${cfg.regen.cap}`;
-    if (cfg.healthDrops === 0) info.textContent += " // NO HEALTH DROPS";
+      `${cfg.desc} // ${cfg.count.toFixed(2)}x hostiles // ${cfg.damage.toFixed(2)}x damage // ${cfg.toughness.toFixed(2)}x AI health // drops ${healthText} / ${(drop.ammo * 100).toFixed(2)}% ammo // regen ${cfg.regen.rate}/s to ${cfg.regen.cap}`;
   }
   const note = $("pause-threat-note");
   if (note) {
@@ -1216,6 +1233,8 @@ function applyGameMode(mode, { save = true, announce = false } = {}) {
   enemies.enemyHealthMultiplier = mults.toughness;
   enemies.dropMultiplier = mults.drops;
   enemies.healthDropMultiplier = mults.healthDrops;
+  enemies.healthDropChance = Number.isFinite(mults.healthChance) ? mults.healthChance : null;
+  enemies.ammoDropChance = Number.isFinite(mults.ammoChance) ? mults.ammoChance : null;
   for (const s of enemies.states) {
     s.maxAlive = Math.min(120, Math.max(1, Math.round(s.maxAliveBase * mults.alive)));
   }
@@ -1257,11 +1276,15 @@ function applyHostGameMode(mode, mult) {
   const drops = pick("drops", fallback.drops);
   const healthDrops = pick("healthDrops", fallback.healthDrops);
   const toughness = pick("toughness", fallback.toughness);
+  const healthChance = pick("healthChance", fallback.healthChance);
+  const ammoChance = pick("ammoChance", fallback.ammoChance);
   enemies.enemyCountMultiplier = count;
   enemies.enemyDamageMultiplier = damage;
   enemies.enemyHealthMultiplier = toughness;
   enemies.dropMultiplier = drops;
   enemies.healthDropMultiplier = healthDrops;
+  enemies.healthDropChance = Number.isFinite(healthChance) ? healthChance : null;
+  enemies.ammoDropChance = Number.isFinite(ammoChance) ? ammoChance : null;
   for (const s of enemies.states) {
     s.maxAlive = Math.min(120, Math.max(1, Math.round(s.maxAliveBase * alive)));
   }

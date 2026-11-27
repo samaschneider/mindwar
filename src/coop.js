@@ -670,6 +670,8 @@ class CoopClient {
     enemies.enemyDamageMultiplier = threat.damage;
     enemies.dropMultiplier = threat.drops ?? 1;
     enemies.healthDropMultiplier = threat.healthDrops ?? 1;
+    enemies.healthDropChance = Number.isFinite(threat.healthChance) ? threat.healthChance : null;
+    enemies.ammoDropChance = Number.isFinite(threat.ammoChance) ? threat.ammoChance : null;
     enemies.playerDamageMultiplier = 1;
     for (const s of enemies.states) {
       s.maxAlive = Math.min(
