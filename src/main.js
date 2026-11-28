@@ -1562,6 +1562,8 @@ function openMap() {
   audio.setMusicDucked(true);
   $("pause-screen").classList.add("hidden");
   $("map-screen").classList.remove("hidden");
+  const status = $("map-status");
+  if (status) { status.textContent = ""; status.classList.remove("bad"); }
   hud.setPrompt(null);
   drawMap();
 }
@@ -1583,6 +1585,33 @@ function closeMap() {
 }
 
 /* ---------------------------- battle confirmation ------------------------- */
+function teleportToCheckpoint(index) {
+  const zoneState = enemies.states[index];
+  if (!zoneState || !zoneState.cleared) return;
+  if (battleActive()) {
+    const status = $("map-status");
+    if (status) {
+      status.textContent = "FINISH THE ACTIVE BATTLE BEFORE REDEPLOYING";
+      status.classList.add("bad");
+    }
+    return;
+  }
+  const spot = safeSpawn(zoneState.zone.x, zoneState.zone.z + 18);
+  for (const key of Object.keys(input)) input[key] = false;
+  player.pos.set(spot.x, spot.y, spot.z);
+  player.vel.set(0, 0, 0);
+  player.yaw = 0;
+  player.pitch = 0;
+  player.grounded = player.supported();
+  player.updateCamera(0);
+  lastBeacon = { x: spot.x, z: spot.z, yaw: 0 };
+  hud.setPrompt(null);
+  mapReturn = "playing";
+  closeMap();
+  hud.toast("REDEPLOYED", `${zoneState.zone.name.toUpperCase()} // ${zoneState.zone.regionName}`, "green");
+  saveGame();
+}
+
 function requestBattle(index) {
   const zoneState = enemies.states[index];
   if (!zoneState) return;
@@ -2445,7 +2474,8 @@ $("campaign-map").addEventListener("click", (e) => {
   const y = (e.clientY - rect.top) * canvas.height / rect.height;
   const hit = (hud.mapHotspots || []).find(h => Math.hypot(h.x - x, h.y - y) <= h.r);
   if (!hit) return;
-  requestBattle(hit.index);
+  if (enemies.states[hit.index]?.cleared) teleportToCheckpoint(hit.index);
+  else requestBattle(hit.index);
 });
 $("btn-battle-start").addEventListener("click", () => { audio.ui(); startConfirmedBattle(); });
 $("btn-battle-cancel").addEventListener("click", () => { audio.ui(); cancelBattleConfirm(); });

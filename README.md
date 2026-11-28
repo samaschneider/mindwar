@@ -187,6 +187,10 @@ separate maps. Local farm lanes, suburban loops and city grids branch off the hi
   Walking within **68 m** of an unbeaten gate also starts the battle automatically, as it did
   before the confirmation prompt existed, so a fresh gate cannot be walked past or ignored. The
   map confirmation still allows an early start from anywhere.
+- **Fast travel to secured checkpoints**: click any green cleared checkpoint on the tactical map
+  to redeploy there. Health and ammunition are preserved, the map closes back to gameplay, the
+  last beacon moves to the destination and the position is saved. Fast travel is blocked while a
+  battle is active.
 - **The Beginning + 33 strongholds**: a new world deploys in the training yard. Two tutorial
   stages run before Harrow Fields. Stage 1 fields
   four conscripts and teaches movement, aiming, firing and reloading; stage 2 fields six
@@ -324,7 +328,8 @@ Meridian's blocks are tall enough to hide a sniper on almost every roof:
 
 - Live health, ammunition, weapon slots and squad status.
 - Radar that shows enemies, allies, bosses, beacons and the next objective.
-- A full tactical map of the nation with region labels and local roads.
+- A full tactical map of the nation with region labels, local roads and clickable secured
+  checkpoints for fast travel.
 - Battle banners, radio traffic, kill/hit markers, damage vignette and zone-clear rewards.
 - Pause, death/redeploy, victory and continue-operation flows.
 - Procedural audio: every gunshot, reload, pickup, alarm and footstep is synthesised with
@@ -440,6 +445,10 @@ The game was driven in Chromium at 1600 x 900 during development:
 - automatic gate start verified: walking within 68 m of the next unbeaten gate activated the
   battle without pressing E, matching the original trigger; the map confirmation still allows an
   early start from anywhere;
+- fast travel verified: clicking a cleared checkpoint teleported the player to 18 m from its
+  centre with health (500) and magazine (28) unchanged, closed the map back to `playing` and
+  saved the new position; clicking while a battle was active kept the map open and showed
+  `FINISH THE ACTIVE BATTLE BEFORE REDEPLOYING`;
 - five-world archive verified: starting WORLD 02 made it the active world and saved there, loading
   it restored that world, and clearing it left WORLD 01 untouched;
 - all 34 future checkpoints are marked LOCKED on the map at the start of a new operation;
